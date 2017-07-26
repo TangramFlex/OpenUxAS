@@ -33,7 +33,10 @@ fn main() {
         println!("Address: {}", str::from_utf8(address).unwrap());
         println!("Attributes: {:?}", attributes);
         match lmcp::lmcp_msg_deser(&payload) {
-            Ok(v) => println!("Payload: {:?}", v),
+            Ok(v) => {
+                println!("Payload deserialized successfully");
+//                println!("Payload: {:?}", v);
+            }
             Err(()) => {
                 println!("Error deserializing payload: {:?}", payload);
                 panic!("Full message: {:?}", msg);
