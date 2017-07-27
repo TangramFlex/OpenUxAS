@@ -21,7 +21,6 @@
              DefaultLoiterRadius_m="250"  param.turnType="FlyOver" AddLoiterToEndOfSegments="FALSE"
              AddLoiterToEndOfMission="FALSE" LoopBackToFirstTask="FALSE" GimbalPayloadId="1"/>
 
-    <Service Type="PlanBuilderService" AssignmentStartPointLead_m="0.0"/>
     <Service Type="SendMessagesService" PathToMessageFiles="../MessagesToSend/">
         <Message MessageFileName="AirVehicleConfiguration_V400.xml" SendTime_ms="200"/>
         <Message MessageFileName="AirVehicleConfiguration_V500.xml" SendTime_ms="200"/>

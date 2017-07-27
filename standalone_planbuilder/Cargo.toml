@@ -1,0 +1,12 @@
+[package]
+name = "standalone_planbuilder"
+version = "0.1.0"
+authors = ["Adam C. Foltzer <acfoltzer@galois.com>"]
+
+[dependencies]
+zmq = "0.8.1"
+lmcp = { path = "../src/LMCP/rs" }
+
+[[bin]]
+name = "plan_builder"
+doc = false
