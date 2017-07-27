@@ -13,6 +13,9 @@ cd RUNDIR_WaterwaySearch
 $RM_DATAWORK
 $RM_LOG
 
+echo "Starting standalone_planbuilder"
+(cd ../../../standalone_planbuilder && cargo build && cargo run &)
+
 echo "Starting UxAS ..."
 mkdir -p log
 $BIN -runUntil 43 -cfgPath ../cfg_WaterwaySearch.xml > log/consoleout.txt &
