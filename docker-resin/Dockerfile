@@ -28,7 +28,7 @@ RUN git clone https://github.com/afrl-rq/LmcpGen.git /opt/LmcpGen
 RUN cd /opt/LmcpGen && ant jar
 
 # and the actual build
-RUN git clone https://github.com/afrl-rq/OpenUxAS.git /opt/uxas
+RUN git clone -b docker https://github.com/GaloisInc/OpenUxAS.git /opt/uxas
 RUN cd /opt/uxas && sh ./RunLmcpGen.sh
 RUN cd /opt/uxas && ./prepare
 RUN cd /opt/uxas && meson build
