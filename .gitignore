@@ -37,3 +37,5 @@ examples/**/datawork/**
 /3rd/byteorder/
 /3rd/fixedbitset/
 /3rd/rust-crc16/
+/target/
+**/*.rs.bk

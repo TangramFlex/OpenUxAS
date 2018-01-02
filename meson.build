@@ -174,7 +174,7 @@ else
   cpp_args += ['-std=c++11']
 endif
 
-executable(
+static_library(
   'uxas',
   'src/UxAS_Main.cpp',
   dependencies: deps,
@@ -195,7 +195,6 @@ executable(
     incs_lmcp,
   ],
   link_with: libs,
-  install: true,
 )
 
 subdir('tests')
