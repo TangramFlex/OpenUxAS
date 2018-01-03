@@ -5,3 +5,9 @@ authors = ["Adam C. Foltzer <acfoltzer@galois.com>"]
 build = "build.rs"
 
 [dependencies]
+lmcp = { path = "src/LMCP/rs" }
+
+[lib]
+
+[[bin]]
+name = "uxas"
