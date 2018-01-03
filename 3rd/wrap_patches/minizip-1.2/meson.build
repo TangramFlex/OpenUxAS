@@ -5,8 +5,6 @@ lib = static_library(
   'ioapi.c',
   'ioapi_buf.c',
   'ioapi_mem.c',
-  'miniunz.c',
-  'minizip.c',
   'unzip.c',
   'zip.c',
 ],

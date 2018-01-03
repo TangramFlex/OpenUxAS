@@ -23,18 +23,12 @@ elif os == 'windows'
 endif
 
 lib = static_library('zyre', [
-	'src/perf_local.c',
-	'src/perf_remote.c',
-	'src/zpinger.c',
 	'src/zre_msg.c',
-	'src/ztester_beacon.c',
-	'src/ztester_gossip.c',
 	'src/zyre.c',
 	'src/zyre_event.c',
 	'src/zyre_group.c',
 	'src/zyre_node.c',
 	'src/zyre_peer.c',
-	'src/zyre_selftest.c',
 	],
 	c_args: c_args,
 	include_directories: include_directories(
