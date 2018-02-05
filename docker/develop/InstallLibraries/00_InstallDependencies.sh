@@ -15,17 +15,17 @@ INSTALL_CWD=$(pwd)
 mkdir -p ./temp
 cd ./temp
 
- # bash ../boost.sh $_SUDO
- # bash ../zeromq.sh $_SUDO
- # bash ../czmq.sh $_SUDO
+ bash ../boost.sh $_SUDO
+ bash ../zeromq.sh $_SUDO
+ bash ../czmq.sh $_SUDO
  bash ../zyre.sh $_SUDO
  bash ../cppzmq.sh $_SUDO
- # bash ../sqlite3.sh $_SUDO
+ bash ../sqlite3.sh $_SUDO
  bash ../sqlitecpp.sh $_SUDO
- # bash ../zlib.sh $_SUDO
- # bash ../minizip.sh $_SUDO
- # bash ../geographiclib.sh $_SUDO
+ bash ../zlib.sh $_SUDO
+ bash ../minizip.sh $_SUDO
  # bash ../googletest.sh $_SUDO
+ # bash ../geographiclib.sh $_SUDO
  # bash ../gdal.sh $_SUDO
 
  #../opencv.sh $_SUDO

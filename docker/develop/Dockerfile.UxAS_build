@@ -1,41 +1,48 @@
-FROM ubuntu:artful
+FROM alpine:3.7
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
-    ant \
+RUN apk update
+RUN apk add \
+    apache-ant \
     autoconf \
-    build-essential \
+    automake \
     cmake \
     curl \
+    file \
+    g++ \
+    gcc \
     git \
-    libboost-date-time-dev \
-    libboost-filesystem-dev \
-    libboost-regex-dev \
-    libboost-system-dev \
-    libczmq-dev \
-    libglu1-mesa-dev \
-    libgtest-dev \
-    libminizip-dev \
-    libsqlite3-dev \
-    libtool-bin \
-    libzmq3-dev \
-    ninja-build \
-    openjdk-8-jdk \
-    pkg-config \
-    python3-pip \
-    python3-setuptools \
-    unzip \
-    uuid-dev \
-    wget \
-    zlib1g-dev
-
-RUN apt-get install -y --no-install-recommends \
-    automake
+    glu-dev \
+    gtest \
+    gtest-dev \
+    libtool \
+    make \
+    ninja \
+    openjdk8 \
+    pkgconfig \
+    python3 \
+    wget
 
 RUN pip3 install -Iv https://github.com/mesonbuild/meson/releases/download/0.44.0/meson-0.44.0.tar.gz
 
-WORKDIR /UxAS/Installation/InstallLibraries/
-COPY InstallLibraries/* ./
-RUN chmod -R +x . \
-    && ./00_InstallDependencies.sh NO_SUDO
+WORKDIR /UxAS/Installation/InstallLibraries/temp
+COPY InstallLibraries/boost.sh ../boost.sh
+RUN bash ../boost.sh
+
+COPY InstallLibraries/zeromq.sh ../zeromq.sh
+RUN bash ../zeromq.sh
+COPY InstallLibraries/czmq.sh ../czmq.sh
+RUN bash ../czmq.sh
+COPY InstallLibraries/zyre.sh ../zyre.sh
+RUN bash ../zyre.sh
+COPY InstallLibraries/cppzmq.sh ../cppzmq.sh
+RUN bash ../cppzmq.sh
+COPY InstallLibraries/sqlite3.sh ../sqlite3.sh
+RUN bash ../sqlite3.sh
+COPY InstallLibraries/sqlitecpp.sh ../sqlitecpp.sh
+RUN bash ../sqlitecpp.sh
+COPY InstallLibraries/zlib.sh ../zlib.sh
+RUN bash ../zlib.sh
+COPY InstallLibraries/minizip.sh ../minizip.sh
+RUN bash ../minizip.sh
 
 WORKDIR /UxAS

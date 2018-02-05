@@ -8,6 +8,7 @@ endif
 dep_boost = dependency(
   'boost',
   modules: ['date_time'],
+  static: true,
   fallback: ['boost', 'dep'],
 )
 

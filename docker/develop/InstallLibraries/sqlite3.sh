@@ -6,12 +6,6 @@ _SUDO=$1
 # exit on non-zero return
 set -e
 
-
-BUILD_TYPE="AUTOCONFIG"
-#BUILD_TYPE="AUTOTOOLS"
-#BUILD_TYPE="CMAKE"
-#BUILD_TYPE="MAKE"
-
 LIBRARY_NAME="sqlite"
 LIBRARY_FOLDER_NAME="sqlite"
 SOURCE_ARCHIVE_FILE="sqlite-autoconf-3210000.tar.gz"
@@ -28,7 +22,7 @@ cd ./${LIBRARY_FOLDER_NAME}
 if [ -f ${SOURCE_ARCHIVE_FILE} ]
 then
 	echo "*** "${LIBRARY_NAME}":: Archive File ("${SOURCE_ARCHIVE_FILE}") Exists, Skipping Source Fetch! ***"
-else 
+else
 	echo "Fetching Source"
 	wget ${SOURCE_ARCHIVE_ADDRESS}${SOURCE_ARCHIVE_FILE}
 fi
@@ -42,43 +36,15 @@ cd ${SOURCE_FOLDER_NAME}
 
 echo "Building..."
 
+chmod +x configure
+./configure --prefix=/usr/local \
+            --disable-shared \
+            --disable-dynamic-extensions \
+            CPPFLAGS=-DSQLITE_ENABLE_COLUMN_METADATA
+make -j8; make
 
-if [ $BUILD_TYPE == CMAKE ]
-then
-	mkdir -p ./build
-	cd ./build
-	cmake ..
-	make -j8; make
-	echo "Installing..."
-	$_SUDO make install
-
-elif [ $BUILD_TYPE == AUTOTOOLS ]
-then
-	./autogen.sh
-	./configure && make check
-	echo "Installing..."
-	$_SUDO make install
-	$_SUDO ldconfig
-
-elif [ $BUILD_TYPE == AUTOCONFIG ]
-then
-	chmod +x configure
-	./configure CPPFLAGS=-DSQLITE_ENABLE_COLUMN_METADATA --prefix=/usr/local
-	make -j8; make
-
-	echo "Installing..."
-	$_SUDO make install
-
-elif [ $BUILD_TYPE == MAKE ]
-then
-	make
-	$_SUDO make install
-
-
-else
-	echo "!!! UNKNOWN BUILD TYPE ["${BUILD_TYPE}"]"
-fi
-
+echo "Installing..."
+$_SUDO make install
 
 echo "Cleaning up..."
 cd ${CWD}
@@ -87,5 +53,3 @@ cd ${CWD}
 #rm -rf ./${LIBRARY_FOLDER_NAME}
 
 echo "Finished!"
-
-

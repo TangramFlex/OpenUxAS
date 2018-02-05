@@ -16,16 +16,11 @@ else
   ]
 endif
 
-link_args = []
-
 if os.startswith('linux')
   add_project_arguments('-DLINUX', language: ['c', 'cpp'])
-  link_args += ['-lrt', '-dl']
-elif os == 'darwin'
-  link_args += ['-ldl']
-elif os == 'windows'
-  link_args += []
 endif
+
+link_args = []
 
 # https://github.com/zeromq/{zeromq, czmq, cppzmq, zyre}
 dep_zeromq = dependency(
@@ -72,15 +67,19 @@ dep_zlib = dependency(
   fallback: ['zlib', 'dep'],
 )
 
-# https://github.com/nmoinvaz/minizip
-dep_minizip = dependency(
-  'minizip',
-  fallback: ['minizip', 'dep'],
-)
+# minizip is unfortunately not packaged with pkg-config
+lib_minizip = cpp.find_library('minizip', required: false)
+if lib_minizip.found()
+  dep_minizip = lib_minizip
+else
+  # https://github.com/nmoinvaz/minizip
+  dep_minizip = subproject('minizip').get_variable('dep')
+endif
 
 dep_boost = dependency(
   'boost',
   modules: ['date_time', 'filesystem', 'regex', 'system'],
+  static: true,
   fallback: ['boost', 'dep'],
 )
 
@@ -178,12 +177,10 @@ if get_option('afrl_internal')
   deps += deps_internal
 endif
 
-
 executable(
   'uxas',
   'src/UxAS_Main.cpp',
   dependencies: deps,
-  link_args: link_args,
   cpp_args: cpp_args,
   include_directories: [
     include_directories(
