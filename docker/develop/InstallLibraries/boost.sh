@@ -37,7 +37,7 @@ cd ${SOURCE_FOLDER_NAME}
 echo "Building..."
 
 ./bootstrap.sh
-./b2 --prefix=/usr/local --with-date_time --with-filesystem --with-regex --with-system link=static install
+./b2 --prefix=/usr/local --with-date_time --with-filesystem --with-regex --with-system link=static -d0 install
 
 echo "Cleaning up..."
 cd ${CWD}
