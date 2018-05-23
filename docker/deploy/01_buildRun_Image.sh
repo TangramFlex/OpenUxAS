@@ -5,8 +5,8 @@
 cd Image
 mkdir -p app
 # copy the uxas executable to the local directory structure
-if [ -e "../../../build/uxas" ] ; then
-	cp ../../../build/uxas app/uxas;
+if [ -e "../../../target/debug/uxas" ] ; then
+	cp ../../../target/debug/uxas app/uxas;
 else
 	echo "OpenUxAS/build/uxas does not exist. Exiting!";
 	exit 1;
