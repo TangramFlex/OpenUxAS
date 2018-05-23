@@ -1,0 +1,14 @@
+[package]
+name = "openuxas"
+version = "0.1.0"
+authors = ["Adam C. Foltzer <acfoltzer@galois.com>"]
+build = "build.rs"
+
+[dependencies]
+lmcp = { path = "src/LMCP/rs" }
+
+[lib]
+
+[[bin]]
+name = "uxas"
+path = "src/main.rs"
