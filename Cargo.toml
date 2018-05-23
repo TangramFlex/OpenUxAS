@@ -5,10 +5,11 @@ authors = ["Adam C. Foltzer <acfoltzer@galois.com>"]
 build = "build.rs"
 
 [dependencies]
-lmcp = { path = "src/LMCP/rs" }
-
-[lib]
+uxas_services = { path = "src/Services/rs" }
 
 [[bin]]
 name = "uxas"
 path = "src/main.rs"
+
+[workspace]
+members = ["src/Services/rs"]

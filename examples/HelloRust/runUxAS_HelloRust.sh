@@ -1,5 +1,5 @@
 #! /bin/bash
 
-BIN="../../build/uxas"
+BIN="../../target/debug/uxas"
 $BIN -cfgPath cfg_HelloRust.xml
 

@@ -1,3 +1,5 @@
+extern crate uxas_services;
+
 use std::env;
 use std::os::raw::{c_char, c_int};
 

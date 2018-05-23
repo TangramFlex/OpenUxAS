@@ -9,11 +9,18 @@ fn main() {
     meson_build.push(out_dir);
     meson_build.push("build");
     
-    Command::new("meson.py").args(&[meson_build.to_str().unwrap(), "-Dforce_dep_download=true"])
-                       .status().unwrap();
-    Command::new("ninja").args(&["all"])
-                      .current_dir(&meson_build)
-                      .status().unwrap();
+    let st = Command::new("meson")
+        .args(&[meson_build.to_str().unwrap(), "-Dforce_dep_download=true"])
+        .status()
+        .unwrap();
+    assert!(st.success());
+
+    let st = Command::new("ninja")
+        .args(&["all", "-j2"])
+        .current_dir(&meson_build)
+        .status()
+        .unwrap();
+    assert!(st.success());
 
     link_dep(&meson_build, "", "uxas");
     link_dep(&meson_build, "/src/Services", "services");
