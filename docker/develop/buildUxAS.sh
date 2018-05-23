@@ -12,7 +12,8 @@ fi
 # 1 - change to the directory: OpenUxAS
 cd /UxASDev/OpenUxAS
 
-# 2 - build it
+# 2 - prepare and build it
+./prepare
 RUST_BACKTRACE=1 cargo build -vv -j 2
 
 # # if "build" exists the just run Ninja
