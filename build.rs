@@ -44,11 +44,35 @@ fn main() {
     println!("cargo:rustc-link-lib=boost_filesystem");
     println!("cargo:rustc-link-lib=boost_regex");
     println!("cargo:rustc-link-lib=boost_system");
-    println!("cargo:rustc-link-lib=GLU");
-    println!("cargo:rustc-link-lib=stdc++");
+    plat::link_glu();
+    plat::link_cpp();
 }
 
 fn link_dep(base: &PathBuf, path: &str, libname: &str) {
     println!("cargo:rustc-link-search=native={}{}", base.to_str().unwrap(), path);
     println!("cargo:rustc-link-lib=static={}", libname);
+}
+
+#[cfg(target_os = "linux")]
+mod plat {
+    pub fn link_glu() {
+        println!("cargo:rustc-link-lib=GLU");
+    }
+
+    pub fn link_cpp() {
+        println!("cargo:rustc-link-lib=stdc++");
+    }
+}
+
+#[cfg(target_os = "macos")]
+mod plat {
+    pub fn link_glu() {
+        println!("cargo:rustc-link-lib=framework=OpenGL");
+    }
+
+    // on Mac, libstdc++ is a weird old GNU version that doesn't
+    // support C++11, so we use the clang's libc++ instead
+    pub fn link_cpp() {
+        println!("cargo:rustc-link-lib=c++");
+    }
 }
