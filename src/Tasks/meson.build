@@ -1,4 +1,5 @@
 srcs_tasks = [
+	'RendezvousTask.cpp',
   '00_TaskTemplate.cpp',
   'AngledAreaSearchTaskService.cpp',
   'AssignmentCoordinatorTaskService.cpp',
@@ -10,6 +11,8 @@ srcs_tasks = [
   'CordonTaskService.cpp',
   'EscortTaskService.cpp',
   'ImpactLineSearchTaskService.cpp',
+  'MustFlyTaskService.cpp',
+  'LoiterTaskService.cpp',
   'ImpactPointSearchTaskService.cpp',
   'MultiVehicleWatchTaskService.cpp',
   'OverwatchTaskService.cpp',
@@ -29,13 +32,9 @@ incs_tasks = [
     '../../src/Plans',
     '../../src/DPSS',
     '../../src/VisilibityLib',
-    '../../3rd/PugiXML/src',
-    '../../3rd/cppzmq-4.2.1',
-    '../../3rd/zeromq-4.1.6/include',
   ),
   incs_lmcp,
 ]
-
 
 if get_option('afrl_internal')
   incs_tasks += [incs_tasks_internal]
@@ -49,9 +48,10 @@ lib_tasks = static_library(
   srcs_tasks_internal,
   dependencies: [
     dep_boost,
+    dep_cppzmq,
+    dep_pugixml,
+    dep_zeromq,
   ],
-  cpp_args: [
-    '-std=c++11',
-  ],
+  cpp_args: cpp_args,
   include_directories: incs_tasks
 )

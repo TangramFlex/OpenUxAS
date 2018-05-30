@@ -1,9 +1,11 @@
 # build directories
 build
 build_debug
+build_odroid
+build_open
 
 # afrl internal directories
-UxAS-afrl_internal
+/UxAS-afrl_internal
 
 # generated documentation
 doc/LMCP
@@ -27,9 +29,14 @@ examples/**/log/**
 examples/**/datawork/**
 
 # Mac OS X file system
-**.DS_Store
-/UxAS-afrl_internal/
+*.DS_Store
 
-# Visual Studio
+# Visual Studio and VS Code
 /.vs
 /regen-temp
+.vscode
+
+/build_cross
+/sdcard.img
+/.ccache
+

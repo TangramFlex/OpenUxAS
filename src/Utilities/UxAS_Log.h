@@ -166,10 +166,12 @@
  * class and function name (e.g., ServiceBase::initialize).
  */
 #define UXAS_LOG_INFORM uxas::common::log::LogManager::getInstance().log<uxas::common::log::LogSeverityLevel::UXASINFO>
+#define IMPACT_INFORM uxas::common::log::LogManager::getInstance().log<uxas::common::log::LogSeverityLevel::UXASINFO>
 #else
 /** \brief Log information message function disabled.
  */
 #define UXAS_LOG_INFORM(...)
+#define IMPACT_INFORM uxas::common::log::LogManager::getInstance().log<uxas::common::log::LogSeverityLevel::UXASINFO>
 #endif
 
 #ifdef UXAS_WARN_LOGGING_ENABLED

@@ -157,9 +157,9 @@ pub extern "C" fn plan_builder_process_received_lmcp_message(
     let pbs = unsafe { raw_pbs.as_mut().expect("raw_pbs should not be null") };
     let pb = unsafe { raw_pb.as_mut().expect("raw_pb should not be null") };
     let msg_buf_slice = unsafe { slice::from_raw_parts(msg_buf, msg_len as usize) };
-    if let Ok(Some(msg)) = lmcp_msg_deser(msg_buf_slice) {
+    if let Ok(Some(msg)) = Message::deser(msg_buf_slice) {
         match msg {
-            LmcpType::TaskAssignmentSummary(tas) => {
+            Message::UxasMessagesTaskTaskAssignmentSummary(tas) => {
                 match pb.process_task_assignment_summary(tas) {
                     Ok(msgs) => {
                         for msg in &msgs {
@@ -172,7 +172,7 @@ pub extern "C" fn plan_builder_process_received_lmcp_message(
                     },
                 };
             }
-            LmcpType::TaskImplementationResponse(tir) => {
+            Message::UxasMessagesTaskTaskImplementationResponse(tir) => {
                 match pb.process_task_implementation_response(tir) {
                     Ok(msgs) => {
                         for msg in &msgs {
@@ -185,16 +185,16 @@ pub extern "C" fn plan_builder_process_received_lmcp_message(
                     },
                 };
             }
-            LmcpType::AirVehicleState(vs) => {
+            Message::AfrlCmasiAirVehicleState(vs) => {
                 pb.entity_states.insert(vs.id, Box::new(vs));
             }
-            LmcpType::GroundVehicleState(vs) => {
+            Message::AfrlVehiclesGroundVehicleState(vs) => {
                 pb.entity_states.insert(vs.id, Box::new(vs));
             }
-            LmcpType::SurfaceVehicleState(vs) => {
+            Message::AfrlVehiclesSurfaceVehicleState(vs) => {
                 pb.entity_states.insert(vs.id, Box::new(vs));
             }
-            LmcpType::UniqueAutomationRequest(uar) => {
+            Message::UxasMessagesTaskUniqueAutomationRequest(uar) => {
                 let id = uar.request_id;
                 pb.unique_automation_requests.insert(id, uar);
                 // re-initialize state maps, possibly halting completion of an overridden
@@ -204,12 +204,12 @@ pub extern "C" fn plan_builder_process_received_lmcp_message(
                 pb.remaining_assignments.insert(id, VecDeque::new());
                 pb.in_progress_response.insert(id, UniqueAutomationResponse::default());
             }
-            _ => debug_println!("Unhandled LMCP message {:?}", msg),
+            _ => debug_println!("Unhandled LMCP message {:#?}", msg),
         }
     } else {
         debug_println!("LMCP deserialization error!");
         debug_println!("Expected length: {}", msg_len);
-        debug_println!("{:?}", msg_buf_slice);
+        debug_println!("{:#?}", msg_buf_slice);
     }
 }
 
@@ -217,7 +217,7 @@ impl PlanBuilder {
     fn process_task_assignment_summary(
         &mut self,
         tas: TaskAssignmentSummary,
-    ) -> Result<Vec<LmcpType>, String> {
+    ) -> Result<Vec<Message>, String> {
         let err_pfx = "ERROR::process_task_assignment_summary:";
         let car_id = tas.corresponding_automation_request_id;
 
@@ -279,7 +279,7 @@ impl PlanBuilder {
                 let entity_state = oes.expect("ensured to exist by above validation");
                 let ps_state =
                     if let Some(ps) = car.planning_states.iter().find(|&ps| v == &ps.entity_id()) {
-                        ps.as_planning_state().expect("no subtypes of PlanningState").clone()
+                        ps.as_uxas_messages_task_planning_state().expect("no subtypes of PlanningState").clone()
                     } else {
                         // add in the assignment start point lead distance
                         let pos0 = entity_state.location();
@@ -316,7 +316,7 @@ impl PlanBuilder {
     fn send_next_task_implementation_request(
         &mut self,
         id: i64,
-    ) -> Result<Vec<LmcpType>, ()> {
+    ) -> Result<Vec<Message>, ()> {
         debug_println!("entering send_next_task_implementation_request");
         let tir = {
             let uar = self.unique_automation_requests.get(&id).ok_or(())?;
@@ -358,7 +358,7 @@ impl PlanBuilder {
         self.next_implementation_id();
 
         // send the message
-        Ok(vec![LmcpType::TaskImplementationRequest(tir)])
+        Ok(vec![Message::UxasMessagesTaskTaskImplementationRequest(tir)])
     }
 }
 
@@ -366,7 +366,7 @@ impl PlanBuilder {
     fn process_task_implementation_response(
         &mut self,
         tiresp: TaskImplementationResponse,
-    ) -> Result<Vec<LmcpType>, ()> {
+    ) -> Result<Vec<Message>, ()> {
         debug_println!(
             "entering process_task_implementation_response with id {}", tiresp.response_id);
         // check response ID
@@ -391,7 +391,7 @@ impl PlanBuilder {
 
         let next_wp = tiresp.task_waypoints.first().ok_or(())?.number();
 
-        for mut mish in ipr.original_response.mission_command_list_mut() {
+        for mish in ipr.original_response.mission_command_list_mut() {
             if mish.vehicle_id() == tiresp.vehicle_id {
                 found_mish = true;
                 if let Some(back) = mish.waypoint_list_mut().last_mut() {
@@ -434,7 +434,7 @@ impl PlanBuilder {
         Ok(self.check_next_task_implementation_request(unique_request_id))
     }
 
-    fn check_next_task_implementation_request(&mut self, unique_request_id: i64) -> Vec<LmcpType> {
+    fn check_next_task_implementation_request(&mut self, unique_request_id: i64) -> Vec<Message> {
         debug_println!("entering check_next_task_implementation_request");
         // check to see if there are any more in the queue
         //    yes --> send_next_task_implementation_request
@@ -448,7 +448,7 @@ impl PlanBuilder {
                         for e in pes {
                             ipr.final_states.push(Box::new(e.state.clone()));
                         }
-                        msgs.push(LmcpType::UniqueAutomationResponse(ipr));
+                        msgs.push(Message::UxasMessagesTaskUniqueAutomationResponse(ipr));
 
                         let kv = KeyValuePair {
                             key: format!(
@@ -461,7 +461,7 @@ impl PlanBuilder {
                             info: vec![Box::new(kv)],
                             ..Default::default()
                         };
-                        msgs.push(LmcpType::ServiceStatus(ss));
+                        msgs.push(Message::AfrlCmasiServiceStatus(ss));
                     }
                 }
                 return msgs;
@@ -496,11 +496,11 @@ impl PlanBuilder {
 }
 
 impl PlanBuilderService {
-    fn send_shared_lmcp_object_broadcast_message(&mut self, obj: &LmcpType) {
-        debug_println!("plan_builder: sending LMCP message {:?}", obj);
-        let size = lmcp_msg_size(obj);
+    fn send_shared_lmcp_object_broadcast_message(&mut self, obj: &Message) {
+        debug_println!("plan_builder: sending LMCP message {:#?}", obj);
+        let size = obj.size();
         let mut buf: Vec<u8> = vec![0; size];
-        let res = lmcp_msg_ser(obj, &mut buf);
+        let res = obj.ser(&mut buf);
         if res.is_ok() {
             unsafe {
                 send_shared_lmcp_object_broadcast_message_raw(self, buf.as_ptr(), size as u32);
@@ -512,12 +512,12 @@ impl PlanBuilderService {
 
     fn send_error(&mut self, msg: String) {
         let ss = mk_error(msg);
-        debug_println!("sending error {:?}", ss);
+        debug_println!("sending error {:#?}", ss);
         self.send_shared_lmcp_object_broadcast_message(&ss);
     }
 }
 
-fn mk_error(mut msg: String) -> LmcpType {
+fn mk_error(mut msg: String) -> Message {
     msg.push('\0');
     let kv = KeyValuePair {
         key: String::from("No UniqueAutomationResponse\0").into_bytes(),
@@ -528,7 +528,7 @@ fn mk_error(mut msg: String) -> LmcpType {
         info: vec![Box::new(kv)],
         percent_complete: 0.0,
     };
-    LmcpType::ServiceStatus(ss)
+    Message::AfrlCmasiServiceStatus(ss)
 }
 
 fn convert_latlong_deg_to_northeast_m(lat_deg: f64, long_deg: f64) -> (f64, f64) {
