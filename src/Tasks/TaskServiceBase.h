@@ -351,6 +351,16 @@ namespace task
             }
         };
 
+    private:
+      bool handleEntityState(std::shared_ptr<afrl::cmasi::EntityState> entityState);
+      bool handleEntityConfiguration(std::shared_ptr<afrl::cmasi::EntityConfiguration> entityConfiguration);
+      bool handleUniqueAutomationRequest(std::shared_ptr<uxas::messages::task::UniqueAutomationRequest> uniqueAutomationRequest);
+      bool handleUniqueAutomationResponse(std::shared_ptr<uxas::messages::task::UniqueAutomationResponse> uniqueAutomationResponse);
+      bool handleTaskImplementationRequest(std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest);
+      bool handleRoutePlanResponse(std::shared_ptr<uxas::messages::route::RoutePlanResponse> routePlanResponse);
+      bool handleAutomationResponse(std::shared_ptr<afrl::cmasi::AutomationResponse> automationResponse);
+      bool handleMissionCommand(std::shared_ptr<afrl::cmasi::MissionCommand> missionCommand);
+
     protected:
         /*! \brief  path to a directory that this task can use to store data */
         std::string m_strSavePath;
