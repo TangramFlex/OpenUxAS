@@ -27,3 +27,5 @@ lib_dpss = static_library(
     '../../src/Utilities',
   ),
 )
+
+subdir('rs')
