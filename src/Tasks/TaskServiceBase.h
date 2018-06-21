@@ -352,14 +352,20 @@ namespace task
         };
 
     private:
-      bool handleEntityState(std::shared_ptr<afrl::cmasi::EntityState> entityState);
-      bool handleEntityConfiguration(std::shared_ptr<afrl::cmasi::EntityConfiguration> entityConfiguration);
-      bool handleUniqueAutomationRequest(std::shared_ptr<uxas::messages::task::UniqueAutomationRequest> uniqueAutomationRequest);
-      bool handleUniqueAutomationResponse(std::shared_ptr<uxas::messages::task::UniqueAutomationResponse> uniqueAutomationResponse);
-      bool handleTaskImplementationRequest(std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest);
-      bool handleRoutePlanResponse(std::shared_ptr<uxas::messages::route::RoutePlanResponse> routePlanResponse);
-      bool handleAutomationResponse(std::shared_ptr<afrl::cmasi::AutomationResponse> automationResponse);
-      bool handleMissionCommand(std::shared_ptr<afrl::cmasi::MissionCommand> missionCommand);
+      void handleEntityState(std::shared_ptr<afrl::cmasi::EntityState> entityState);
+      void handleEntityConfiguration(std::shared_ptr<afrl::cmasi::EntityConfiguration> entityConfiguration);
+      void handleUniqueAutomationRequest(std::shared_ptr<uxas::messages::task::UniqueAutomationRequest> uniqueAutomationRequest);
+      void handleUniqueAutomationResponse(std::shared_ptr<uxas::messages::task::UniqueAutomationResponse> uniqueAutomationResponse);
+      void handleTaskImplementationRequest(std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest);
+      void handleRoutePlanResponse(std::shared_ptr<uxas::messages::route::RoutePlanResponse> routePlanResponse);
+      void handleAutomationResponse(std::shared_ptr<afrl::cmasi::AutomationResponse> automationResponse);
+      void handleMissionCommand(std::shared_ptr<afrl::cmasi::MissionCommand> missionCommand);
+
+      void processRoutePlan(const int64_t optionId,
+                            const int64_t vehicleId,
+                            std::shared_ptr<uxas::service::task::TaskOptionClass> taskOptionClass,
+                            uxas::messages::route::RoutePlan* routePlan,
+                            std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest);
 
     protected:
         /*! \brief  path to a directory that this task can use to store data */
