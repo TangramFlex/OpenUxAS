@@ -367,6 +367,16 @@ namespace task
                             uxas::messages::route::RoutePlan* routePlan,
                             std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest);
 
+      void sendTaskImplementationResponse(const int64_t optionid,
+                                          const int64_t vehicleId,
+                                          std::shared_ptr<uxas::service::task::TaskOptionClass> taskOptionClass,
+                                          std::shared_ptr<uxas::messages::route::RoutePlan> pRoutePlan,
+                                          std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest);
+
+      void sendEmptyTaskImplementationResponse(const int64_t optionId,
+                                               const int64_t vehicleId,
+                                               std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest);
+
     protected:
         /*! \brief  path to a directory that this task can use to store data */
         std::string m_strSavePath;
