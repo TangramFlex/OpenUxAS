@@ -164,6 +164,184 @@ TaskManagerService::configure(const pugi::xml_node& ndComponent)
     return true;
 }
 
+void TaskManagerService::handleTask(std::shared_ptr<afrl::cmasi::Task> baseTask) {
+  bool isGoodTask = true;
+
+  int64_t taskId = baseTask->getTaskID();
+
+  auto itServiceId = m_TaskIdVsServiceId.find(taskId);
+  if (itServiceId != m_TaskIdVsServiceId.end())
+    {
+      // kill the current service
+      auto killServiceMessage = std::make_shared<uxas::messages::uxnative::KillService>();
+      killServiceMessage->setServiceID(itServiceId->second);
+      auto message = std::static_pointer_cast<avtas::lmcp::Object>(killServiceMessage);
+      sendSharedLmcpObjectBroadcastMessage(message);
+      m_TaskIdVsServiceId.erase(itServiceId);
+      //COUT_INFO_MSG("Removed Task[" << taskId << "]")
+    }
+  //COUT_INFO_MSG("Adding Task[" << taskId << "]")
+
+  std::string taskOptions;
+
+  // FIRST CHECK FOR GLOBAL OPTIONS
+  auto itTaskTypeVsOptions = m_TaskIdVsTaskTypeVsOptions.find(0);
+  if (itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
+    {
+      auto itOptions = itTaskTypeVsOptions->second.find(m_noTaskTypeString);
+      if (itOptions != itTaskTypeVsOptions->second.end())
+        {
+          for (auto& option : itOptions->second)
+            {
+              taskOptions += option;
+            }
+        }
+    }
+
+  // NEXT CHECK SPECIFIC OPTIONS 
+  itTaskTypeVsOptions = m_TaskIdVsTaskTypeVsOptions.find(taskId);
+  if (itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
+    {
+      auto itOptions = itTaskTypeVsOptions->second.find(m_noTaskTypeString);
+      if (itOptions != itTaskTypeVsOptions->second.end())
+        {
+          for (auto& option : itOptions->second)
+            {
+              taskOptions += option;
+            }
+        }
+    }
+  else //if(itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
+    {
+      auto itTaskTypeVsOptions = m_TaskIdVsTaskTypeVsOptions.find(0);
+      if (itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
+        {
+          auto itOptions = itTaskTypeVsOptions->second.find(baseTask->getFullLmcpTypeName());
+          if (itOptions != itTaskTypeVsOptions->second.end())
+            {
+              for (auto& option : itOptions->second)
+                {
+                  taskOptions += option;
+                }
+            }
+        }
+    } //if(itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
+
+  std::string xmlTaskOptions;
+  if (!taskOptions.empty())
+    {
+      xmlTaskOptions = "<" + TaskServiceBase::m_taskOptions_XmlTag + ">" + taskOptions + "</" + TaskServiceBase::m_taskOptions_XmlTag + ">";
+      COUT_INFO_MSG("INFO:: TaskId[" << taskId << "] xmlTaskOptions[" << xmlTaskOptions << "]")
+        }
+
+  auto createNewServiceMessage = std::make_shared<uxas::messages::uxnative::CreateNewService>();
+  auto serviceId = ServiceBase::getUniqueServceId();
+  createNewServiceMessage->setServiceID(serviceId);
+  createNewServiceMessage->setXmlConfiguration("<Service Type=\"" + baseTask->getFullLmcpTypeName() + "\">" +
+                                               " <TaskRequest>" + baseTask->toXML() + "</TaskRequest>\n" + xmlTaskOptions);
+
+  // add all existing entities for new service initialization
+  for (auto& entityConfiguration : m_idVsEntityConfiguration)
+    {
+      createNewServiceMessage->getEntityConfigurations().push_back(entityConfiguration.second->clone());
+    }
+        
+  // add all existing entities for new service initialization
+  for (auto& entityState : m_idVsEntityState)
+    {
+      createNewServiceMessage->getEntityStates().push_back(entityState.second->clone());
+    }
+
+  // add the appropriate area/line/point of interest if new task requires knowledge of it
+  // TODO: simply send all areas/lines/points to all tasks and let each one find the necessary information
+  if (afrl::impact::isAngledAreaSearchTask(baseTask.get()))
+    {
+      auto angledAreaSearchTask = std::static_pointer_cast<afrl::impact::AngledAreaSearchTask>(baseTask);
+      auto itAreaOfInterest = m_idVsAreaOfInterest.find(angledAreaSearchTask->getSearchAreaID());
+      if (itAreaOfInterest != m_idVsAreaOfInterest.end())
+        {
+          createNewServiceMessage->getAreas().push_back(itAreaOfInterest->second->clone());
+        }
+      else
+        {
+          isGoodTask = false;
+          CERR_FILE_LINE_MSG("ERROR:: could not find SearchArea[" << angledAreaSearchTask->getSearchAreaID()
+                             << "] for requested AngledAreaSearchTask[" << taskId << "]")
+            }
+    }
+  else if (afrl::impact::isImpactLineSearchTask(baseTask.get()))
+    {
+      auto impactLineSearchTask = std::static_pointer_cast<afrl::impact::ImpactLineSearchTask>(baseTask);
+      auto itLine = m_idVsLineOfInterest.find(impactLineSearchTask->getLineID());
+      if (itLine != m_idVsLineOfInterest.end())
+        {
+          createNewServiceMessage->getLines().push_back(itLine->second->clone());
+        }
+      else
+        {
+          isGoodTask = false;
+          CERR_FILE_LINE_MSG("ERROR:: could not find Line[" << impactLineSearchTask->getLineID()
+                             << "] for requested ImpactLineSearchTask[" << taskId << "]")
+            }
+    }
+  else if (afrl::impact::isImpactPointSearchTask(baseTask.get()))
+    {
+      auto impactPointSearchTask = std::static_pointer_cast<afrl::impact::ImpactPointSearchTask>(baseTask);
+      if (impactPointSearchTask->getSearchLocationID() > 0)
+        {
+          auto itPoint = m_idVsPointOfInterest.find(impactPointSearchTask->getSearchLocationID());
+          if (itPoint != m_idVsPointOfInterest.end())
+            {
+              createNewServiceMessage->getPoints().push_back(itPoint->second->clone());
+            }
+          else
+            {
+              isGoodTask = false;
+              CERR_FILE_LINE_MSG("ERROR:: could not find SearchLocation[" << impactPointSearchTask->getSearchLocationID()
+                                 << "] for requested ImpactPointSearchTask[" << taskId << "]")
+                }
+        }
+    }
+  else if (afrl::impact::isPatternSearchTask(baseTask.get()))
+    {
+      auto patternSearchTask = std::static_pointer_cast<afrl::impact::PatternSearchTask>(baseTask);
+      if (patternSearchTask->getSearchLocationID() > 0)
+        {
+          auto itPoint = m_idVsPointOfInterest.find(patternSearchTask->getSearchLocationID());
+          if (itPoint != m_idVsPointOfInterest.end())
+            {
+              createNewServiceMessage->getPoints().push_back(itPoint->second->clone());
+            }
+          else
+            {
+              isGoodTask = false;
+              CERR_FILE_LINE_MSG("ERROR:: could not find SearchLocation[" << patternSearchTask->getSearchLocationID()
+                                 << "] for requested PatternSearchTask[" << taskId << "]")
+                }
+        }
+    }
+  else if (afrl::impact::isEscortTask(baseTask.get()))
+    {
+      // escort attempts to determine 'supported entity' route from all lines of interest or mission commands
+      for (auto line : m_idVsLineOfInterest)
+        {
+          createNewServiceMessage->getLines().push_back(line.second->clone());
+        }
+      for (auto missionCommand : m_vehicleIdVsCurrentMission)
+        {
+          createNewServiceMessage->getMissionCommands().push_back(missionCommand.second->clone());
+        }
+    }
+
+  if (isGoodTask)
+    {
+      m_TaskIdVsServiceId[taskId] = serviceId;
+      auto newServiceMessage = std::static_pointer_cast<avtas::lmcp::Object>(createNewServiceMessage);
+      sendSharedLmcpObjectBroadcastMessage(newServiceMessage);
+      //CERR_FILE_LINE_MSG("Added Task[" << taskId << "]")
+    }
+}
+
 bool
 TaskManagerService::processReceivedLmcpMessage(std::unique_ptr<uxas::communications::data::LmcpMessage> receivedLmcpMessage)
 //example: if (afrl::cmasi::isServiceStatus(receivedLmcpObject))
@@ -175,183 +353,8 @@ TaskManagerService::processReceivedLmcpMessage(std::unique_ptr<uxas::communicati
     auto entityConfiguration = std::dynamic_pointer_cast<afrl::cmasi::EntityConfiguration>(messageObject);
     auto entityState = std::dynamic_pointer_cast<afrl::cmasi::EntityState>(messageObject);
 
-    if (baseTask)
-    {
-        bool isGoodTask = true;
-
-        int64_t taskId = baseTask->getTaskID();
-
-        auto itServiceId = m_TaskIdVsServiceId.find(taskId);
-        if (itServiceId != m_TaskIdVsServiceId.end())
-        {
-            // kill the current service
-            auto killServiceMessage = std::make_shared<uxas::messages::uxnative::KillService>();
-            killServiceMessage->setServiceID(itServiceId->second);
-            auto message = std::static_pointer_cast<avtas::lmcp::Object>(killServiceMessage);
-            sendSharedLmcpObjectBroadcastMessage(message);
-            m_TaskIdVsServiceId.erase(itServiceId);
-            //COUT_INFO_MSG("Removed Task[" << taskId << "]")
-        }
-        //COUT_INFO_MSG("Adding Task[" << taskId << "]")
-
-        std::string taskOptions;
-
-        // FIRST CHECK FOR GLOBAL OPTIONS
-        auto itTaskTypeVsOptions = m_TaskIdVsTaskTypeVsOptions.find(0);
-        if (itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
-        {
-            auto itOptions = itTaskTypeVsOptions->second.find(m_noTaskTypeString);
-            if (itOptions != itTaskTypeVsOptions->second.end())
-            {
-                for (auto& option : itOptions->second)
-                {
-                    taskOptions += option;
-                }
-            }
-        }
-
-        // NEXT CHECK SPECIFIC OPTIONS 
-        itTaskTypeVsOptions = m_TaskIdVsTaskTypeVsOptions.find(taskId);
-        if (itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
-        {
-            auto itOptions = itTaskTypeVsOptions->second.find(m_noTaskTypeString);
-            if (itOptions != itTaskTypeVsOptions->second.end())
-            {
-                for (auto& option : itOptions->second)
-                {
-                    taskOptions += option;
-                }
-            }
-        }
-        else //if(itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
-        {
-            auto itTaskTypeVsOptions = m_TaskIdVsTaskTypeVsOptions.find(0);
-            if (itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
-            {
-                auto itOptions = itTaskTypeVsOptions->second.find(baseTask->getFullLmcpTypeName());
-                if (itOptions != itTaskTypeVsOptions->second.end())
-                {
-                    for (auto& option : itOptions->second)
-                    {
-                        taskOptions += option;
-                    }
-                }
-            }
-        } //if(itTaskTypeVsOptions != m_TaskIdVsTaskTypeVsOptions.end())
-
-        std::string xmlTaskOptions;
-        if (!taskOptions.empty())
-        {
-            xmlTaskOptions = "<" + TaskServiceBase::m_taskOptions_XmlTag + ">" + taskOptions + "</" + TaskServiceBase::m_taskOptions_XmlTag + ">";
-            COUT_INFO_MSG("INFO:: TaskId[" << taskId << "] xmlTaskOptions[" << xmlTaskOptions << "]")
-        }
-
-        auto createNewServiceMessage = std::make_shared<uxas::messages::uxnative::CreateNewService>();
-        auto serviceId = ServiceBase::getUniqueServceId();
-        createNewServiceMessage->setServiceID(serviceId);
-        createNewServiceMessage->setXmlConfiguration("<Service Type=\"" + baseTask->getFullLmcpTypeName() + "\">" +
-                " <TaskRequest>" + baseTask->toXML() + "</TaskRequest>\n" + xmlTaskOptions);
-
-        // add all existing entities for new service initialization
-        for (auto& entityConfiguration : m_idVsEntityConfiguration)
-        {
-            createNewServiceMessage->getEntityConfigurations().push_back(entityConfiguration.second->clone());
-        }
-        
-        // add all existing entities for new service initialization
-        for (auto& entityState : m_idVsEntityState)
-        {
-            createNewServiceMessage->getEntityStates().push_back(entityState.second->clone());
-        }
-
-        // add the appropriate area/line/point of interest if new task requires knowledge of it
-        // TODO: simply send all areas/lines/points to all tasks and let each one find the necessary information
-        if (afrl::impact::isAngledAreaSearchTask(messageObject.get()))
-        {
-            auto angledAreaSearchTask = std::static_pointer_cast<afrl::impact::AngledAreaSearchTask>(messageObject);
-            auto itAreaOfInterest = m_idVsAreaOfInterest.find(angledAreaSearchTask->getSearchAreaID());
-            if (itAreaOfInterest != m_idVsAreaOfInterest.end())
-            {
-                createNewServiceMessage->getAreas().push_back(itAreaOfInterest->second->clone());
-            }
-            else
-            {
-                isGoodTask = false;
-                CERR_FILE_LINE_MSG("ERROR:: could not find SearchArea[" << angledAreaSearchTask->getSearchAreaID()
-                                   << "] for requested AngledAreaSearchTask[" << taskId << "]")
-            }
-        }
-        else if (afrl::impact::isImpactLineSearchTask(messageObject.get()))
-        {
-            auto impactLineSearchTask = std::static_pointer_cast<afrl::impact::ImpactLineSearchTask>(messageObject);
-            auto itLine = m_idVsLineOfInterest.find(impactLineSearchTask->getLineID());
-            if (itLine != m_idVsLineOfInterest.end())
-            {
-                createNewServiceMessage->getLines().push_back(itLine->second->clone());
-            }
-            else
-            {
-                isGoodTask = false;
-                CERR_FILE_LINE_MSG("ERROR:: could not find Line[" << impactLineSearchTask->getLineID()
-                                   << "] for requested ImpactLineSearchTask[" << taskId << "]")
-            }
-        }
-        else if (afrl::impact::isImpactPointSearchTask(messageObject.get()))
-        {
-            auto impactPointSearchTask = std::static_pointer_cast<afrl::impact::ImpactPointSearchTask>(messageObject);
-            if (impactPointSearchTask->getSearchLocationID() > 0)
-            {
-                auto itPoint = m_idVsPointOfInterest.find(impactPointSearchTask->getSearchLocationID());
-                if (itPoint != m_idVsPointOfInterest.end())
-                {
-                    createNewServiceMessage->getPoints().push_back(itPoint->second->clone());
-                }
-                else
-                {
-                    isGoodTask = false;
-                    CERR_FILE_LINE_MSG("ERROR:: could not find SearchLocation[" << impactPointSearchTask->getSearchLocationID()
-                                       << "] for requested ImpactPointSearchTask[" << taskId << "]")
-                }
-            }
-        }
-        else if (afrl::impact::isPatternSearchTask(messageObject.get()))
-        {
-            auto patternSearchTask = std::static_pointer_cast<afrl::impact::PatternSearchTask>(messageObject);
-            if (patternSearchTask->getSearchLocationID() > 0)
-            {
-                auto itPoint = m_idVsPointOfInterest.find(patternSearchTask->getSearchLocationID());
-                if (itPoint != m_idVsPointOfInterest.end())
-                {
-                    createNewServiceMessage->getPoints().push_back(itPoint->second->clone());
-                }
-                else
-                {
-                    isGoodTask = false;
-                    CERR_FILE_LINE_MSG("ERROR:: could not find SearchLocation[" << patternSearchTask->getSearchLocationID()
-                                       << "] for requested PatternSearchTask[" << taskId << "]")
-                }
-            }
-        }
-        else if (afrl::impact::isEscortTask(messageObject.get()))
-        {
-            // escort attempts to determine 'supported entity' route from all lines of interest or mission commands
-            for (auto line : m_idVsLineOfInterest)
-            {
-                createNewServiceMessage->getLines().push_back(line.second->clone());
-            }
-            for (auto missionCommand : m_vehicleIdVsCurrentMission)
-            {
-                createNewServiceMessage->getMissionCommands().push_back(missionCommand.second->clone());
-            }
-        }
-
-        if (isGoodTask)
-        {
-            m_TaskIdVsServiceId[taskId] = serviceId;
-            auto newServiceMessage = std::static_pointer_cast<avtas::lmcp::Object>(createNewServiceMessage);
-            sendSharedLmcpObjectBroadcastMessage(newServiceMessage);
-            //CERR_FILE_LINE_MSG("Added Task[" << taskId << "]")
-        }
+    if (baseTask) {
+      handleTask(baseTask);
     }
     else if (entityConfiguration)
     {

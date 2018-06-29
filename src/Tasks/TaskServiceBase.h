@@ -377,6 +377,14 @@ namespace task
                                                const int64_t vehicleId,
                                                std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest);
 
+      void buildAndSendNewPlan(std::shared_ptr<uxas::messages::task::UniqueAutomationRequest> uniqueAutomationRequest);
+
+      void restartExistingPlan(std::shared_ptr<uxas::messages::task::UniqueAutomationRequest> uniqueAutomationRequest,
+                               std::shared_ptr<uxas::service::task::TaskOptionClass> option,
+                               int64_t vehicleIdRestart,
+                               int64_t waypointIdRestart,
+                               int64_t optionIdRestart);
+
     protected:
         /*! \brief  path to a directory that this task can use to store data */
         std::string m_strSavePath;

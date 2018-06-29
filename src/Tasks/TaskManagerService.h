@@ -25,6 +25,7 @@
 #include "afrl/impact/LineOfInterest.h"
 #include "afrl/impact/PointOfInterest.h"
 #include "afrl/cmasi/MissionCommand.h"
+#include "afrl/cmasi/Task.h"
 
 #include <set>
 #include <cstdint> // int64_t
@@ -130,6 +131,8 @@ private:
 
     bool
     processReceivedLmcpMessage(std::unique_ptr<uxas::communications::data::LmcpMessage> receivedLmcpMessage) override;
+
+  void handleTask(std::shared_ptr<afrl::cmasi::Task> baseTask);
 
 public:
     static std::string GetTaskStringIdFromId(const int64_t& taskId);
