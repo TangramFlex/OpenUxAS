@@ -315,8 +315,8 @@ namespace task
         void processOptionsRoutePlanResponseBase(const std::shared_ptr<uxas::messages::route::RoutePlanResponse>& routePlanResponse);
         void processImplementationRoutePlanResponseBase(const std::shared_ptr<uxas::messages::route::RoutePlanResponse>& routePlanResponse);
         void buildAndSendImplementationRouteRequestBase(const int64_t& optionId,
-                const std::shared_ptr<uxas::messages::task::TaskImplementationRequest>& taskImplementationRequest,
-                const std::shared_ptr<uxas::messages::task::TaskOption>& taskOption);
+                                                        const std::shared_ptr<TaskOptionClass>& taskOptionClass,
+                                                        const std::shared_ptr<uxas::messages::task::TaskImplementationRequest>& taskImplementationRequest);
         /*! \brief builds a RouteId, from the taskId and optionId, for use with routes requested by options */
         int64_t getOptionRouteId(const int64_t& OptionId);
         /*! \brief builds a RouteId, from the taskId and m_implementationRouteCount, for use with routes requested for task implementation */

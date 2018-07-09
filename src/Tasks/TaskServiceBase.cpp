@@ -288,6 +288,8 @@ void TaskServiceBase::handleUniqueAutomationRequest(std::shared_ptr<uxas::messag
   //COUT_FILE_LINE_MSG("uniqueAutomationRequest->getRequestID()[" << uniqueAutomationRequest->getRequestID() << "]")
   m_latestUniqueAutomationRequestId = uniqueAutomationRequest->getRequestID();
   m_idVsUniqueAutomationRequest[uniqueAutomationRequest->getRequestID()] = uniqueAutomationRequest;
+
+  // only respond to UARs with our TaskID in the task list
   if (std::find(uniqueAutomationRequest->getOriginalRequest()->getTaskList().begin(),
                 uniqueAutomationRequest->getOriginalRequest()->getTaskList().end(),
                 m_task->getTaskID()) == uniqueAutomationRequest->getOriginalRequest()->getTaskList().end()) {
@@ -369,6 +371,7 @@ void TaskServiceBase::restartExistingPlan(std::shared_ptr<uxas::messages::task::
 
   uxas::common::utilities::CUnitConversions unitConversions;
 
+  // ACF: I think this probably would go bad if the route to restart had only one waypoint
   // find the waypoints from (restartId - 1) to the end of the plan
   option->m_restartRoutePlan = std::make_shared<uxas::messages::route::RoutePlan>();
   option->m_restartRoutePlan->setRouteID(TaskOptionClass::m_firstImplementationRouteId);
@@ -403,6 +406,7 @@ void TaskServiceBase::restartExistingPlan(std::shared_ptr<uxas::messages::task::
                                                               planWaypoint->getLongitude(), north_m, east_m);
               Dpss_Data_n::xyPoint currentVehiclePosition(north_m, east_m, 0.0);
 
+              // ACF: potentially uninitialized
               distance_m += currentVehiclePosition.dist(lastVehiclePosition);
 
               if (option->m_restartRoutePlan->getWaypoints().size() == 2)
@@ -419,6 +423,7 @@ void TaskServiceBase::restartExistingPlan(std::shared_ptr<uxas::messages::task::
     }
   lastWaypoint = nullptr; // finished with this, we don't own it
 
+  // ACF: potentially uninitialized
   //TODO:: need to check this!!!!!!
   endHeading_deg = lastlastVehiclePosition.heading2d(lastVehiclePosition);
 
@@ -498,61 +503,61 @@ void TaskServiceBase::buildAndSendNewPlan(std::shared_ptr<uxas::messages::task::
 }
 
 
-void TaskServiceBase::handleUniqueAutomationResponse(std::shared_ptr<uxas::messages::task::UniqueAutomationResponse> uniqueAutomationResponse)
-{
+void TaskServiceBase::handleUniqueAutomationResponse(std::shared_ptr<uxas::messages::task::UniqueAutomationResponse> uniqueAutomationResponse) {
   // UniqueAutomationResponse(s) to determine which vehicles are assigned to this task 
 
-  if (m_idVsUniqueAutomationRequest.find(uniqueAutomationResponse->getResponseID()) == m_idVsUniqueAutomationRequest.end())
-    {
-      //TODO:: "warning received uniqueAutomationResponse[",uniqueAutomationResponse->getResponseID(),"] with no corresponding uniqueAutomationRequest"
-    }
-  else
-    {
-      auto currentAutomationRequest = m_idVsUniqueAutomationRequest[uniqueAutomationResponse->getResponseID()];
+  if (m_idVsUniqueAutomationRequest.find(uniqueAutomationResponse->getResponseID()) == m_idVsUniqueAutomationRequest.end()) {
+    //TODO:: "warning received uniqueAutomationResponse[",uniqueAutomationResponse->getResponseID(),"] with no corresponding uniqueAutomationRequest"
+    return;
+  }
 
-      //TODO:: change to look up uniqueautomationrequest and delete it when finished
-      if (!currentAutomationRequest->getSandBoxRequest())
+  auto currentAutomationRequest = m_idVsUniqueAutomationRequest[uniqueAutomationResponse->getResponseID()];
+  m_idVsUniqueAutomationRequest.erase(uniqueAutomationResponse->getResponseID());
+
+  //TODO:: change to look up uniqueautomationrequest and delete it when finished
+  if (currentAutomationRequest->getSandBoxRequest()) {
+    return;
+  }
+
+  // remove any assigned entities that appear in the uniqueAutomationResponse.
+  // Note: if an entity has been reassigned, then it will be added back below
+  for (auto& missionCommand : uniqueAutomationResponse->getOriginalResponse()->getMissionCommandList())
+    {
+      m_assignedVehicleIds.erase(missionCommand->getVehicleID());
+    }
+  // search through the waypoints to find vehicles that have been assigned
+  for (auto& missionCommand : uniqueAutomationResponse->getOriginalResponse()->getMissionCommandList())
+    {
+      for (auto& waypoint : missionCommand->getWaypointList())
         {
-          // remove any assigned entities that appear in the uniqueAutomationResponse.
-          // Note: if an entity has been reassigned, then it will be added back below
-          for (auto& missionCommand : uniqueAutomationResponse->getOriginalResponse()->getMissionCommandList())
+          bool isOnTask = std::find(waypoint->getAssociatedTasks().begin(),
+                                    waypoint->getAssociatedTasks().end(),
+                                    m_task->getTaskID()) != waypoint->getAssociatedTasks().end();
+          if (isOnTask)
             {
-              m_assignedVehicleIds.erase(missionCommand->getVehicleID());
-            }
-          // search through the waypoints to find vehicles that have been assigned
-          for (auto& missionCommand : uniqueAutomationResponse->getOriginalResponse()->getMissionCommandList())
-            {
-              for (auto& waypoint : missionCommand->getWaypointList())
-                {
-                  bool isOnTask = std::find(waypoint->getAssociatedTasks().begin(),
-                                            waypoint->getAssociatedTasks().end(),
-                                            m_task->getTaskID()) != waypoint->getAssociatedTasks().end();
-                  if (isOnTask)
-                    {
-                      m_assignedVehicleIds.insert(missionCommand->getVehicleID());
-                    }
-                }
+              m_assignedVehicleIds.insert(missionCommand->getVehicleID());
             }
         }
-      m_idVsUniqueAutomationRequest.erase(uniqueAutomationResponse->getResponseID());
     }
 };
 
 void TaskServiceBase::handleTaskImplementationRequest(std::shared_ptr<uxas::messages::task::TaskImplementationRequest> taskImplementationRequest) {
-  if (m_task && taskImplementationRequest->getTaskID() == m_task->getTaskID())
+  if (!m_task || taskImplementationRequest->getTaskID() != m_task->getTaskID()) {
+    return;
+  }
+
+  auto itOption = m_optionIdVsTaskOptionClass.find(taskImplementationRequest->getOptionID());
+  if (itOption != m_optionIdVsTaskOptionClass.end())
     {
-      auto itOption = m_optionIdVsTaskOptionClass.find(taskImplementationRequest->getOptionID());
-      if (itOption != m_optionIdVsTaskOptionClass.end())
-        {
-          buildAndSendImplementationRouteRequestBase(taskImplementationRequest->getOptionID(),
-                                                     taskImplementationRequest, itOption->second->m_taskOption);
-        }
-      else
-        {
-          CERR_FILE_LINE_MSG("ERROR::TaskServiceBase::ProcessMessage: for TaskId[" << m_task->getTaskID()
-                             << "] OptionId[" << taskImplementationRequest->getOptionID()
-                             << "] does not exist, but was specified in a TaskImplementationRequest.")
-            }
+      buildAndSendImplementationRouteRequestBase(taskImplementationRequest->getOptionID(),
+                                                 itOption->second,
+                                                 taskImplementationRequest);
+    }
+  else
+    {
+      CERR_FILE_LINE_MSG("ERROR::TaskServiceBase::ProcessMessage: for TaskId[" << m_task->getTaskID()
+                         << "] OptionId[" << taskImplementationRequest->getOptionID()
+                         << "] does not exist, but was specified in a TaskImplementationRequest.");
     }
 };
 
@@ -664,58 +669,53 @@ TaskServiceBase::RouteTypeEnum TaskServiceBase::getRouteTypeFromRouteId(const in
 }
 
 void TaskServiceBase::buildAndSendImplementationRouteRequestBase(const int64_t& optionId,
-                                                                 const std::shared_ptr<uxas::messages::task::TaskImplementationRequest>& taskImplementationRequest,
-                                                                 const std::shared_ptr<uxas::messages::task::TaskOption>& taskOption)
+                                                                 const std::shared_ptr<TaskOptionClass>& taskOptionClass,
+                                                                 const std::shared_ptr<uxas::messages::task::TaskImplementationRequest>& taskImplementationRequest)
 {
-    // check to see is there is a virtual class handler
-    if (!isBuildAndSendImplementationRouteRequest(optionId, taskImplementationRequest, taskOption))
+  auto taskOption = taskOptionClass->m_taskOption;
+  // check to see is there is a virtual class handler
+  if (isBuildAndSendImplementationRouteRequest(optionId, taskImplementationRequest, taskOption)) {
+    return;
+  }
+
+  auto routePlanRequest = std::make_shared<uxas::messages::route::RoutePlanRequest>();
+  routePlanRequest->setRequestID(getImplementationRouteId(optionId));
+  routePlanRequest->setAssociatedTaskID(m_task->getTaskID());
+  routePlanRequest->setIsCostOnlyRequest(false);
+  routePlanRequest->setOperatingRegion(taskImplementationRequest->getRegionID());
+  routePlanRequest->setVehicleID(taskImplementationRequest->getVehicleID());
+  m_pendingImplementationRouteRequests.insert(routePlanRequest->getRequestID());
+
+  auto routeConstraints = new uxas::messages::route::RouteConstraints();
+  int64_t routeId = taskOptionClass->m_routeIdFromLastTask;
+  m_transitionRouteRequestId = routeId;
+  taskOptionClass->m_pendingRouteIds.insert(routeId);
+  routeConstraints->setRouteID(routeId);
+  routeConstraints->setStartLocation(taskImplementationRequest->getStartPosition()->clone());
+  routeConstraints->setStartHeading(taskImplementationRequest->getStartHeading());
+  routeConstraints->setEndLocation(taskOption->getStartLocation()->clone());
+  routeConstraints->setEndHeading(taskOption->getStartHeading());
+
+  if (taskOptionClass->m_routePlanRequest)
     {
-        auto itTaskOptionClass = m_optionIdVsTaskOptionClass.find(optionId);
-        if (itTaskOptionClass != m_optionIdVsTaskOptionClass.end())
+      routeId = taskOptionClass->m_firstImplementationRouteId;
+      for (auto& routeConstraints : taskOptionClass->m_routePlanRequest->getRouteRequests())
         {
-            auto routePlanRequest = std::make_shared<uxas::messages::route::RoutePlanRequest>();
-            routePlanRequest->setRequestID(getImplementationRouteId(optionId));
-            routePlanRequest->setAssociatedTaskID(m_task->getTaskID());
-            routePlanRequest->setIsCostOnlyRequest(false);
-            routePlanRequest->setOperatingRegion(taskImplementationRequest->getRegionID());
-            routePlanRequest->setVehicleID(taskImplementationRequest->getVehicleID());
-            m_pendingImplementationRouteRequests.insert(routePlanRequest->getRequestID());
-
-            auto routeConstraints = new uxas::messages::route::RouteConstraints();
-            int64_t routeId = itTaskOptionClass->second->m_routeIdFromLastTask;
-            m_transitionRouteRequestId = routeId;
-            itTaskOptionClass->second->m_pendingRouteIds.insert(routeId);
-            routeConstraints->setRouteID(routeId);
-            routeConstraints->setStartLocation(taskImplementationRequest->getStartPosition()->clone());
-            routeConstraints->setStartHeading(taskImplementationRequest->getStartHeading());
-            routeConstraints->setEndLocation(taskOption->getStartLocation()->clone());
-            routeConstraints->setEndHeading(taskOption->getStartHeading());
-
-            if (itTaskOptionClass->second->m_routePlanRequest)
-            {
-                routeId = itTaskOptionClass->second->m_firstImplementationRouteId;
-                for (auto& routeConstraints : itTaskOptionClass->second->m_routePlanRequest->getRouteRequests())
-                {
-                    routePlanRequest->getRouteRequests().push_back(routeConstraints->clone());
-                    routePlanRequest->getRouteRequests().back()->setRouteID(routeId);
-                    itTaskOptionClass->second->m_pendingRouteIds.insert(routeId);
-                    routeId++;
-                }
-            }
-
-            routePlanRequest->getRouteRequests().push_back(routeConstraints);
-            routeConstraints = nullptr; //just gave up ownership
-
-            m_routeIdVsTaskImplementationRequest[routePlanRequest->getRequestID()] = taskImplementationRequest;
-
-            auto newMessage = std::static_pointer_cast<avtas::lmcp::Object>(routePlanRequest);
-            sendSharedLmcpObjectBroadcastMessage(newMessage);
-        }
-        else //if ((itTaskOptionClass != m_optionIdVsTaskOptionClass.end()))
-        {
-            CERR_FILE_LINE_MSG("ERROR::buildAndSendImplementationRouteRequestBase:: TaskOptionClass not found for optionId[" << optionId << "]")
+          routePlanRequest->getRouteRequests().push_back(routeConstraints->clone());
+          routePlanRequest->getRouteRequests().back()->setRouteID(routeId);
+          taskOptionClass->m_pendingRouteIds.insert(routeId);
+          routeId++;
         }
     }
+
+  routePlanRequest->getRouteRequests().push_back(routeConstraints);
+  routeConstraints = nullptr; //just gave up ownership
+
+  m_routeIdVsTaskImplementationRequest[routePlanRequest->getRequestID()] = taskImplementationRequest;
+
+  auto newMessage = std::static_pointer_cast<avtas::lmcp::Object>(routePlanRequest);
+  sendSharedLmcpObjectBroadcastMessage(newMessage);
+
 }
 
 void TaskServiceBase::processOptionsRoutePlanResponseBase(const std::shared_ptr<uxas::messages::route::RoutePlanResponse>& routePlanResponse)
