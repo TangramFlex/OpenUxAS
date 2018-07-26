@@ -562,21 +562,21 @@ void TaskServiceBase::handleTaskImplementationRequest(std::shared_ptr<uxas::mess
 };
 
 void TaskServiceBase::handleRoutePlanResponse(std::shared_ptr<uxas::messages::route::RoutePlanResponse> routePlanResponse) {
-  if (routePlanResponse->getAssociatedTaskID() == m_task->getTaskID())
+  if (routePlanResponse->getAssociatedTaskID() != m_task->getTaskID()) {
+    return;
+  }
+  auto routeType = getRouteTypeFromRouteId(routePlanResponse->getResponseID());
+  switch (routeType)
     {
-      auto routeType = getRouteTypeFromRouteId(routePlanResponse->getResponseID());
-      switch (routeType)
-        {
-        default:
-          CERR_FILE_LINE_MSG("ERROR::isProcessedMessageBase:: unknown RoutePlanResponseEncountered for  ResponseID[" << routePlanResponse->getResponseID() << "]")
-            break;
-        case RouteTypeEnum::OPTION:
-          processOptionsRoutePlanResponseBase(routePlanResponse);
-          break;
-        case RouteTypeEnum::IMPLEMENTATION:
-          processImplementationRoutePlanResponseBase(routePlanResponse);
-          break;
-        }
+    default:
+      CERR_FILE_LINE_MSG("ERROR::isProcessedMessageBase:: unknown RoutePlanResponseEncountered for  ResponseID[" << routePlanResponse->getResponseID() << "]");
+      break;
+    case RouteTypeEnum::OPTION:
+      processOptionsRoutePlanResponseBase(routePlanResponse);
+      break;
+    case RouteTypeEnum::IMPLEMENTATION:
+      processImplementationRoutePlanResponseBase(routePlanResponse);
+      break;
     }
 };
 
@@ -696,6 +696,9 @@ void TaskServiceBase::buildAndSendImplementationRouteRequestBase(const int64_t& 
   routeConstraints->setEndLocation(taskOption->getStartLocation()->clone());
   routeConstraints->setEndHeading(taskOption->getStartHeading());
 
+  routePlanRequest->getRouteRequests().push_back(routeConstraints);
+  routeConstraints = nullptr; //just gave up ownership
+
   if (taskOptionClass->m_routePlanRequest)
     {
       routeId = taskOptionClass->m_firstImplementationRouteId;
@@ -708,9 +711,6 @@ void TaskServiceBase::buildAndSendImplementationRouteRequestBase(const int64_t& 
         }
     }
 
-  routePlanRequest->getRouteRequests().push_back(routeConstraints);
-  routeConstraints = nullptr; //just gave up ownership
-
   m_routeIdVsTaskImplementationRequest[routePlanRequest->getRequestID()] = taskImplementationRequest;
 
   auto newMessage = std::static_pointer_cast<avtas::lmcp::Object>(routePlanRequest);
@@ -721,66 +721,66 @@ void TaskServiceBase::buildAndSendImplementationRouteRequestBase(const int64_t& 
 void TaskServiceBase::processOptionsRoutePlanResponseBase(const std::shared_ptr<uxas::messages::route::RoutePlanResponse>& routePlanResponse)
 {
     auto itResponseId = m_pendingOptionRouteRequests.find(routePlanResponse->getResponseID());
-    if (itResponseId != m_pendingOptionRouteRequests.end())
-    {
-        m_pendingOptionRouteRequests.erase(routePlanResponse->getResponseID());
-        auto optionId = getOptionIdFromRouteId(routePlanResponse->getResponseID());
-        auto vehicleId = routePlanResponse->getVehicleID();
-        auto operatingRegion = routePlanResponse->getOperatingRegion();
-        auto itTaskOptionClass = m_optionIdVsTaskOptionClass.find(optionId);
-        if (itTaskOptionClass != m_optionIdVsTaskOptionClass.end())
-        {
-            for (auto routePlan : routePlanResponse->getRouteResponses())
-            {
-                // we are waiting for this one
-                auto route = std::shared_ptr<uxas::messages::route::RoutePlan>(routePlan->clone());
-                // call virtual function
-                if (!isHandleOptionsRouteResponse(vehicleId, optionId, operatingRegion, route))
-                {
-                    if (itTaskOptionClass->second->m_pendingRouteIds.find(route->getRouteID()) != itTaskOptionClass->second->m_pendingRouteIds.end())
-                    {
-                        // remove the route from the pending list
-                        itTaskOptionClass->second->m_pendingRouteIds.erase(route->getRouteID());
-                        // add this route's cost to the total for this option
-                        auto totalCost = MAX_TOTAL_COST_MS;
-                        if (route->getRouteCost() > 0)
-                        {
-                            totalCost = itTaskOptionClass->second->m_taskOption->getCost() + route->getRouteCost();
-                        }
-                        itTaskOptionClass->second->m_taskOption->setCost(totalCost);
-                        if (itTaskOptionClass->second->m_pendingRouteIds.empty())
-                        {
-                            // once this option is complete, add to the options and remove it from the list
-                            m_taskPlanOptions->getOptions().push_back(itTaskOptionClass->second->m_taskOption->clone());
-                        }
-                    }
-                    bool isAllOptionsComplete = true;
-                    for (auto& taskOptionClass : m_optionIdVsTaskOptionClass)
-                    {
-                        if (!taskOptionClass.second->m_pendingRouteIds.empty())
-                        {
-                            isAllOptionsComplete = false;
-                            break;
-                        }
-                    }
-                    if (isAllOptionsComplete)
-                    {
-                        // once all options are complete, send out the message
-                        auto objectTaskPlanOptions = std::static_pointer_cast<avtas::lmcp::Object>(m_taskPlanOptions);
-                        sendSharedLmcpObjectBroadcastMessage(objectTaskPlanOptions);
-                    }
-                }
-            } //for (auto routePlan : routePlanResponse->getRouteResponses())
-        }
-        else //if (itTaskOptionClass != m_optionIdVsTaskOptionClass.end())
-        {
-            CERR_FILE_LINE_MSG("ERROR::processOptionsRouteResponse:: TaskOptionClass not found for optionId[" << optionId << "]")
-        }
+    if (itResponseId == m_pendingOptionRouteRequests.end()) {
+      CERR_FILE_LINE_MSG("ERROR::processOptionsRoutePlanResponseBase:: RoutePlanResponse received that was not expected, RoutePlanId[" << routePlanResponse->getResponseID() << "]");
+      return;
     }
-    else //if (itResponseId != m_pendingOptionRouteRequests.end())
-    {
-        CERR_FILE_LINE_MSG("ERROR::processOptionsRoutePlanResponseBase:: RoutePlanResponse received that was not expected, RoutePlanId[" << routePlanResponse->getResponseID() << "]")
+
+    m_pendingOptionRouteRequests.erase(routePlanResponse->getResponseID());
+    auto optionId = getOptionIdFromRouteId(routePlanResponse->getResponseID());
+    auto vehicleId = routePlanResponse->getVehicleID();
+    auto operatingRegion = routePlanResponse->getOperatingRegion();
+    auto itTaskOptionClass = m_optionIdVsTaskOptionClass.find(optionId);
+
+    if (itTaskOptionClass == m_optionIdVsTaskOptionClass.end()) {
+      CERR_FILE_LINE_MSG("ERROR::processOptionsRouteResponse:: TaskOptionClass not found for optionId[" << optionId << "]");
+      return;
     }
+    auto taskOptionClass = itTaskOptionClass->second;
+
+    for (auto routePlan : routePlanResponse->getRouteResponses())
+      {
+        // we are waiting for this one
+        auto route = std::shared_ptr<uxas::messages::route::RoutePlan>(routePlan->clone());
+        // call virtual function; if it returns true, continue
+        if (isHandleOptionsRouteResponse(vehicleId, optionId, operatingRegion, route)) {
+          continue;
+        }
+
+        if (taskOptionClass->m_pendingRouteIds.find(route->getRouteID()) != taskOptionClass->m_pendingRouteIds.end())
+          {
+            // remove the route from the pending list
+            taskOptionClass->m_pendingRouteIds.erase(route->getRouteID());
+            // add this route's cost to the total for this option
+            auto totalCost = MAX_TOTAL_COST_MS;
+            if (route->getRouteCost() > 0)
+              {
+                totalCost = taskOptionClass->m_taskOption->getCost() + route->getRouteCost();
+              }
+            taskOptionClass->m_taskOption->setCost(totalCost);
+            if (taskOptionClass->m_pendingRouteIds.empty())
+              {
+                // once this option is complete, add to the options and remove it from the list
+                m_taskPlanOptions->getOptions().push_back(taskOptionClass->m_taskOption->clone());
+              }
+          }
+        bool isAllOptionsComplete = true;
+        for (auto& taskOptionClass : m_optionIdVsTaskOptionClass)
+          {
+            if (!taskOptionClass.second->m_pendingRouteIds.empty())
+              {
+                isAllOptionsComplete = false;
+                break;
+              }
+          }
+        if (isAllOptionsComplete)
+          {
+            // once all options are complete, send out the message
+            auto objectTaskPlanOptions = std::static_pointer_cast<avtas::lmcp::Object>(m_taskPlanOptions);
+            sendSharedLmcpObjectBroadcastMessage(objectTaskPlanOptions);
+          }
+
+      } //for (auto routePlan : routePlanResponse->getRouteResponses())
 }
 
 void TaskServiceBase::processRoutePlan(const int64_t optionId,
@@ -854,23 +854,20 @@ void TaskServiceBase::sendTaskImplementationResponse(const int64_t optionId,
   bool isFoundTaskWaypoints = false;
   for (auto& plan : taskOptionClass->m_orderedRouteIdVsPlan)
     {
-      bool isRouteFromLastToTask = (plan.second->getRouteID() == m_transitionRouteRequestId);
       auto taskPlan = plan.second;
-      if (!isRouteFromLastToTask)
+      bool isRouteFromLastToTask = (taskPlan->getRouteID() == m_transitionRouteRequestId);
+      if (!isRouteFromLastToTask && taskOptionClass->m_restartRoutePlan)
         {
-          if (taskOptionClass->m_restartRoutePlan)
+          if (!isFoundTaskWaypoints) // only add the restartRoutePlan, don't add any other routes
             {
-              if (!isFoundTaskWaypoints) // only add the restartRoutePlan, don't add any other routes
-                {
-                  taskPlan = taskOptionClass->m_restartRoutePlan;
-                }
-              else
-                {
-                  // already added the restart waypoints, don't add anymore
-                  taskPlan = std::make_shared<uxas::messages::route::RoutePlan>();
-                }
-              isFoundTaskWaypoints = true;
+              taskPlan = taskOptionClass->m_restartRoutePlan;
             }
+          else
+            {
+              // already added the restart waypoints, don't add anymore
+              taskPlan = std::make_shared<uxas::messages::route::RoutePlan>();
+            }
+          isFoundTaskWaypoints = true;
         }
       for (auto& planWaypoint : taskPlan->getWaypoints())
         {
@@ -907,7 +904,6 @@ void TaskServiceBase::sendTaskImplementationResponse(const int64_t optionId,
   isProcessTaskImplementationRouteResponse(taskImplementationResponse, taskOptionClass, waypointId, pRoutePlan);
   if (!taskImplementationResponse->getTaskWaypoints().empty())
     {
-      taskImplementationResponse->getTaskWaypoints().back()->setNextWaypoint(0);
       if (taskImplementationResponse->getTaskWaypoints().back()->getAssociatedTasks().empty())
         {
           taskImplementationResponse->getTaskWaypoints().back()->getAssociatedTasks().push_back(m_task->getTaskID());
@@ -954,42 +950,36 @@ void TaskServiceBase::sendEmptyTaskImplementationResponse(const int64_t optionId
 
 void TaskServiceBase::processImplementationRoutePlanResponseBase(const std::shared_ptr<uxas::messages::route::RoutePlanResponse>& routePlanResponse)
 {
-    if (m_idVsUniqueAutomationRequest.find(m_latestUniqueAutomationRequestId) == m_idVsUniqueAutomationRequest.end())
-    {
+    if (m_idVsUniqueAutomationRequest.find(m_latestUniqueAutomationRequestId) == m_idVsUniqueAutomationRequest.end()) {
         //TODO:: "warning received uniqueAutomationResponse[",m_latestUniqueAutomationRequestId,"] with no corresponding uniqueAutomationRequest"
+      return;
     }
-    else
-    {
-        auto itPlanResponseId = m_pendingImplementationRouteRequests.find(routePlanResponse->getResponseID());
-        if (itPlanResponseId != m_pendingImplementationRouteRequests.end())
-        {
-            m_pendingImplementationRouteRequests.erase(routePlanResponse->getResponseID());
 
-            auto optionId = getOptionIdFromRouteId(routePlanResponse->getResponseID());
-            auto vehicleId = routePlanResponse->getVehicleID();
-            auto itTaskOptionClass = m_optionIdVsTaskOptionClass.find(optionId);
-            auto itTaskImplementationRequest = m_routeIdVsTaskImplementationRequest.find(routePlanResponse->getResponseID());
-            if ((itTaskOptionClass != m_optionIdVsTaskOptionClass.end()) &&
-                    (itTaskImplementationRequest != m_routeIdVsTaskImplementationRequest.end()))
-            {
-              auto taskOptionClass = itTaskOptionClass->second;
-              auto taskImplementationRequest = itTaskImplementationRequest->second;
-              taskOptionClass->m_firstTaskActiveWaypointID = -1;
-              for (auto routePlan : routePlanResponse->getRouteResponses()) {
-                processRoutePlan(optionId, vehicleId, taskOptionClass, routePlan, taskImplementationRequest);
-              }
-              m_routeIdVsTaskImplementationRequest.erase(routePlanResponse->getResponseID());
-            }
-            else //if(itTaskOptionClass != m_optionIdVsTaskOptionClass.end())
-            {
-                CERR_FILE_LINE_MSG("ERROR::processImplementationRouteResponseBase:: TaskOptionClass not found for optionId[" << optionId << "]")
-            } //if(itTaskOptionClass != m_optionIdVsTaskOptionClass.end())
-        }
-        else //if (itPlanResponseId != m_pendingImplementationRouteRequests.end())
-        {
-            CERR_FILE_LINE_MSG("ERROR::processImplementationRouteResponseBase:: RoutePlanResponse received that was not expected, RoutePlanId[" << routePlanResponse->getResponseID() << "]")
-        }
+    auto itPlanResponseId = m_pendingImplementationRouteRequests.find(routePlanResponse->getResponseID());
+    if (itPlanResponseId == m_pendingImplementationRouteRequests.end()) {
+      CERR_FILE_LINE_MSG("ERROR::processImplementationRouteResponseBase:: RoutePlanResponse received that was not expected, RoutePlanId[" << routePlanResponse->getResponseID() << "]");
+      return;
     }
+
+    m_pendingImplementationRouteRequests.erase(routePlanResponse->getResponseID());
+
+    auto optionId = getOptionIdFromRouteId(routePlanResponse->getResponseID());
+    auto vehicleId = routePlanResponse->getVehicleID();
+    auto itTaskOptionClass = m_optionIdVsTaskOptionClass.find(optionId);
+    auto itTaskImplementationRequest = m_routeIdVsTaskImplementationRequest.find(routePlanResponse->getResponseID());
+    if ((itTaskOptionClass == m_optionIdVsTaskOptionClass.end()) ||
+        (itTaskImplementationRequest == m_routeIdVsTaskImplementationRequest.end())) {
+      CERR_FILE_LINE_MSG("ERROR::processImplementationRouteResponseBase:: TaskOptionClass not found for optionId[" << optionId << "]");
+      return;
+    }
+
+    auto taskOptionClass = itTaskOptionClass->second;
+    auto taskImplementationRequest = itTaskImplementationRequest->second;
+    taskOptionClass->m_firstTaskActiveWaypointID = -1;
+    for (auto routePlan : routePlanResponse->getRouteResponses()) {
+      processRoutePlan(optionId, vehicleId, taskOptionClass, routePlan, taskImplementationRequest);
+    }
+    m_routeIdVsTaskImplementationRequest.erase(routePlanResponse->getResponseID());
 }
 
 std::shared_ptr<afrl::cmasi::Task> TaskServiceBase::generateTaskObject(const pugi::xml_node& taskNode)
