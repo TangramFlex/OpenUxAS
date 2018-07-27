@@ -9,7 +9,7 @@
 /czmq-4.0.2
 /fixedbitset
 /googletest-release-1.8.0
-/minizip-1.2
+/minizip-5b7b3e5c4bf1ce8fd4d3da2057760972832a972f
 /packagecache
 /rust-crc16
 #serial-1.2.1
