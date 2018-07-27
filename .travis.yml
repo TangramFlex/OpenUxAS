@@ -2,10 +2,10 @@ dist: trusty
 
 matrix:
   include:
-    - services: docker
-      os: linux
-      env: BUILD_FLAVOR=linux_docker
-      sudo: required
+    # - services: docker
+    #   os: linux
+    #   env: BUILD_FLAVOR=linux_docker
+    #   sudo: required
     - os: linux
       env: BUILD_FLAVOR=linux_native
       sudo: false
