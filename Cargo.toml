@@ -1,0 +1,15 @@
+[package]
+name = "openuxas"
+version = "0.1.0"
+authors = ["Adam C. Foltzer <acfoltzer@galois.com>"]
+build = "build.rs"
+
+[dependencies]
+uxas_services = { path = "src/Services/rs" }
+
+[[bin]]
+name = "uxas"
+path = "src/main.rs"
+
+[workspace]
+members = ["src/Services/rs"]

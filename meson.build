@@ -27,14 +27,14 @@ elif os == 'windows'
   link_args += []
 endif
 
-sub_fixedbitset = subproject('fixedbitset')
-lib_fixedbitset = sub_fixedbitset.get_variable('lib')
+# sub_fixedbitset = subproject('fixedbitset')
+# lib_fixedbitset = sub_fixedbitset.get_variable('lib')
 
-sub_byteorder = subproject('byteorder')
-lib_byteorder = sub_byteorder.get_variable('lib')
+# sub_byteorder = subproject('byteorder')
+# lib_byteorder = sub_byteorder.get_variable('lib')
 
-sub_crc16 = subproject('rust-crc16')
-lib_crc16 = sub_crc16.get_variable('lib')
+# sub_crc16 = subproject('rust-crc16')
+# lib_crc16 = sub_crc16.get_variable('lib')
 
 if get_option('force_dep_download')
   dep_zeromq    = subproject('zeromq').get_variable('dep')
@@ -208,7 +208,7 @@ if get_option('afrl_internal')
   deps += deps_internal
 endif
 
-executable(
+static_library(
   'uxas',
   'src/UxAS_Main.cpp',
   dependencies: deps,
@@ -227,7 +227,7 @@ executable(
   install: true,
 )
 
-subdir('tests')
+# subdir('tests')
 
 if get_option('afrl_internal')
   subdir('UxAS-afrl_internal/tests')

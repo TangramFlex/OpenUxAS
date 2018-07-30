@@ -12,20 +12,23 @@ fi
 # 1 - change to the directory: OpenUxAS
 cd /UxASDev/OpenUxAS
 
-# 2
-# if "build" exists the just run Ninja
-if [ ! -d "build" ]; then
-    echo "##### NEW MESON BUILD DIRECTORY #####"
-    meson build  -Dafrl_internal=${USE_INTERNAL} --buildtype=release
-else
-    echo "##### USING EXISTING MESON BUILD DIRECTORY #####"
-    cd build
-    meson configure -Dafrl_internal=${USE_INTERNAL}
-    cd ..
-fi
+# 2 - prepare and build it
+./prepare
+RUST_BACKTRACE=1 cargo build -vv -j 2
 
-# 3 - compile the code
-ninja -C build all
+# # if "build" exists the just run Ninja
+# if [ ! -d "build" ]; then
+#     echo "##### NEW MESON BUILD DIRECTORY #####"
+#     meson build  -Dafrl_internal=${USE_INTERNAL} --buildtype=release
+# else
+#     echo "##### USING EXISTING MESON BUILD DIRECTORY #####"
+#     cd build
+#     meson configure -Dafrl_internal=${USE_INTERNAL}
+#     cd ..
+# fi
+
+# # 3 - compile the code
+# ninja -C build all
 
 duration=$SECONDS
 echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."

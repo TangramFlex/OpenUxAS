@@ -124,7 +124,6 @@ subdir('src')
 lib = static_library(
   'zyre',
   [
-    'src/zpinger.c',
     'src/zre_msg.c',
     'src/zyre.c',
     'src/zyre_event.c',

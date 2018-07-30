@@ -24,8 +24,10 @@ sh RunLmcpGen.sh
 # process the wraps and their patches
 ./prepare
 
-# build with -j2; Travis has 2 "cores"
-meson build
-ninja -C build -j2
-# run test suite with *2 timeout multiplier, because Travis can be slow
-meson test -C build -t 2
+RUST_BACKTRACE=1 cargo build -vv -j 2
+
+# # build with -j2; Travis has 2 "cores"
+# meson build
+# ninja -C build -j2
+# # run test suite with *2 timeout multiplier, because Travis can be slow
+# meson test -C build -t 2

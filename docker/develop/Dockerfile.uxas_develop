@@ -4,6 +4,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ant \
     autoconf \
     build-essential \
+    ccache \
     cmake \
     curl \
     git \

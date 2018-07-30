@@ -40,3 +40,6 @@ examples/**/datawork/**
 /sdcard.img
 /.ccache
 
+
+/target
+**/*.rs.bk

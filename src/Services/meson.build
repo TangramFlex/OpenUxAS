@@ -41,10 +41,10 @@ incs_services = [
   incs_lmcp,
 ]
 
-subdir('rs')
+#subdir('rs')
 
 lib_services_link_with = [
-  lib_services_rs,
+#  lib_services_rs,
 ]
 
 deps_services = [
@@ -63,7 +63,7 @@ endif
 if get_option('afrl_internal')
   deps_services += [deps_services_internal]
   incs_services += [incs_services_internal]
-  lib_services_link_with += [lib_services_rs_internal]
+#  lib_services_link_with += [lib_services_rs_internal]
 else
   srcs_services_internal = files()
 endif

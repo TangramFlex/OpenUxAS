@@ -93,8 +93,6 @@ subdir('src')
 lib = static_library(
   'czmq',
   [
-    'foreign/sha1/sha1.c',
-    'foreign/slre/slre.c',
     'src/zactor.c',
     'src/zarmour.c',
     'src/zauth.c',
