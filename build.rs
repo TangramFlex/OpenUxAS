@@ -38,7 +38,7 @@ fn main() {
     link_dep(&meson_build, "/3rd/serial-1.2.1", "serial");
     link_dep(&meson_build, "/src/Plans", "plans");
     link_dep(&meson_build, "/3rd/TinyGPS", "tinygps");
-    link_dep(&meson_build, "/3rd/minizip-1.2", "minizip");
+    link_dep(&meson_build, "/3rd/minizip-5b7b3e5c4bf1ce8fd4d3da2057760972832a972f", "minizip");
     link_dep(&meson_build, "/3rd/zlib-1.2.8", "zlib");
     link_dep(&meson_build, "/src/DPSS", "dpss");
     println!("cargo:rustc-link-lib=boost_filesystem");
