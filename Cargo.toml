@@ -6,10 +6,11 @@ build = "build.rs"
 
 [dependencies]
 uxas_services = { path = "src/Services/rs" }
+uxas_tasks = { path = "src/Tasks/rs" }
 
 [[bin]]
 name = "uxas"
 path = "src/main.rs"
 
 [workspace]
-members = ["src/Services/rs"]
+members = ["src/Services/rs", "src/Tasks/rs"]
