@@ -6,14 +6,14 @@ brew bundle --file=./.Brewfile
 export BOOST_ROOT=/usr/local
 
 # install Rust
-curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
+curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path --default-toolchain nightly
 rustc --version
 
 # install verion of Meson that is compatible with UxAS build
-curl -L -s https://github.com/mesonbuild/meson/archive/0.45.0.zip -o meson.zip
+curl -L -s https://github.com/GaloisInc/meson/archive/0.47-rust-depfile.zip -o meson.zip
 unzip -q meson.zip
 export PATH=~/Library/Python/3.6/bin:$PATH
-pushd meson-0.45.0; python3 setup.py install; popd;
+pushd meson-0.47-rust-depfile; python3.6 setup.py install --user; popd
 meson --version
 
 # clone, build, and run LmcpGen

@@ -2,13 +2,13 @@ mkdir -p ~/.local/bin
 export PATH=~/.cargo/bin:~/.local/bin:$PATH
 
 # install Rust
-curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
+curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path --default-toolchain nightly
 rustc --version
 
 # install verion of Meson that is compatible with UxAS build
-curl -L -s https://github.com/mesonbuild/meson/archive/0.45.0.zip -o meson.zip
+curl -L -s https://github.com/GaloisInc/meson/archive/0.47-rust-depfile.zip -o meson.zip
 unzip -q meson.zip
-pushd meson-0.45.0; python3.6 setup.py install --user; popd
+pushd meson-0.47-rust-depfile; python3.6 setup.py install --user; popd
 meson --version
 
 # download newer Ninja than is packaged in repos
