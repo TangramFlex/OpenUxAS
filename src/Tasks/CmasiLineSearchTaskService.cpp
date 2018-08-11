@@ -70,41 +70,38 @@ CmasiLineSearchTaskService::configureTask(const pugi::xml_node& ndComponent)
 
     bool isSuccessful(true);
 
-    if (isSuccessful)
-    {
-        if (afrl::cmasi::isLineSearchTask(m_task.get()))
-        {
-            m_lineSearchTask = std::static_pointer_cast<afrl::cmasi::LineSearchTask>(m_task);
-            if (!m_lineSearchTask)
-            {
-                sstrErrors << "ERROR:: **CmasiLineSearchTaskService::bConfigure failed to cast a LineSearchTask from the task pointer." << std::endl;
-                CERR_FILE_LINE_MSG(sstrErrors.str())
-                isSuccessful = false;
-            }
-            else
-            {
-                //////////////////////////////////////////////
-                //////////// PROCESS OPTIONS /////////////////
-                pugi::xml_node ndTaskOptions = ndComponent.child(m_taskOptions_XmlTag.c_str());
-                if (ndTaskOptions)
-                {
-                    for (pugi::xml_node ndTaskOption = ndTaskOptions.first_child(); ndTaskOption; ndTaskOption = ndTaskOption.next_sibling())
-                    {
-                        if (std::string(STRING_XML_LINE_SEARCH_ONE_DIRECTION) == ndTaskOption.name())
-                        {
-                            m_isPlanBothDirections = false;
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            sstrErrors << "ERROR:: **CmasiLineSearchTaskService::bConfigure failed: taskObject[" << m_task->getFullLmcpTypeName() << "] is not a LineSearchTask." << std::endl;
+    if (afrl::cmasi::isLineSearchTask(m_task.get()))
+      {
+        m_lineSearchTask = std::static_pointer_cast<afrl::cmasi::LineSearchTask>(m_task);
+        if (!m_lineSearchTask)
+          {
+            sstrErrors << "ERROR:: **CmasiLineSearchTaskService::bConfigure failed to cast a LineSearchTask from the task pointer." << std::endl;
             CERR_FILE_LINE_MSG(sstrErrors.str())
-            isSuccessful = false;
-        }
-    } //isSuccessful
+              isSuccessful = false;
+          }
+        else
+          {
+            //////////////////////////////////////////////
+            //////////// PROCESS OPTIONS /////////////////
+            pugi::xml_node ndTaskOptions = ndComponent.child(m_taskOptions_XmlTag.c_str());
+            if (ndTaskOptions)
+              {
+                for (pugi::xml_node ndTaskOption = ndTaskOptions.first_child(); ndTaskOption; ndTaskOption = ndTaskOption.next_sibling())
+                  {
+                    if (std::string(STRING_XML_LINE_SEARCH_ONE_DIRECTION) == ndTaskOption.name())
+                      {
+                        m_isPlanBothDirections = false;
+                      }
+                  }
+              }
+          }
+      }
+    else
+      {
+        sstrErrors << "ERROR:: **CmasiLineSearchTaskService::bConfigure failed: taskObject[" << m_task->getFullLmcpTypeName() << "] is not a LineSearchTask." << std::endl;
+        CERR_FILE_LINE_MSG(sstrErrors.str())
+          isSuccessful = false;
+      }
     return (isSuccessful);
 }
 

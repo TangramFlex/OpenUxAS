@@ -1,0 +1,7 @@
+[package]
+name = "uxas_tasks"
+version = "0.1.0"
+authors = ["Adam C. Foltzer <acfoltzer@galois.com>"]
+
+[dependencies]
+lmcp = { path = "../../LMCP/rs" }
