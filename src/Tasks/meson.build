@@ -37,6 +37,8 @@ incs_tasks = [
   incs_lmcp,
 ]
 
+subdir('rs')
+
 if get_option('afrl_internal')
   incs_tasks += [incs_tasks_internal]
 else

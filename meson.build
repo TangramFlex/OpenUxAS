@@ -27,14 +27,14 @@ elif os == 'windows'
   link_args += []
 endif
 
-# sub_fixedbitset = subproject('fixedbitset')
-# lib_fixedbitset = sub_fixedbitset.get_variable('lib')
+sub_fixedbitset = subproject('fixedbitset')
+lib_fixedbitset = sub_fixedbitset.get_variable('lib')
 
-# sub_byteorder = subproject('byteorder')
-# lib_byteorder = sub_byteorder.get_variable('lib')
+sub_byteorder = subproject('byteorder')
+lib_byteorder = sub_byteorder.get_variable('lib')
 
-# sub_crc16 = subproject('rust-crc16')
-# lib_crc16 = sub_crc16.get_variable('lib')
+sub_crc16 = subproject('rust-crc16')
+lib_crc16 = sub_crc16.get_variable('lib')
 
 # handle boost carefully, require version >= 1.67
 if os == 'windows'
@@ -177,7 +177,9 @@ subdir('src/Plans')
 
 libs = [
   lib_services,
+  lib_services_rs,
   lib_tasks,
+  lib_tasks_rs,
   lib_lmcp,
   lib_uxas_communications,
   lib_utilities,
@@ -197,7 +199,7 @@ if get_option('afrl_internal')
   deps += deps_internal
 endif
 
-static_library(
+executable(
   'uxas',
   'src/UxAS_Main.cpp',
   dependencies: deps,
@@ -216,7 +218,7 @@ static_library(
   install: true,
 )
 
-# subdir('tests')
+subdir('tests')
 
 if get_option('afrl_internal')
   subdir('UxAS-afrl_internal/tests')

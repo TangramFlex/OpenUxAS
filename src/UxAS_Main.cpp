@@ -46,10 +46,8 @@
 
 #define BEFORE_LOG_MANAGER_INITIALIZATION_LOG_MESSAGE(message) std::cout << message << std::endl; std::cout.flush();
 
-extern "C" {
-
 int
-uxas_main(int argc, char** argv)
+main(int argc, char** argv)
 {
     // override locale with US locale settings
     /*
@@ -272,5 +270,3 @@ uxas_main(int argc, char** argv)
 
 
 };
-
-}
