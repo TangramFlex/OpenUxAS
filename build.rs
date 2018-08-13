@@ -41,10 +41,7 @@ fn main() {
     link_dep(&meson_build, "/3rd/minizip-5b7b3e5c4bf1ce8fd4d3da2057760972832a972f", "minizip");
     link_dep(&meson_build, "/3rd/zlib-1.2.8", "zlib");
     link_dep(&meson_build, "/src/DPSS", "dpss");
-    println!("cargo:rustc-link-lib=boost_filesystem");
-    println!("cargo:rustc-link-lib=boost_regex");
-    println!("cargo:rustc-link-lib=boost_system");
-    plat::link_glu();
+    link_dep(&meson_build, "/3rd/boost_1_67_0", "boost");
     plat::link_cpp();
 }
 
@@ -55,10 +52,6 @@ fn link_dep(base: &PathBuf, path: &str, libname: &str) {
 
 #[cfg(target_os = "linux")]
 mod plat {
-    pub fn link_glu() {
-        println!("cargo:rustc-link-lib=GLU");
-    }
-
     pub fn link_cpp() {
         println!("cargo:rustc-link-lib=stdc++");
     }
@@ -66,10 +59,6 @@ mod plat {
 
 #[cfg(target_os = "macos")]
 mod plat {
-    pub fn link_glu() {
-        println!("cargo:rustc-link-lib=framework=OpenGL");
-    }
-
     // on Mac, libstdc++ is a weird old GNU version that doesn't
     // support C++11, so we use the clang's libc++ instead
     pub fn link_cpp() {

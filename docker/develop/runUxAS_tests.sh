@@ -9,4 +9,6 @@ cd /UxASDev/OpenUxAS
 # fi
 
 # # 3 - compile the code
-# ninja -C build test
+# ninja -C build
+# meson test --print-errorlogs -C build 
+
