@@ -6,8 +6,8 @@ pub struct LineSearch {
 
 /// called after the lifetime thread receives a CMASI LineSearchTask
 /// message; represents the lifecycle of an individual task instance
-pub async fn run_task<'a>(task_msg: &'a LineSearchTask, task: &'a mut LineSearch) {
-    task.configure(task_msg);
+pub async fn run_task(task_msg: LineSearchTask, mut task: LineSearch) {
+    task.configure(&task_msg);
 }
 
 impl LineSearch {
