@@ -24,6 +24,7 @@ srcs_services = [
   'StatusReportService.cpp',
   'Test_SimulationTime.cpp',
   'WaypointPlanManagerService.cpp',
+  'SteeringService.cpp',
 ]
 
 incs_services = [
@@ -56,10 +57,6 @@ deps_services = [
   dep_zeromq,
 ]
 
-if os.startswith('linux') or os == 'darwin'
-  deps_services += [cpp.find_library('dl')]
-endif
-
 if get_option('afrl_internal')
   deps_services += [deps_services_internal]
   incs_services += [incs_services_internal]
@@ -68,25 +65,12 @@ else
   srcs_services_internal = files()
 endif
 
-cpp_args_services = cpp_args
-
-if cpp.get_id() == 'msvc'
-  cpp_args_services += [
-    '-DZMQ_STATIC',
-    '-DCZMQ_STATIC',
-    '-DZYRE_STATIC',
-    '-DLIBZMQ_STATIC',
-    '-DLIBCZMQ_STATIC',
-    '-DLIBZYRE_STATIC',
-  ]
-endif
-
 lib_services = static_library(
   'services',
   srcs_services,
   srcs_services_internal,
   dependencies: deps_services,
   link_with: lib_services_link_with,
-  cpp_args: cpp_args_services,
+  cpp_args: cpp_args,
   include_directories: incs_services,
 )

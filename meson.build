@@ -27,6 +27,7 @@ elif os == 'windows'
   link_args += []
 endif
 
+
 sub_fixedbitset = subproject('fixedbitset')
 lib_fixedbitset = sub_fixedbitset.get_variable('lib')
 
@@ -35,6 +36,25 @@ lib_byteorder = sub_byteorder.get_variable('lib')
 
 sub_crc16 = subproject('rust-crc16')
 lib_crc16 = sub_crc16.get_variable('lib')
+
+# handle boost carefully, require version >= 1.67
+if os == 'windows'
+  # require windows install of boost, no fallback
+  dep_boost = dependency(
+    'boost',
+    modules: ['date_time', 'filesystem', 'regex', 'system'],
+  )
+elif get_option('force_dep_download')
+  dep_boost = subproject('boost').get_variable('dep')
+elif not cpp.has_header('boost/contract.hpp')
+  dep_boost = subproject('boost').get_variable('dep')
+else
+  dep_boost = dependency(
+    'boost',
+    modules: ['date_time', 'filesystem', 'regex', 'system'],
+    fallback: ['boost', 'dep'],
+  )
+endif
 
 if get_option('force_dep_download')
   dep_zeromq    = subproject('zeromq').get_variable('dep')
@@ -103,13 +123,6 @@ else
     fallback: ['minizip', 'dep'],
   )
 endif
-
-# handle boost carefully
-dep_boost = dependency(
-  'boost',
-  modules: ['date_time', 'filesystem', 'regex', 'system'],
-  fallback: ['boost', 'dep'],
-)
 
 # https://github.com/mikalhart/TinyGPS
 # The TinyGPS repo captured by UxAS does not seem to be available.
@@ -180,29 +193,6 @@ endif
 
 # creates src/Includes/config.h
 subdir('src/Includes')
-
-glu_deps = []
-# OpenGL, specifically the GLU library
-if os == 'darwin'
-  # newer MacOS splits out GLU into a separate framework, but we can't
-  # ask Meson for the version in order to handle things differently
-  glu_deps += [dependency('gl')]
-  glu_deps += [dependency('glu', required: false)]
-elif os.startswith('linux')
-  glu_deps += [dependency('glu')]
-elif os == 'windows'
-  glu_deps += [cpp.find_library('glu32')]
-endif
-
-# ensure that required glu functions are available
-# note: 'has_function' check cannot reach into windows c libraries
-glu_functions = ['gluNewTess', 'gluDeleteTess', 'gluErrorString']
-foreach fn : glu_functions
-  if os != 'windows' and not cpp.has_function(fn, dependencies: glu_deps)
-    error('GLU library functions not found')
-  endif
-endforeach
-deps += glu_deps
 
 if get_option('afrl_internal')
   deps += deps_internal

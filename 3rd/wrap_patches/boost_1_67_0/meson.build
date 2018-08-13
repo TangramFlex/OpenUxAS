@@ -1,4 +1,4 @@
-project('BoostLibs', 'cpp')
+project('boost', 'cpp')
 
 os = target_machine.system()
 if os == 'linux'
@@ -10,7 +10,7 @@ incs_boost = include_directories(
 )
 
 lib = static_library(
-  'boostlibs',
+  'boost',
   [
     'libs/atomic/src/lockpool.cpp',
     'libs/chrono/src/chrono.cpp',
@@ -61,7 +61,6 @@ lib = static_library(
     'libs/system/src/error_code.cpp',
     'libs/thread/src/future.cpp',
     'libs/thread/src/pthread/once.cpp',
-    'libs/thread/src/pthread/once_atomic.cpp',
     'libs/thread/src/pthread/thread.cpp',
     'libs/thread/src/tss_null.cpp',
     'libs/timer/src/auto_timers_construction.cpp',

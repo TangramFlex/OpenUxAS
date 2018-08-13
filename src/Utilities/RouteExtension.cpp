@@ -78,22 +78,28 @@ std::vector<afrl::cmasi::Waypoint*> RouteExtension::DiscretizeExtension(std::vec
     // convert to standard cmasi waypoints with appropriate discretization
     std::vector<afrl::cmasi::Waypoint*> extension;
     double lat, lon;
+    int64_t index = 1;
     for(auto dwp : dubins_extension)
     {
         if(dwp.turndir != 0)
         {
             double R = sqrt( (dwp.x - dwp.tx)*(dwp.x - dwp.tx) + (dwp.y - dwp.ty)*(dwp.y - dwp.ty) );
+            double dx = dwp.x - dwp.tx;
+            double dy = dwp.y - dwp.ty;
+            double th = dwp.turndir*dwp.len/R;
+            double cth = cos(th);
+            double sth = sin(th);
+            double vx =  cth*dx + sth*dy;
+            double vy = -sth*dx + cth*dy;
             int32_t M = static_cast<int32_t> (floor(dwp.len/d)) - 1;
             if(M > 0)
             {
-                double gam = dwp.turndir*dwp.len/R/(M+1.0);
+                double gam = -dwp.turndir*dwp.len/R/(M+1.0);
                 double cgam = cos(gam);
                 double sgam = sin(gam);
-                double vx = dwp.x - dwp.tx;
-                double vy = dwp.y - dwp.ty;
                 for(auto m=0; m<M; m++)
                 {
-                    double x = cgam*vx + sgam*vy;
+                    double x =  cgam*vx + sgam*vy;
                     double y = -sgam*vx + cgam*vy;
                     vx = x;
                     vy = y;
@@ -101,6 +107,8 @@ std::vector<afrl::cmasi::Waypoint*> RouteExtension::DiscretizeExtension(std::vec
                     auto cwp = baseWp->clone();
                     cwp->setLatitude(lat);
                     cwp->setLongitude(lon);
+                    cwp->setNumber(index);
+                    cwp->setNextWaypoint(++index);
                     extension.push_back(cwp);
                 }
             }
@@ -111,6 +119,8 @@ std::vector<afrl::cmasi::Waypoint*> RouteExtension::DiscretizeExtension(std::vec
         flatEarth.ConvertNorthEast_mToLatLong_deg(dwp.y, dwp.x, lat, lon);
         fwp->setLatitude(lat);
         fwp->setLongitude(lon);
+        fwp->setNumber(index);
+        fwp->setNextWaypoint(++index);
         extension.push_back(fwp);
     }
 
