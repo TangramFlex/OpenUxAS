@@ -1104,6 +1104,9 @@
             <!-- If true, the ViewAngleList specifies inertial (North-East) angles. See documentation above. -->
             <Field Name="UseInertialViewAngles" Type="bool" Default="false"/>
 
+            <!-- If true, the search can be executed in either direction along the line -->
+            <Field Name="EitherDirection" Type="bool" Default="true"/>
+
         </Struct>
 
         <!--
