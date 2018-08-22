@@ -359,7 +359,8 @@ Windows, this process has, so far, only been tested on Linux.
 1. Install [Docker CE](https://www.docker.com/community-edition).
 1. Generate the LMCP libraries through the steps listed above, running `RunLmcpGen.sh`.
 1. From the root of the repository, run `python prepare`.
-1. From the root of the repository, run `./docker/build_sdcard_and_uxas.sh`
+1. From the root of the repository, run `./docker/odroidxu4/01_build_sdcard_and_sdk.sh`
+1. From the root of the repository, run `./docker/odroidxu4/02_cross_compile_uxas.sh`
 
 At the end of this process, you will have an ODROID-XU4 system image
 at `/sdcard.img` ready to flash to an SD card or eMMC module, and you
