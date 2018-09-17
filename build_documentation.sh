@@ -25,6 +25,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo apt -y install doxygen
     sudo apt -y install graphviz
     sudo apt -y install texlive-full
+    sudo apt -y install texlive-latex-extra
     # Install sed, evince (for pdf viewing)
     sudo apt -y install sed evince
 else
@@ -41,8 +42,8 @@ echo "Creating HTML Doxygen reference documentation..."
 # run this at: ./OpenUxAS/doc/doxygen
 cd ../../doxygen
 sh RunDoxygen.sh
-echo "Opening ./doc/doxygen/html/index.html in firefox"
-firefox ./html/index.html &
+#echo "Opening ./doc/doxygen/html/index.html in firefox"
+#firefox ./html/index.html &
 #echo "Opening ./doc/LMCP/index.html in firefox"
 #firefox ../LMCP/index.html &
 
@@ -59,8 +60,8 @@ sed -i.orig "s/%===== C O N T E N T S =====/${HOLDSTR2}\n%===== C O N T E N T S 
 # run this at: ./OpenUxAS/doc/doxygen/latex
 cd ./latex
 pdflatex refman.tex
-echo "Opening ./doc/doxgen/latex/refman.pdf in evince"
-evince refman.pdf &
+#echo "Opening ./doc/doxgen/latex/refman.pdf in evince"
+#evince refman.pdf &
 
 echo "...Congratulations! You're done with building the documentation!"
 

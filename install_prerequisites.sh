@@ -12,6 +12,17 @@
 # * http://stackoverflow.com/questions/3466166/how-to-check-if-running-in-cygwin-mac-or-linux/17072017#17072017
 # * https://serverfault.com/questions/501230/can-not-seem-to-get-expr-substr-to-work
 
+# Confirm shell
+[ "`ps -o comm= $$`" = bash ] || { echo "`ps -o comm= $$` is not bash"; exit 1; }
+
+# Confirm non-root user
+[ $USER = root ] && { echo "Do not run this script as root"; exit 1; }
+
+# Preauthorize sudo
+sudo -k && sudo -v || { echo "sudo not authenticated"; exit 1; }
+while true; do sudo -n true; sleep 60; kill -s 0 $$ || exit; done 2>/dev/null &
+
+
 if [ "$(uname)" == "Darwin" ]; then
     echo "Install Prerequisites on Mac OS X"
     echo " "
@@ -89,7 +100,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # Install unique ID creation library: in terminal
     sudo apt -y install uuid-dev
     # Install Boost libraries (**optional but recommended**; see external dependencies section): in terminal
-    sudo apt-get install libboost-filesystem-dev libboost-regex-dev libboost-system-dev
+    sudo apt -y install libboost-filesystem-dev libboost-regex-dev libboost-system-dev
     # Install pip3: in terminal
     sudo apt -y install python3-pip
     sudo -H pip3 install --upgrade pip
@@ -102,10 +113,11 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo -H pip3 install matplotlib
     sudo -H pip3 install pandas
     # Install Oracle JDK
-    sudo add-apt-repository ppa:webupd8team/java
+    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+    sudo add-apt-repository -y ppa:webupd8team/java
     sudo apt -y update
-    sudo apt -y install oracle-java9-installer
-    sudo apt -y install oracle-java9-set-default
+    sudo apt -y install oracle-java8-installer
+    sudo apt -y install oracle-java8-set-default
     # Install ant for command line build of java programs
     sudo apt -y install ant
     echo "Dependencies installed!"
@@ -130,11 +142,13 @@ if [ $current_directory == "OpenUxAS" ] && [ -d $git_directory ]; then
 fi
 
 echo "Checking out LmcpGen ..."
+rm -rf LmcpGen
 git clone https://github.com/afrl-rq/LmcpGen.git
 cd LmcpGen
 ant -q jar
 cd ..
 echo "Checking out OpenAMASE ..."
+rm -rf OpenAMASE
 git clone https://github.com/afrl-rq/OpenAMASE.git
 cd OpenAMASE/OpenAMASE
 ant -q jar
@@ -146,11 +160,29 @@ sudo python3 setup.py install
 cd ../../..
 
 echo "Preparing UxAS build ..."
+rm -rf build build_debug
 python3 prepare
 sh RunLmcpGen.sh
 meson build --buildtype=release
 meson build_debug --buildtype=debug
 
-echo "Complete! To build, type 'ninja -C build'"
+echo "Performing initial UxAS build ..."
+ninja -C build_debug
+ninja -C build
+
+cat <<'EOF'
+
+================================================================
+
+DONE!
+
+Subsequent builds are done using:
+
+  $ ninja -C build_debug
+
+and 
+
+  $ ninja -C build
+EOF
 
 # --eof--
