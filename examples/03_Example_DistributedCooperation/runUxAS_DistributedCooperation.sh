@@ -6,6 +6,9 @@ SAVE_DIR=$(pwd)
 #location of the UxAS binary (executable)
 BIN="../../../build/uxas"
 
+#terminal
+terminal=/usr/bin/xterm
+
 #set the UAV ID
 UAV=1000
 #define the runinnig directory
@@ -17,7 +20,7 @@ mkdir -p ${RUN_DIR}
 # change to the data directory
 cd ${RUN_DIR}
 # run UxAS is a separate terminal. Note: requires "gnome-terminal"
-/usr/bin/gnome-terminal -e $BIN" -cfgPath ../cfgDistributedCooperation_$UAV.xml"
+$terminal -e $BIN" -cfgPath ../cfgDistributedCooperation_$UAV.xml"
 # change back to the original directory
 cd $SAVE_DIR
 
@@ -32,7 +35,7 @@ mkdir -p ${RUN_DIR}
 # change to the data directory
 cd ${RUN_DIR}
 # run UxAS is a separate terminal. Note: requires "gnome-terminal"
-/usr/bin/gnome-terminal -e $BIN" -cfgPath ../cfgDistributedCooperation_$UAV.xml"
+$terminal -e $BIN" -cfgPath ../cfgDistributedCooperation_$UAV.xml"
 # change back to the original directory
 cd $SAVE_DIR
 
