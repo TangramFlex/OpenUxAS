@@ -76,7 +76,7 @@ if [ "$(uname)" == "Darwin" ]; then
     echo "Dependencies installed!"
     
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-
+    if [ -n "$(which apt)" ]; then
     echo "Installing Prerequisite Tools on Ubuntu Linux"
     # run an 'apt update' check without sudo
     # ref: https://askubuntu.com/questions/391983/software-updates-from-terminal-without-sudo
@@ -120,6 +120,31 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo apt -y install oracle-java8-set-default
     # Install ant for command line build of java programs
     sudo apt -y install ant
+    fi  # have apt; must be Ubuntu
+
+    if [ -n "$(which dnf)" ]; then
+    echo "Installing Prerequisite Tools on Fedora Linux"
+     set -xe
+    # These should be the same packages (perhaps with different names) as above
+    sudo dnf -y install pkgconf git gitk mesa-libGLU-devel uuid-devel \
+        boost-devel python3-pip python3-tkinter ant
+    sudo -H pip3 install --upgrade pip
+    sudo -H pip3 install ninja
+    sudo -H pip3 install meson==0.42.1
+    sudo -H pip3 install matplotlib
+    sudo -H pip3 install pandas
+    # What a mess, Oracle...
+    wget --no-cookies --no-check-certificate --header 'Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie' http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.rpm
+    java_rpm=jdk-8u181-linux-x64.rpm
+    sudo dnf localinstall -y $java_rpm
+    rm -f $java_rpm
+    sudo alternatives --install /usr/bin/java java /usr/java/jdk1.8.0_181-amd64/jre/bin/java 200000
+    sudo alternatives --install /usr/bin/javaws javaws /usr/java/jdk1.8.0_181-amd64/jre/bin/javaws 200000
+    sudo alternatives --install /usr/bin/javac javac /usr/java/jdk1.8.0_181-amd64/bin/javac 200000
+    sudo alternatives --install /usr/bin/jar jar /usr/java/jdk1.8.0_181-amd64/bin/jar 200000
+     set +xe
+    fi  # have dnf; must be Fedora
+
     echo "Dependencies installed!"
 
 else
