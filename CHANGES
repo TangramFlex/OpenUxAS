@@ -1,0 +1,13 @@
+This document highlights the changes made on the `rivetss` branch.
+
+Building
+--------
+
+- Reworked build scripts to minimize user interaction.
+- Added support to build on Fedora Linux.
+
+Examples
+--------
+
+- Replaced gnome-terminal with xterm.
+- Added missing shebang lines.
