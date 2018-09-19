@@ -11,3 +11,4 @@ Examples
 
 - Replaced gnome-terminal with xterm.
 - Added missing shebang lines.
+- Automated configuration for example 03_Example_DistributedCooperation.

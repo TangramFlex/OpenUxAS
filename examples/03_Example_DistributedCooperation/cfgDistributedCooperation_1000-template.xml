@@ -1,26 +1,26 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<UxAS EntityID="2000" FormatVersion="1.0" EntityType="Aircraft">
+<?xml version="1.0"?>
+<UxAS EntityID="1000" FormatVersion="1.0" EntityType="Aircraft">
 
     <!-- NOTE:: "NetworkDevice" must be set equal to an active network interface device, e.g. wlan0 -->
     <!-- on Linux and Mac, type 'ifconfig' to find interface name -->
     <!-- on Windows, type 'ipconfig' to find interface name (name is after adapter type)	
 	     Windows example name: Wireless Network Connection
 	-->
-    <Bridge Type="LmcpObjectNetworkZeroMqZyreBridge" NetworkDevice="en0">
+    <Bridge Type="LmcpObjectNetworkZeroMqZyreBridge" NetworkDevice="enp0s20f0u4u1">
         <SubscribeToExternalMessage MessageType="afrl.cmasi.AirVehicleState"/>
         <SubscribeToExternalMessage MessageType="uxas.messages.task.AssignmentCoordination"/>
     </Bridge>
 
     <!-- Connect to AMASE on a single vehicle port (see config folder in OpenAMASE) -->
-    <Bridge Type="LmcpObjectNetworkTcpBridge" TcpAddress="tcp://127.0.0.1:9900" Server="FALSE" ConsiderSelfGenerated="TRUE">
-        <SubscribeToMessage MessageType="afrl.cmasi.MissionCommand" />
-        <SubscribeToMessage MessageType="afrl.cmasi.LineSearchTask" />
-        <SubscribeToMessage MessageType="afrl.impact.ImpactLineSearchTask" />
-        <SubscribeToMessage MessageType="afrl.impact.AngledAreaSearchTask" />
-        <SubscribeToMessage MessageType="afrl.cmasi.AreaSearchTask" />
-        <SubscribeToMessage MessageType="afrl.cmasi.VehicleActionCommand" />
-        <SubscribeToMessage MessageType="afrl.cmasi.KeepInZone" />
-        <SubscribeToMessage MessageType="afrl.cmasi.KeepOutZone" />
+    <Bridge Type="LmcpObjectNetworkTcpBridge" TcpAddress="tcp://127.0.0.1:9800" Server="FALSE" ConsiderSelfGenerated="TRUE">
+        <SubscribeToMessage MessageType="afrl.cmasi.MissionCommand"/>
+        <SubscribeToMessage MessageType="afrl.cmasi.LineSearchTask"/>
+        <SubscribeToMessage MessageType="afrl.impact.ImpactLineSearchTask"/>
+        <SubscribeToMessage MessageType="afrl.impact.AngledAreaSearchTask"/>
+        <SubscribeToMessage MessageType="afrl.cmasi.AreaSearchTask"/>
+        <SubscribeToMessage MessageType="afrl.cmasi.VehicleActionCommand"/>
+        <SubscribeToMessage MessageType="afrl.cmasi.KeepInZone"/>
+        <SubscribeToMessage MessageType="afrl.cmasi.KeepOutZone"/>
     </Bridge>
 
     <Service Type="Test_SimulationTime"/>
@@ -29,13 +29,11 @@
     <Service Type="SensorManagerService"/>
     <Service Type="RouteAggregatorService"/>
     <Service Type="RoutePlannerVisibilityService" MinimumWaypointSeparation_m="50"/>
-    <Service Type="AssignmentTreeBranchBoundService" NumberNodesMaximum="0" CostFunction="MINMAX" />   
+    <Service Type="AssignmentTreeBranchBoundService" NumberNodesMaximum="0" CostFunction="MINMAX"/>   
     <Service Type="PlanBuilderService"/>
     <Service Type="AutomationDiagramDataService"/>
 
-    <Service Type="WaypointPlanManagerService" VehicleID="2000" NumberWaypointsToServe="1000" NumberWaypointsOverlap="5"
-             DefaultLoiterRadius_m="250"  param.turnType="FlyOver" AddLoiterToEndOfSegments="FALSE"
-             AddLoiterToEndOfMission="FALSE" LoopBackToFirstTask="FALSE" GimbalPayloadId="1" />
+    <Service Type="WaypointPlanManagerService" VehicleID="1000" NumberWaypointsToServe="1000" NumberWaypointsOverlap="5" DefaultLoiterRadius_m="250" param.turnType="FlyOver" AddLoiterToEndOfSegments="FALSE" AddLoiterToEndOfMission="FALSE" LoopBackToFirstTask="FALSE" GimbalPayloadId="1"/>
 
     <Service Type="SendMessagesService" PathToMessageFiles="../MessagesToSend/">
 
@@ -60,7 +58,7 @@
 
         <!-- The assignment coordinator -->
         <Message MessageFileName="AssignmentCoordinatorTask.xml" SendTime_ms="1000"/>
-        <!-- <Message MessageFileName="AirVehicleState_V2000.xml" SendTime_ms="2000"/> -->
+        <!-- <Message MessageFileName="AirVehicleState_V1000.xml" SendTime_ms="2000"/> -->
         <!-- coordniation request to perform the tasks -->
         <Message MessageFileName="CoordinatedAutomationRequest.xml" SendTime_ms="5000"/>
     </Service>
@@ -71,5 +69,3 @@
         <LogMessage MessageType="eid" NumberMessagesToSkip="0"/>
     </Service>
 </UxAS>
-
-
