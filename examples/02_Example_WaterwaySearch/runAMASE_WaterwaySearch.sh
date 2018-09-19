@@ -1,3 +1,5 @@
+#! /bin/bash
+
 here=$PWD;
 
 cd ../../../OpenAMASE/OpenAMASE;
