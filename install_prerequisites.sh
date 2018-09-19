@@ -120,6 +120,8 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo apt -y install oracle-java8-set-default
     # Install ant for command line build of java programs
     sudo apt -y install ant
+    # We probably have xterm; be certain.
+    sudo apt -y install xterm
     fi  # have apt; must be Ubuntu
 
     if [ -n "$(which dnf)" ]; then
@@ -127,7 +129,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
      set -xe
     # These should be the same packages (perhaps with different names) as above
     sudo dnf -y install pkgconf git gitk mesa-libGLU-devel uuid-devel \
-        boost-devel python3-pip python3-tkinter ant
+        boost-devel python3-pip python3-tkinter ant xterm
     sudo -H pip3 install --upgrade pip
     sudo -H pip3 install ninja
     sudo -H pip3 install meson==0.42.1
