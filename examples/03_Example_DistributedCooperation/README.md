@@ -26,7 +26,7 @@ This is an example of running UxAS services that communicate with each other to 
 
 
 ## Running the Example:
-1. open a ternimal window in the directory: "examples/03_Example_DistributedCooperation/"
+1. open a terminal window in the directory: "examples/03_Example_DistributedCooperation/"
 2. prepare the networking: `./configure-ip4-link.sh`
 3. enter the command: `./runUxAS_DistributedCooperation.sh`
 4. watch the simulation: `./runAMASE_DistributedCooperation.sh`
