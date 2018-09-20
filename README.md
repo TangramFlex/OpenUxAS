@@ -83,6 +83,7 @@ For Linux and Mac systems, the command `bash build_document.sh` installs require
 The following files which appear at the top of the *OpenUxAS* directory tree depend upon the documentation having been built:
 
 1. UxAS_UserManual.pdf
+1. UxAS_DoxygenReport.pdf
 1. browse_doxygen.sh
 1. browse_lmcp.sh
 
