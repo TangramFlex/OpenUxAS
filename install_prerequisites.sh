@@ -5,6 +5,8 @@
 # https://github.com/afrl-rq/OpenUxAS
 # Additional copyright may be held by others, as reflected in the commit history.
 
+set -e
+
 # from the README.md, 2017-05-11:
 
 
@@ -76,7 +78,7 @@ if [ "$(uname)" == "Darwin" ]; then
     echo "Dependencies installed!"
     
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    if [ -n "$(which apt)" ]; then
+    if [ -n "$(which apt 2>/dev/null)" ]; then
     echo "Installing Prerequisite Tools on Ubuntu Linux"
     # run an 'apt update' check without sudo
     # ref: https://askubuntu.com/questions/391983/software-updates-from-terminal-without-sudo
@@ -124,9 +126,8 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo apt -y install xterm
     fi  # have apt; must be Ubuntu
 
-    if [ -n "$(which dnf)" ]; then
+    if [ -n "$(which dnf 2>/dev/null)" ]; then
     echo "Installing Prerequisite Tools on Fedora Linux"
-     set -xe
     # These should be the same packages (perhaps with different names) as above
     sudo dnf -y install pkgconf git gitk mesa-libGLU-devel uuid-devel \
         boost-devel python3-pip python3-tkinter ant xterm
@@ -141,10 +142,13 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo dnf localinstall -y $java_rpm
     rm -f $java_rpm
     sudo alternatives --install /usr/bin/java java /usr/java/jdk1.8.0_181-amd64/jre/bin/java 200000
+    sudo alternatives --set java /usr/java/jdk1.8.0_181-amd64/jre/bin/java
     sudo alternatives --install /usr/bin/javaws javaws /usr/java/jdk1.8.0_181-amd64/jre/bin/javaws 200000
+    sudo alternatives --set javaws /usr/java/jdk1.8.0_181-amd64/jre/bin/javaws
     sudo alternatives --install /usr/bin/javac javac /usr/java/jdk1.8.0_181-amd64/bin/javac 200000
+    sudo alternatives --set javac /usr/java/jdk1.8.0_181-amd64/bin/javac
     sudo alternatives --install /usr/bin/jar jar /usr/java/jdk1.8.0_181-amd64/bin/jar 200000
-     set +xe
+    sudo alternatives --set jar /usr/java/jdk1.8.0_181-amd64/bin/jar
     fi  # have dnf; must be Fedora
 
     echo "Dependencies installed!"
