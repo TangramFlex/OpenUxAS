@@ -28,18 +28,13 @@ Subsequent builds are performed using `ninja`.
 
 ## Building at the Command Line
 1. From the *OpenUxAS* local repository (i.e. `cd OpenUxAS`)
-1. Configure for release build: in terminal
-   * `meson build --buildtype=release`
-1. Configure for debug build: in terminal
-   * `meson build_debug --buildtype=debug`
-   * These two steps only need to be done prior to the first build. If you
-modify the Meson files, just build as normal in step 3 and the changes
-will be automatically incorporated.
+1. The `install_prerequisites.sh` script creates a release build in the
+   `build` directory and a debug build in the `build_debug` directory.
+   Either build directory may be specified in the following commands.
 1. Build UxAS: in terminal
    * `ninja -C build all`
    * This step is the only step necessary in day-to-day development work. It's
-the Meson equivalent of `make all`. Note that the name of `ninja` may differ by distro. On Fedora, for example,
-it's `ninja-build`.
+the Meson equivalent of `make all`.
    * To clean the build, add the `clean` target at the end of your ninja
 command: `ninja -C build clean`
 1. Run UxAS tests: in terminal
@@ -182,6 +177,11 @@ in the `/3rd` directory by `./prepare`.
 
 - The Visual Studio backend for Meson mostly works, but will fail when regenerating build files. If you modify one of the `meson.build` files, delete the `build` directory and run `meson.py build --backend=vs` again. The steps following the `meson.build` command must also be performed.
 - The UxAS test suite uses some hardcoded POSIX-style paths, and so does not currently work on Windows.
+
+---
+---
+
+*The remainder of this document may be incorrect or irrelevant, and may be safely ignored.*
 
 ---
 
