@@ -19,6 +19,8 @@ A core functionality provided by UxAS is the mechanism to calculate near-optimal
 
 For an Ubuntu 16.04, Fedora 28 or Mac OS X system with prerequisites installed, UxAS should build from source without issue. Support for Windows is available on Windows 7 and 10 using Visual Studio.
 
+*NOTE: As this project is in transition, not all build methods are up-to-date. Refer to `BUILDERS_STATUS` for the last-known state of each method.*
+
 # Configure Host System and Perform Initial UxAS Build
 
 For Linux and Mac systems, the [install prerequisities script](https://raw.githubusercontent.com/afrl-rq/OpenUxAS/develop/install_prerequisites.sh) from the [*OpenUxAS* repository](https://github.com/afrl-rq/OpenUxAS/) (`bash install_prerequisites.sh`) automates the installation of all the necessary tools for compilation of *OpenUxAS* and performs the initial build. Note, on Mac [XCode](https://developer.apple.com/xcode/) must first be installed before running the install script.
