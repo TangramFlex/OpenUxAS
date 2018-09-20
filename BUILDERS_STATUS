@@ -8,6 +8,5 @@ Fedora	28	CLI	20180920	dlamkins
 OS X		CLI					
 		Docker					
 		Jenkins					
-Windows		VS 7					
-Windows		VS 10					
-Windows		Cygwin					
+Windows 7	VS 2017					
+Windows 10	VS 2017					
