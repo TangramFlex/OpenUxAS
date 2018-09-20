@@ -12,3 +12,9 @@ Examples
 - Replaced gnome-terminal with xterm.
 - Added missing shebang lines.
 - Automated configuration for example 03_Example_DistributedCooperation.
+
+Documentation
+-------------
+
+- Removed or flagged outdated or incorrect descriptions and instructions
+  as encountered.
