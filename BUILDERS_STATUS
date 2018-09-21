@@ -3,8 +3,8 @@ OpenUxAS repository.
 
 Host	Version	Method	Test_Date	Tested_By	Remarks
 ------- ------- ------- ---------	---------	-------
-Ubuntu	16.04	CLI	20180919	dlamkins	
-Fedora	28	CLI	20180920	dlamkins	
+Ubuntu	16.04	CLI	20180919	dlamkins	workstation in vm
+Fedora	28	CLI	20180921	dlamkins	server in vm & native
 OS X		CLI					
 		Docker					
 		Travis					
