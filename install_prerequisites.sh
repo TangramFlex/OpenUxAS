@@ -130,7 +130,8 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "Installing Prerequisite Tools on Fedora Linux"
     # These should be the same packages (perhaps with different names) as above
     sudo dnf -y install pkgconf git gitk mesa-libGLU-devel uuid-devel \
-        boost-devel python3-pip python3-tkinter ant xterm
+        boost-devel python3-pip python3-tkinter ant xterm redhat-rpm-config \
+        gcc-c++ python3-devel
     sudo -H pip3 install --upgrade pip
     sudo -H pip3 install ninja
     sudo -H pip3 install meson==0.42.1
