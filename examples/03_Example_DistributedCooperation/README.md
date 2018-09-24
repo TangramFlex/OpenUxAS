@@ -31,6 +31,7 @@ This is an example of running UxAS services that communicate with each other to 
 3. enter the command: `./runUxAS_DistributedCooperation.sh`
 4. watch the simulation: `./runAMASE_DistributedCooperation.sh`
 
+You'll probably need to pan and zoom the AMASE map. To pan, hold button 3 and drag the map. To zoom, position the pointer over the map and use the mouse wheel or buttons 4 and 5.
 
 ### What Happens?
 * Two console windows will open, each will have UxAS running.
