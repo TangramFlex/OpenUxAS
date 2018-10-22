@@ -28,6 +28,11 @@ tests/**/output/**
 examples/**/log/**
 examples/**/datawork/**
 
+# Local tools root; tell `pip` to install stuff
+# here instead of borking packages installed
+# using the distro's package manager.
+/toolroot/
+
 # Mac OS X file system
 **.DS_Store
 /UxAS-afrl_internal/
