@@ -1,0 +1,17 @@
+#! /usr/bin/env xs
+
+# Report user includes for task implementations,
+# excluding templates and infrastructure.
+
+i = 0
+for f (src/Tasks/*.cpp) {
+	if {!~ `{basename $f} *Template.cpp *Base.cpp TaskManagerService.cpp \
+	TaskTrackerService.cpp AngledAreaSearchTaskService.cpp} {
+		i = `($i+1)
+		echo \n\;[$i]\ $f
+		cpp -MM -MG -MP src/Tasks/AngledAreaSearchTaskService.cpp \
+			|grep -v -e ': ' -e '^ ' -e '^$'|sort|uniq|tr -d :
+	} else {
+		echo \n\;[infrastructure]\ $f
+	}
+} | less -iRFX

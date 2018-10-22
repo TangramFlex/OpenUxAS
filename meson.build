@@ -135,6 +135,12 @@ if get_option('afrl_internal')
   subdir('UxAS-afrl_internal')
 endif
 
+subdir('src/separate_compilation/task01')
+
+separate_libs = [
+  lib_task01,
+]
+
 deps = [
   dependency('threads'),
   dep_boost,
@@ -207,7 +213,10 @@ executable(
     ),
     incs_lmcp,
   ],
-  link_with: libs,
+  link_with: [
+    libs,
+    separate_libs,
+  ],
   install: true,
 )
 

@@ -2,7 +2,7 @@ srcs_tasks = [
 	'RendezvousTask.cpp',
   '00_TaskTemplate.cpp',
   'AngledAreaSearchTaskService.cpp',
-  'AssignmentCoordinatorTaskService.cpp',
+#  'AssignmentCoordinatorTaskService.cpp',
   'BlockadeTaskService.cpp',
   'CmasiAreaSearchTaskService.cpp',
   'CmasiLineSearchTaskService.cpp',
