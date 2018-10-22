@@ -135,9 +135,13 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
         gcc-c++ python3-devel ninja-build python3-matplotlib python3-pandas \
         java-1.8.0-openjdk-devel
 
+    # Extend paths for pip --user option
+    source ./path.sh
+
     # Pinning meson is understandable for now; the API is in flux.
-    mkdir -p `pwd`/toolroot
-    env PYTHONUSERBASE=`pwd`/toolroot pip3 install meson==0.42.1
+    [ -n "$PYTHONUSERBASE" ] || { echo "PYTHONUSERBASE is not set"; exit 1; }
+    mkdir -p $PYTHONUSERBASE
+    pip3 install --user meson==0.42.1
 
 # OpenJDK and Oracle JDK supposedly differ only in license. It'd be nice to
 # be able to ditch this hack:
