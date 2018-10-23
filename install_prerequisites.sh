@@ -26,6 +26,10 @@ while true; do sudo -n true; sleep 60; kill -s 0 $$ || exit; done 2>/dev/null &
 
 
 if [ "$(uname)" == "Darwin" ]; then
+    echo "The Mac/Darwin portion of this script is out of date."
+    echo "Please update using the Fedora section as a guide."
+    exit 1
+    ## FIXME:
     echo "Install Prerequisites on Mac OS X"
     echo " "
     echo "Install XCode"
