@@ -1,7 +1,5 @@
 #! /usr/bin/env xs
 
-fmt = pdf
-view = zathura
 pgm = $0
 here = `` \n {cd `{dirname $pgm}; pwd}
 name = `{basename $pgm}
@@ -12,5 +10,6 @@ $here^/tools/cinclude2dot \
 		Plans/ Services/ Tasks/ \
 	--quotetypes quote \
 	>[2]/dev/null >$here^/out/^$name^.dot
-neato -T^$fmt $here^/out/^$name^.dot >$here^/out/^$name^.^$fmt
-$view $here^/out/^$name^.^$fmt
+xdot --help >[2]/dev/null|awk 'BEGIN {pass=0} /^Shortcuts:/ {pass=1} {if (pass) print;}'
+xdot -f neato $here^/out/^$name^.dot >[2]/dev/null &
+true
