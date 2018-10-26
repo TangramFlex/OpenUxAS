@@ -1,0 +1,24 @@
+#! /usr/bin/env xs
+
+includes = \
+	-I ./3rd/SQLiteCpp-1.3.1/sqlite3/ \
+	-I ./3rd/SQLiteCpp-1.3.1/include/ \
+	-I ./3rd/zeromq-4.2.3/include/ \
+	-I ./3rd/cppzmq-4.2.2 \
+	-I ./3rd/PugiXML/src/ \
+	-I src/Includes/ \
+	-I ./src/LMCP/ \
+	-I ./src/DPSS \
+	-I ./src/Communications/ \
+	-I ./src/Plans/ \
+	-I ./src/Services/ \
+	-I ./src/Tasks/ \
+	-I ./src/Utilities/ \
+	-I ./src/VisilibityLib/
+source = src/UxAS_Main.cpp
+clang $includes -emit-llvm -S -c $source -o - \
+	| opt -O1 \
+	| opt --dot-callgraph -o /dev/null
+# The output is in callgraph.dot .
+xdot -f dot callgraph.dot
+# Try other layouts w/ xdot . See xdot(1).
