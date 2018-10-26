@@ -1,0 +1,62 @@
+The initial reverse-engineering challenge is to separate out a UxAS task to
+be compiled separately from the monolithic UxAS host; communicating over the
+host's LMCP messaging interface.
+
+My first, incomplete, work served to demonstrate the ease with which any
+given compilation unit may be separated from the whole. This involves simply
+removing the unit's source file from the main body of code, capturing all of
+the necessary compiler flags, and compiling as a static library to be linked
+to the host. This was done by hand, but the structure and consistency of the
+Meson build specification suggests that it'd be relatively easy to automate
+this process.
+
+Alas, the rest is not as simple...
+
+A first exploration involved attempts to visualize the UxAS code base, both
+in terms of its source dependencies and its call graph, demonstrated that
+naïve approaches are unable to provide usable visualizations due to the
+size and complexity of the code base. (UxAS consists of approximately 800
+source code files in various languages; mostly C++.)
+
+C++ programs tend to conflate data and control through encapsulation; the
+textual relationships exposed by include and call-graph analysis contain
+many uninteresting nodes as a result. I did some follow-on work to manually
+remove spurious details from the visualizations (i.e. by editing the
+`dot` files created by the analysis tools), hoping to discover some simple
+hueristics; I did not.
+
+The `experimental/` directory contains tools used for these investigations.
+
+As an aside, I've found that similar methods do provide useful visualizations
+for moderately-sized C-language code bases.
+
+Loosely speaking, the above approaches (visualization of a complete
+source-code tree based upon either file inclusion or call graph) are
+"top-down": we attempt to gain insight into the structure of the program
+by interactively drilling down to regions of interest. Unfortunately,
+the graphs generated for these visualizations are too complex to be useful.
+It's certainly possible that a toolchain could be constructed to interact
+with selected subsets of the graphs (as opposed to navigating the whole
+dataset without filtering), but it's not clear as to how this might be
+automated; my experiments involving manual pruning (by editing the generated
+`dot` file) did not eventually produce a useful view of the program's
+overall structure. To be clear: the `xdot` viewer has no problem navigating
+a graph representing the whole UxAS program's calls; it is quite scalable
+and responsive. It's just that there's way too much detail to be useful.
+
+I envision some additional methods that might improve a top-down analysis.
+Rather than speculatively (and manually) attempting to remove uninteresting
+nodes, use a tool to extract subsets of the whole (e.g. by iteratively
+"deepening" the graph from a chosen root). This might be a useful approach
+for general discovery of a program's structure.
+
+UxAS is a federation of tasks and services which interact via a structured
+communication mechanism. To recap the initial goal of this investigation:
+we'd like to be able to extract a task (and its necessary support) for
+separate compilation while retaining the task's communication API. This
+involves discovering a subset of source files that can be compiled to
+create this external task and modifying the remaining UxAS base code to
+load the separated task and establish its communication with UxAS. I see
+this as a bottom-up approach, working from the exposed interface (in this
+case: LMCP messages) to find and extract the portion of UxAS necessary to
+instantiate this as a separate program.
