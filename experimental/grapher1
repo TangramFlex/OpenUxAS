@@ -6,8 +6,8 @@ name = `{basename $pgm}
 $here^/tools/cinclude2dot \
 	--groups \
 	--merge module \
-	--include Includes/ Communications/ DPSS/ LMCP/ \
-		Plans/ Services/ Tasks/ \
+	--include Includes/,Communications/,DPSS/,LMCP/,Plans/,Services/,Tasks/ \
+	--exclude '3rd|test|boost' \
 	--quotetypes quote \
 	$* \
 	>[2]/dev/null >$here^/out/^$name^.dot
