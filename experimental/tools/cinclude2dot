@@ -187,6 +187,7 @@ digraph "source tree" {
 layout="neato";
 overlap="false";
 ratio="auto";
+mode="subset";
 END
 #    overlap=scale;
 #    ratio="fill";
