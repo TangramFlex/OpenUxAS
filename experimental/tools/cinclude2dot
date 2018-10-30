@@ -184,16 +184,16 @@ find sub { push @files, $File::Find::name if /\.(c|cc|cxx|cpp|C|h|hpp|hxx)$/ }, 
 
 print <<END;
 digraph "source tree" {
-    layout="neato";
-    style="dotted";
-    overlap="false";
-    splines="true";
-    ratio="compress";
-    model="subset";
-    fontname="Helvetica";
-    fontcolor="maroon";
-    edge [color="gray"];
-    node [color="gray",fontcolor="darkgreen"];
+	layout="neato";
+	style="dotted";
+	overlap="false";
+	splines="true";
+	ratio="compress";
+	model="subset";
+	fontname="Helvetica";
+	fontcolor="maroon";
+	edge [color="gray"];
+	node [color="gray",fontcolor="darkgreen"];
 END
 
 my %links = ();
@@ -246,17 +246,17 @@ foreach $file (@files)
 		  {
 			  my $groupname = dirname($includefile);
 			  print <<END;
-subgraph "cluster$groupname" {
-	label="$groupname";
-	"$includefile_display";
-}
+	subgraph "cluster$groupname" {
+		label="$groupname";
+		"$includefile_display";
+	}
 END
 			  $groupname = dirname($file);
 			  print <<END;
-subgraph "cluster$groupname" {
-	label="$groupname";
-	"$file_display";
-}
+	subgraph "cluster$groupname" {
+		label="$groupname";
+		"$file_display";
+	}
 END
 		  }
 
