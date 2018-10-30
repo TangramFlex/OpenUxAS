@@ -60,3 +60,9 @@ load the separated task and establish its communication with UxAS. I see
 this as a bottom-up approach, working from the exposed interface (in this
 case: LMCP messages) to find and extract the portion of UxAS necessary to
 instantiate this as a separate program.
+
+---- From 20181029 meeting, per Matt:
+
+When partitioning, watch for state dependencies; some services can't operate
+without knowledge of state known to other subsystems.
+
