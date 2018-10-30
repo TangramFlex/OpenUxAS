@@ -184,21 +184,17 @@ find sub { push @files, $File::Find::name if /\.(c|cc|cxx|cpp|C|h|hpp|hxx)$/ }, 
 
 print <<END;
 digraph "source tree" {
-layout="neato";
-overlap="false";
-ratio="auto";
-mode="subset";
+    layout="neato";
+    style="dotted";
+    overlap="false";
+    splines="true";
+    ratio="compress";
+    model="subset";
+    fontname="Helvetica";
+    fontcolor="maroon";
+    edge [color="gray"];
+    node [color="gray",fontcolor="darkgreen"];
 END
-#    overlap=scale;
-#    ratio="fill";
-#    fontsize="16";
-#    fontname="Helvetica";
-#	clusterrank="local";
-#    size="32,40";
-#  nodesep="0.2";
-#    ranksep="0.3";
-#    margin=".5,.5";
-#    orientation="portrait";
 
 my %links = ();
 my %notfound = ();
