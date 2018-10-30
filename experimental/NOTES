@@ -66,3 +66,14 @@ instantiate this as a separate program.
 When partitioning, watch for state dependencies; some services can't operate
 without knowledge of state known to other subsystems.
 
+---- 20181030
+
+The `grapher1` tool is tailored to view a files dependency graph for OpenUxAS.
+The tool requires the `xs` shell <https://github.com/TieDyedDevil/XS.git> and
+`xdot` (available on Fedora as `python-xdot`; likely available under similar
+names on other distros). As an alternative, `dotty` may be used to view the
+file `experimental/out/grapher1.dot` created by the tool, although the UI of
+`xdot` provides for much simpler and faster navigation.
+
+The generated graph file may be rendered to PDF using `neato` and formatted
+for printing as multiple pages using `pdfposter`.
