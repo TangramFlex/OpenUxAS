@@ -77,3 +77,73 @@ file `experimental/out/grapher1.dot` created by the tool, although the UI of
 
 The generated graph file may be rendered to PDF using `neato` and formatted
 for printing as multiple pages using `pdfposter`.
+
+---- 20181101
+
+Based upon comments regarding "aggregation of dependent tasks", I've been
+trying to determine what are the natural boundaries for decomposing UxAS.
+
+One such boundary is the shared-library loader. A separately-compiled task
+or service is linked at runtime to UxAS. At a minimum, UxAS should constrain
+the shared-library version for compatibilty using semantic versioning. An
+application-specific version check (e.g. to confirm an API version advertised
+by the loadable module) may be added for more complex dependencies.
+
+In the case of UxAS, the IPC mechanism used to pass messages among tasks is
+another natural boundary. This case is slightly more complex: we must assure
+interoperability of both the transport mechanism (e.g. the LMPCP code base)
+and the messages exchanged by system components (e.g. as defined by the
+message definition files compiled by LMCP).
+
+Having performed a visual scan of the UxAS C++ code base, I see quite a few
+static class members. These are effectively global data, some of which might
+conceivably introduce coupling among subsystems. The vast majority of these
+static members seem to be strings to hold names; for now I assume that these
+static names are intended to name singletons. Based upon an informal
+inspection, not assisted by program-analysis tools, I see no immediately
+obvious evidence of coupling that might need to be preserved when extracting
+tasks to be compiled outside of UxAS.
+
+There does seem to be a set of tasks and services that are common to the
+UxAS planner. These are identified in the sequence diagram found at
+doc/reference/SequenceDiagrams/CCA_Components_MessageFlow.pdf :
+
+	AutomationRequestValidator
+	TaskManager
+	RouteAggregator
+	RoutePlannerVisibility
+	AssignmentTreeBranchBound
+	PlanBuilder
+	WaypointManager
+	AMASE
+
+Looking at a sampling of task and service code, there are additional UxAS
+compilation units used in the implementation of tasks and services, including
+(listed here by functional category rather than name, as there are many):
+
+	registry
+	communications
+	marshalling
+	publish/subscribe
+	geometry
+	...
+
+As I currently understand the UxAS code base, it can be seen as a runtime
+environment into which tasks and services are statically linked to facilitate
+convenient distribution of UxAS as a single executable file. (That's a slight
+simplification: UxAS may interact with other programs at runtime to provide,
+for example, simulation and visualization.) Assuming that I've not missed some
+important structural aspect of UxAS, there are two important decisions to make
+regarding the system's disaggration into a core plus external tasks and
+services:
+
+	1) Should externals be loadable, or should each run in a separate
+	   process and integrate via an IPC mechanism?
+
+	2) What parts of UxAS comprise its core functionality to be shared
+	   by externals?
+
+As noted earlier, the shared-library approach is quite simple while the
+IPC approach will involve code duplication (for IPC, particularly w.r.t.
+serialization) and mechanisms to enforce the use of mutually-compatible
+components.
