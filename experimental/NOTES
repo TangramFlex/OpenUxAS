@@ -147,3 +147,20 @@ As noted earlier, the shared-library approach is quite simple while the
 IPC approach will involve code duplication (for IPC, particularly w.r.t.
 serialization) and mechanisms to enforce the use of mutually-compatible
 components.
+
+---- 20181106
+
+Checkin w/ Matt and Erin
+
+- Eventual goal is to be able to exchange modules between UxAS and DARPA CODE.
+  - Both use publish/subscribe framework:
+    - UxAS uses LMCP
+    - DARPA CODE uses UCS (?)
+- Tangram (Ben) is working to abstract messaging:
+  - Message taxonomies
+  - Automated translation LCMP->UCS and vice-versa
+  - Might be ready later this month
+- LMCPFactory is a dependency that can't be used for both LMCP and UCS
+  - How should the LMCP API be factored/generalized to admit multiple
+    publish/subscribe providers, assuming that message translation is
+    handled by the provider?
