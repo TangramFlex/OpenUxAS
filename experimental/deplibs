@@ -1,0 +1,44 @@
+#! /usr/local/bin/xs --
+
+# The library for which we intend to find dependent libraries:
+extfile = ../build_debug/src/separate_compilation/task01/libtask01.a
+
+# The directories in which built libraries are stored:
+libdirs = ../build_debug/src ../build_debug/3rd
+
+# Trace steps when set.
+debug = false
+
+# List externs provided by application and third-party libraries.
+# Note: The -l option is only effective when scanning objects
+#       created by a debug build.
+$debug && echo S $libdirs >[1=2]
+donors = `mktemp
+find $libdirs -name \*.a -print0 |xargs -0 nm --defined-only -glAC >$donors
+
+# Initialize housekeeping.
+open = $extfile
+closed =
+
+# Gather.
+while {!~ $open ()} {
+	(f open) = $open
+	$debug && echo F $f >[1=2]
+	libi = `` \n {grep -f <{
+		# List externs that must be satisfied
+		# by non-system libraries.
+		 nm -uC $f |tail -n+3 |grep -v -e '^ \+U \(typeinfo' \
+			^'\|VTT\|vtable\|operator\|std::\+\)' \
+		|grep -v -e '^ \+[wU] [^:]\+$' |awk '{print $2}'
+		} $donors |cut -d: -f1|sort|uniq}
+	closed = $f $closed
+	for l $libi {
+		if {!~ $l $closed && !~ $l $open} {
+			open = $l $open
+			$debug && echo L $l >[1=2]
+		}
+	}
+}
+
+# Report.
+for c $closed {echo $c} |sort
