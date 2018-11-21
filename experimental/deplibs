@@ -3,12 +3,23 @@
 pgm = $0
 fn usage {
 	cat <<EOF
-usage: $pgm [-d] -l LIBDIR [-l LIBDIR]... object
+usage: $pgm [-d] -l LIBDIR [-l LIBDIR]... OBJECT
 
-Find library files that are referenced by the given ELF object.
+Find the transitive closure of library files that are referenced by
+an object file.
 
 -d		enable debug output
--l LBIDIR	specify library directory to search
+-l LIBDIR	specify library directory to search
+OBJECT		an object file parseable by nm(1)
+
+With the -d option, write trace information to stderr:
+S path ...	Scanning donor libraries
+I #		Iteration #
+F path		Searching library for symbols
+L path		Note dependent library
+X note		General information
+
+Write a list of dependent libraries to stdout.
 EOF
 	exit 1
 }
@@ -46,6 +57,7 @@ closed =
 
 # Gather.
 iter = 1
+depth =
 while {!~ $open ()} {
 	trace I $iter
 	(f open) = $open
@@ -54,18 +66,23 @@ while {!~ $open ()} {
 		# List externs that must be satisfied
 		# by non-system libraries.
 		 nm -uC $f |tail -n+3 |grep -v -e '^ \+U \(typeinfo' \
-			^'\|VTT\|vtable\|operator\|std::\+\)' \
-		|grep -v -e '^ \+[wU] [^:]\+$' |awk '{print $2}'
+				^'\|VTT\|vtable\|operator\|std::\+\)' \
+			|grep -v -e '^ \+[wU] [^:]\+$' |awk '{print $2}'
 		} $donors |cut -d: -f1|sort|uniq}
 	closed = $f $closed
+	new = false
 	for l $libi {
 		if {!~ $l $closed && !~ $l $open} {
 			open = $l $open
 			trace L $l
+			new = true
 		}
 	}
+	$new && depth = $iter
+	$new || trace X no new dependents
 	iter = `($iter+1)
 }
 
 # Report.
+trace X depth $depth
 for c $closed {echo $c} |sort
