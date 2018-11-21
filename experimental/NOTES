@@ -207,3 +207,9 @@ Checkin w/ Matt and Erin
 
 - Each disaggregated task will need a shim in UxAS in order to (a) link
   UxAS and (b) interact with the disaggregated task.
+
+- Investigate two approaches to a task/service shim: (1) create RPC
+  specific to the disaggregated function [easiest, but introduces a new
+  protocol], and (2) process UxAS messages relayed from UxAS host app
+  [duplicates code and support services; may not be possible without
+  additional protocols to update shared state in UxAS].
