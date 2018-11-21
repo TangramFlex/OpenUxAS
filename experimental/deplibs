@@ -1,13 +1,32 @@
 #! /usr/local/bin/xs --
 
-# The library for which we intend to find dependent libraries:
-extfile = ../build_debug/src/separate_compilation/task01/libtask01.a
+pgm = $0
+fn usage {
+	cat <<EOF
+usage: $pgm [-d] -l LIBDIR [-l LIBDIR]... object
 
-# The directories in which built libraries are stored:
-libdirs = ../build_debug/src ../build_debug/3rd
+Find library files that are referenced by the given ELF object.
 
-# Trace steps when set.
+-d		enable debug output
+-l LBIDIR	specify library directory to search
+EOF
+	exit 1
+}
+
+# Parse args.
 debug = false
+libdirs =
+extfile =
+while {~ $*(1) -*} {
+	~ $*(1) -d && {debug = true; * = $*(2 ...)}
+	~ $*(1) -l && {
+		access -d -- $*(2) || throw error deplibs $*(2) not directory
+		libdirs = $libdirs $*(2)
+		* = $*(3 ...)
+	}
+}
+~ $#* 1 || usage
+extfile = $*
 
 # List externs provided by application and third-party libraries.
 # Note: The -l option is only effective when scanning objects
