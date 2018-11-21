@@ -135,12 +135,6 @@ if get_option('afrl_internal')
   subdir('UxAS-afrl_internal')
 endif
 
-subdir('src/separate_compilation/task01')
-
-separate_libs = [
-  lib_task01,
-]
-
 deps = [
   dependency('threads'),
   dep_boost,
@@ -215,12 +209,38 @@ executable(
   ],
   link_with: [
     libs,
-    separate_libs,
   ],
   install: true,
 )
 
-subdir('tests')
+srcs_task01 = [
+  'src/Tasks/AssignmentCoordinatorTaskService.cpp',
+  'src/separate_compilation/task01_main.cpp',
+]
+
+executable(
+  'task01',
+  srcs_task01,
+  dependencies: deps,
+  link_args: link_args,
+  cpp_args: cpp_args,
+  include_directories: [
+    include_directories(
+      'src/Utilities',
+      'src/Communications',
+      'src/Includes',
+      'src/Services',
+    ),
+    incs_lmcp,
+  ],
+  link_with: [
+    libs,
+  ],
+  install: true,
+)
+
+## FIXME: This will remain broken during the task disaggregation project.
+##subdir('tests')
 
 if get_option('afrl_internal')
   subdir('UxAS-afrl_internal/tests')

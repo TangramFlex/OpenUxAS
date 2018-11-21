@@ -26,7 +26,6 @@ inc_test = [
 
 libs_test = [
   libs,
-  separate_libs,
 ]
 
 link_args_test = link_args
