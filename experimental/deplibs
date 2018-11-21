@@ -24,6 +24,11 @@ EOF
 	exit 1
 }
 
+# Fault reporter.
+fn fail {|*|
+	throw error deplibs $*
+}
+
 # Parse args.
 debug = false
 libdirs =
@@ -31,13 +36,14 @@ extfile =
 while {~ $*(1) -*} {
 	~ $*(1) -d && {debug = true; * = $*(2 ...)}
 	~ $*(1) -l && {
-		access -d -- $*(2) || throw error deplibs $*(2) not directory
+		access -d -- $*(2) || fail $*(2) not directory
 		libdirs = $libdirs $*(2)
 		* = $*(3 ...)
 	}
 }
 ~ $#* 1 || usage
 extfile = $*
+access -f -- $extfile || fail $extfile not a file
 
 # Note to stderr for debug.
 fn trace {|*|
