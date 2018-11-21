@@ -189,3 +189,15 @@ Checkin w/ Matt and Erin
 - Once the spurious Zyre main is suppressed, the disaggregated program
   will require a shim main() to instantiate the task and supporting
   libraries. This shim must be reverse-engineered from OpenUxAS main().
+
+---- 20181121 follow-on
+
+- The spurious main() is from Zyre's zpinger.c. Because Zyre is in the
+  3rd-party directory, it is wrapped to be pulled and patched by Meson.
+  The patch needs to be updated: Don't build zpinger.c.
+
+- Upon eliminating zpinger.c, the disaggregated task (correctly) fails
+  to build without a main().
+
+- Specifying UxAS_Main.cpp as the main program for the disaggregated
+  task results in a program that's the same size as the full UxAS build.
