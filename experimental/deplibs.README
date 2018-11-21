@@ -1,0 +1,4 @@
+Sample invocation:
+
+$ ./experimental/deplibs -l build_debug/src -l build_debug/3rd \
+	build_debug/src/separate_compilation/task01/libtask01.a
