@@ -164,3 +164,28 @@ Checkin w/ Matt and Erin
   - How should the LMCP API be factored/generalized to admit multiple
     publish/subscribe providers, assuming that message translation is
     handled by the provider?
+
+---- 20181121
+
+- Built `experimental/deplibs` tool to find the transitive closure of
+  libraries upon which an object file depends. This tool uses `nm` and
+  should work with both static and dynamic libraries. (So far, testing
+  has only used static libraries since that is how OpenUxAS is built.)
+
+- The deplibs tool must be applied to a successful debug build in order
+  to have access to symbols.
+
+- The deplibs tool identifies 20 libraries which are transitively
+  required by the first task (AssignmentCoordinatorTaskService) targeted
+  for disaggregration. Gathering the base task plus dependent libraries
+  for separate compilation produces a 33MB executable. (The complete
+  OpenUxAS application occupies 92MB on disk.)
+
+- The trial build of the disaggregated AssigmentCoordinatorTaskService,
+  noted in the previous section, captures a `main()` program from Zyre;
+  the build options should be adjusted to ensure that Zyre is built as
+  a library.
+
+- Once the spurious Zyre main is suppressed, the disaggregated program
+  will require a shim main() to instantiate the task and supporting
+  libraries. This shim must be reverse-engineered from OpenUxAS main().
