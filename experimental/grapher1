@@ -1,5 +1,7 @@
 #! /usr/local/bin/xs --
 
+# NOTE: Run this from ./OpenUxAS as `$ ./experimental/grapher1` .
+
 pgm = $0
 here = `` \n {cd `{dirname $pgm}; pwd}
 name = `{basename $pgm}
@@ -10,7 +12,7 @@ $here^/tools/cinclude2dot \
 	--exclude '3rd|test|boost' \
 	--quotetypes quote \
 	$* \
-	>[2]/dev/null >$here^/out/^$name^.dot
+	>$here^/out/^$name^.dot >[2]/dev/null
 xdot --help >[2]/dev/null|awk 'BEGIN {pass=0} /^Shortcuts:/ {pass=1} {if (pass) print;}'
 xdot -f neato $here^/out/^$name^.dot >[2]/dev/null &
 true
