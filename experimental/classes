@@ -1,0 +1,27 @@
+#! /usr/bin/env xs
+
+# This generates a list of OpenUxAS classes found in the afrl:: namespace,
+# plus a list of header files in which the found classes are defined.
+# LMCP header files are excluded, since LMCP must know about all classes
+# which communicate via messaging.
+#
+# The script takes a few minutes to finish when no filter is specified.
+
+# usage: ./experimental/classes [FILTER...]
+
+# When FILTER is specified, it matches within found class names.
+
+classes = `{nm -Cg ./build_debug/task01 \
+	|grep -v -e '^\s\+U' -e __gnu -e std:: -e typeinfo -e vtable \
+	|grep afrl::|cut -d' ' -f3 \
+	|cut -d: -f5|grep -v '(\|\[' \
+	|grep -v '^[a-z]' \
+	|sort|uniq}
+echo >[1=2] Working...
+for c $classes {
+	if {!~ $* () && ~ $c $* *^$* $*^* *^$*^*} {
+		echo $c
+		/usr/bin/ag -l 'class '$c ../|grep '\.h$'|grep -v LMCP \
+			|| echo '<none>'
+	}
+} | less -iFX
