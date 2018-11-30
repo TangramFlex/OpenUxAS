@@ -1,0 +1,7 @@
+https://github.com/tomtom-international/cpp-dependencies.git
+
+example:
+$ cpp-dependencies --ignore separate_compilation --ignore LMCP/test \
+    --infer --recursive --graph foo.dot . \
+  && dot -Tpng foo .dot >foo.png \
+  && open foo.png
