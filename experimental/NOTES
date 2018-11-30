@@ -213,3 +213,35 @@ Checkin w/ Matt and Erin
   protocol], and (2) process UxAS messages relayed from UxAS host app
   [duplicates code and support services; may not be possible without
   additional protocols to update shared state in UxAS].
+
+---- 20181129
+
+- See ./experimental/classes script: This grovels ./build_debug/task01
+  (the intended disaggregated task: AngledAreaSearchTask) to find classes
+  in the afrl:: namespace and then find the header files which define
+  those classes.
+
+- Use of this script is based upon certain assumptions:
+  1. All disaggregable tasks and services communicate with the others
+     and with some (TBD) "core" set of UxAS functions via LMCP, using
+     a ØMQ transport.
+  2. LMCP has to know about every class that participates as per item 1.
+
+- With today's snapshot, the following Task and Service classes appear
+  in the disaggregated service build (a.k.a. `task01`) because of LMCP:
+  - BlockadeTask
+  - CommRelayTask
+  - CordonTask
+  - EscortTask
+  - ImpactLineSearchTask
+  - ImpactPointSearchTask
+  - LoiterTask
+  - MultiVehicleWatchTask
+  - MustFlyTask
+  - PatternSearchTask
+
+- At present, only the task01 build succeeds. (NOTE: Use this command
+  to skip the uxas build: `$ ninja -C build_debug task01`.)
+
+- Work will continue to prune the `task01` binary to a manageable size;
+  At present it is still about two-thirds of the full UxAS' image size.
