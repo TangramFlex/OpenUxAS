@@ -245,3 +245,31 @@ Checkin w/ Matt and Erin
 
 - Work will continue to prune the `task01` binary to a manageable size;
   At present it is still about two-thirds of the full UxAS' image size.
+
+---- 20181130
+
+- Found `cpp-dependencies` tool (see ./experimental/tools/other.README).
+  With the noted command line, the resulting dependency graph (see
+  ./experimental/tools/other/cpp-dependencies_sample/foo.png) shows that:
+  1. Services and Tasks are mutually dependent.
+  2. Tasks depends upon Plans.
+  3. Services depends upon Communications.
+  4. Plans and Utilities are mutually dependent.
+  5. Services and Tasks both depend upon Utilities.
+  6. Plans, Tasks, Services, Utilties and Communications all depend
+     upon some portion of LMCP.
+  7. Every portion of LMCP is mutually dependent with some other portion.
+  8. DPSS is a dependency of Tasks and Services and depends upon Utilities,
+     but does not directly depend upon LMCP. (What is this?)
+  9. LMCP.afrl.cmasi is indirectly (via Utilities) dependent upon
+     Communications while LMCP.avtas.lmcp depends directly upon
+     Communications. Other LMCP components must inherit Communications
+     from their parents.
+
+- The above observations reflect what I'm seeing with initial disaggregation
+  attempts: The amount of code "captured" by dependencies is still *way* too
+  extensive. Ideally what I'd like to have is a disaggregated Task or Service
+  that can communicate with UxAS, but running in a separated process *without*
+  any (or at least, very little) UxAS core code aside from that needed for
+  communication with the UxAS host process (i.e. UxAS less disaggregated
+  tasks and services.

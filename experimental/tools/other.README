@@ -1,7 +1,13 @@
 https://github.com/tomtom-international/cpp-dependencies.git
 
-example:
+example: View dependency graph
 $ cpp-dependencies --ignore separate_compilation --ignore LMCP/test \
-    --infer --recursive --graph foo.dot . \
-  && dot -Tpng foo .dot >foo.png \
-  && open foo.png
+    --infer --recursive --graph deps.dot . \
+  && dot -Tpng deps.dot >deps.png \
+  && open deps.png
+
+example: View graph containing only cyclic dependencies
+$ cpp-dependencies --ignore separate_compilation --ignore LMCP/test \
+    --infer --recursive --graph-cycles cycles.dot . \
+  && dot -Tpng cycles.dot >cycles.png \
+  && open cycles.png
