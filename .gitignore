@@ -3,6 +3,7 @@ build
 build_debug
 build_odroid
 build_open
+build_release
 
 # afrl internal directories
 UxAS-afrl_internal
@@ -23,6 +24,7 @@ src/LMCP
 
 # test output
 tests/**/output/**
+typescript
 
 # example output
 examples/**/log/**

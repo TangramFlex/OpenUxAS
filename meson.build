@@ -13,10 +13,17 @@ else
     '-std=c++11',
     '-Wno-unused-function',
     '-Wno-unused-variable',
+    '-ffunction-sections',
+    '-fdata-sections',
+    '-flto',
   ]
 endif
 
-link_args = []
+link_args = [
+    '-Wl,--gc-sections',
+    '-Wl,--print-gc-sections',
+    '-flto',
+  ]
 
 if os.startswith('linux')
   add_project_arguments('-DLINUX', language: ['c', 'cpp'])
