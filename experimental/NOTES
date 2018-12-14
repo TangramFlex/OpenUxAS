@@ -574,3 +574,33 @@ Produces the following output:
 As expected, LMCP dominates this report. This suggests that the techniques
 described can automatically eliminate some of the unused code without needing
 to edit source files.
+
+---- 20181213
+
+I'm still investigating minimization of the first disaggregated build via LTO
+and GC of unused sections.
+
+The boost, zeromq, czmq, zyre, SQLiteCpp, minizip, zlib, serial and LMCP builds
+all use gcc, ignoring CC and CXX environment variables.
+
+NOTE: Except for LMCP, these are all 3rd-party libraries. However, this is not
+all of the 3rd-party libraries. The PugiXML, TinyGPS, cppzmq, googletest, and
+sqlite-amalgamation libraries in 3rd/ do not show up as being compiled with
+gcc. The googletest and sqlite-amalgamation are not mentioned in the top-level
+meson.build; the rest are.
+
+The ld.lld linker is supposed to run multi-threaded by default. Observing the
+build, it's clear that the linker is only running on one core. There are many
+possible causes:
+
+  1) The wrong linker is invoked.
+  2) The wrong options are passed to the linker.
+  3) The ld.lld documentation is wrong.
+  4) The linker can't use multiple cores due to a pathological workload.
+  5) The ld.lld linker doesn't use multiple threads when doing LTO.
+
+  See <https://clang.llvm.org/docs/ThinLTO.html>. It's possible that only
+  ThinLTO uses multiple threads.
+
+Note that -flto must be passed with both compilation and linker commands.
+I don't see this documented...
