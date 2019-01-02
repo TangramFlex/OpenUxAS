@@ -30,6 +30,10 @@ typescript
 examples/**/log/**
 examples/**/datawork/**
 
+# log output
+log/
+/*.log
+
 # Local tools root; tell `pip` to install stuff
 # here instead of borking packages installed
 # using the distro's package manager.

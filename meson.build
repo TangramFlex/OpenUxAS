@@ -236,7 +236,7 @@ executable(
       'src/Utilities',
       'src/Communications',
       'src/Includes',
-      'src/Services',
+      'src/separate_compilation',
     ),
     incs_lmcp,
   ],
