@@ -1,0 +1,29 @@
+- Rework one or more demos to run with disaggregated task01.
+  - startup scripts
+  - config files
+
+- Are there tasks/services that require dependent instantiation?
+
+- Some tasks listed in 00_ServiceList.h are also present as sentinels.
+  If these need to be disaggregated, the sentinel aspect must be refactored.
+
+- Plan a new directory layout and builder to support disaggregation of
+  all targeted tasks and services.
+    AngledAreaSearchTaskService
+    AssignmentCoordinatorTaskService [in-progress]
+    BlockadeTaskService
+    CmasiAreaSearchTaskService
+    CmasiLineSearchTaskService
+    CmasiPointSearchTaskService
+    CommRelayTaskService
+    CordonTaskService
+    EscortTaskService
+    ImpactLineSearchTaskService
+    ImpactPointSearchTaskService
+    LoiterTaskService
+    MultiVehicleWatchTaskService
+    MustFlyTaskService
+    OverwatchTaskService
+    PatternSearchTaskService
+
+- Disaggregate all targeted tasks and services.
