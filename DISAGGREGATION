@@ -4,8 +4,11 @@
 
 - Are there tasks/services that require dependent instantiation?
 
-- Some tasks listed in 00_ServiceList.h are also present as sentinels.
-  If these need to be disaggregated, the sentinel aspect must be refactored.
+- The 'DO NOT REMOVE - ...' lines in src/Services/00_ServiceList.h are
+  self-referential; the following line was most recently added by
+  src/Services/00_NewService.py or src/Tasks/00_NewTask.py. Thus *all*
+  files referenced are candidates (subject to yet-undiscovered dependencies)
+  for disaggregation.
 
 - Plan a new directory layout and builder to support disaggregation of
   all targeted tasks and services.
