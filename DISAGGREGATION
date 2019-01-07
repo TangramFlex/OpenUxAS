@@ -4,13 +4,12 @@
 
 - Are there tasks/services that require dependent instantiation?
 
-- Some tasks listed in 00_ServiceList.h are also present as sentinels.
-  If these need to be disaggregated, the sentinel aspect must be refactored.
-
 - Plan a new directory layout and builder to support disaggregation of
-  all targeted tasks and services.
+  all targeted tasks and services. (This list is tentative, pending a
+  better understanding of OpenUxAS architecture.)
     AngledAreaSearchTaskService
     AssignmentCoordinatorTaskService [in-progress]
+    AutomationDiagramDataService
     BlockadeTaskService
     CmasiAreaSearchTaskService
     CmasiLineSearchTaskService
@@ -20,10 +19,16 @@
     EscortTaskService
     ImpactLineSearchTaskService
     ImpactPointSearchTaskService
+    LoiterLeash
     LoiterTaskService
+    MessageLoggerDataService
     MultiVehicleWatchTaskService
     MustFlyTaskService
     OverwatchTaskService
     PatternSearchTaskService
+    RendezvousTask
+    StatusReportService
+    TaskManagerService
+    TaskTrackerService
 
 - Disaggregate all targeted tasks and services.
