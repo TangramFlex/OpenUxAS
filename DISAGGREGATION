@@ -4,9 +4,15 @@
 
 - Are there tasks/services that require dependent instantiation?
 
+- The 'DO NOT REMOVE - ...' lines in src/Services/00_ServiceList.h are
+  self-referential; the following line was most recently added by
+  src/Services/00_NewService.py or src/Tasks/00_NewTask.py. Thus *all*
+  files referenced are candidates (subject to yet-undiscovered dependencies)
+  for disaggregation.
+
 - Plan a new directory layout and builder to support disaggregation of
   all targeted tasks and services. (This list is tentative, pending a
-  better understanding of OpenUxAS architecture.)
+  better understanding of OpenUxAS architecture. See above.)
     AngledAreaSearchTaskService
     AssignmentCoordinatorTaskService [in-progress]
     AutomationDiagramDataService
