@@ -604,3 +604,36 @@ possible causes:
 
 Note that -flto must be passed with both compilation and linker commands.
 I don't see this documented...
+
+---- 20180108
+
+I'm reasonably happy with the LTO, modulo the capture of LMCP dependencies
+for unused messages and the fact the the 3rd-party builds don't (fully)
+participate in the LTO build.
+
+While it'll be important to factor LMCP in order for it to present a minimal
+(and different) footprint to each disaggregated build, this is a secondary
+concern relative to the overall disaggregation objective. I won't further
+pursue LMCP minimization.
+
+The next things to do are:
+
+  1. Confirm that disaggregation "works" by running a disaggregated task or
+     service in its own process, interacting with the rest of OpenUxAS over
+     the LMCP bus.
+
+  2. Plan and implement a general strategy by which to disaggregate all
+     services. The minimum expectation is for a new directory structure
+     and build instructions to create an "empty" (i.e. no Services) OpenUxAS
+     plus an executable for each Service. It'd be nice, too, to have a tool
+     to split existing OpenUxAS configuration files (e.g. to separate the
+     configuration of disaggregated service from the "main" configuration).
+     We'll probably also need to create a bit of infrastructure (a script
+     will do) to manage the processes required by a disaggregated system.
+     Note that the exercise of disaggregating every service should expose
+     any compile-time dependencies among services; it's probably easier to
+     let the build system find these dependencies than it is to attempt
+     identification via source code inspection.
+
+A new script, `./experimental/services`, lists the names of all services
+mentioned in each XML configuration file found under examples/ .
