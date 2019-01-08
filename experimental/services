@@ -1,0 +1,11 @@
+#! /usr/bin/env xs
+
+# List Services required by examples/ OpenUxAS configurations.
+
+# usage: ./experimental/services
+
+for f `` \n {find examples -name '*cfg*.xml'} {
+	printf 'FILE: %s'\n $f
+	xqilla -i $f <{echo 'UxAS/Service/@Type'}|cut -d" -f2|sort|uniq
+	echo
+}
