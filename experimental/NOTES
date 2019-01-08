@@ -637,3 +637,6 @@ The next things to do are:
 
 A new script, `./experimental/services`, lists the names of all services
 mentioned in each XML configuration file found under examples/ .
+
+Note that about half of the (approximately) two dozen Services are mentioned
+in the examples/ configuration files.
