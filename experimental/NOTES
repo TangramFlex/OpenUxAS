@@ -647,3 +647,9 @@ clause... What does it mean?
 
 See UxAS user manual for hints regarding UxAS base configuration; esp. w.r.t.
 logger. This'll help with debugging the disaggregated processes.
+
+---- 20180109
+
+Adventures in debugging... No, the XML configuration *does not* affect
+logging as documented, because someone saw fit to disable at compile time
+*all* severity levels more detailed than "warn". Why?!
