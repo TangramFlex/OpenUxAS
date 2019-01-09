@@ -640,3 +640,7 @@ mentioned in each XML configuration file found under examples/ .
 
 Note that about half of the (approximately) two dozen Services are mentioned
 in the examples/ configuration files.
+
+Seen in doc/LMCP/UXTASK.xml: "This MDM defines the interface for stand-alone
+(possibly external) tasks managed by UxAS". Note the "possibly external"
+clause... What does it mean?
