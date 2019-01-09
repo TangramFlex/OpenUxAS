@@ -653,3 +653,13 @@ logger. This'll help with debugging the disaggregated processes.
 Adventures in debugging... No, the XML configuration *does not* affect
 logging as documented, because someone saw fit to disable at compile time
 *all* severity levels more detailed than "warn". Why?!
+
+  A: Compilation fails with "info" and "debug" levels enabled because a
+     macro is not called with proper arguments. <sarc>It's clearly better
+     to completely disable logging than to fix it...</sarc> *sigh*
+
+  For reference: The compile-time logging enables are in
+                 src/Utilities/UxAS_Log.h .
+
+For now, I've hacked out the offending macro call and reenabled "info" and
+"debug". Not that it helps... Logging clearly has some blind spots.
