@@ -644,3 +644,6 @@ in the examples/ configuration files.
 Seen in doc/LMCP/UXTASK.xml: "This MDM defines the interface for stand-alone
 (possibly external) tasks managed by UxAS". Note the "possibly external"
 clause... What does it mean?
+
+See UxAS user manual for hints regarding UxAS base configuration; esp. w.r.t.
+logger. This'll help with debugging the disaggregated processes.
