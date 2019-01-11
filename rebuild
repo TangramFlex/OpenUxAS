@@ -14,5 +14,5 @@ esac
 rm -rf build_$1
 {
 	env CC=gcc CXX=g++ meson --buildtype=$1 build_$1
-	ninja -C build_$1
+	ninja -v -C build_$1
 } |& tee $(basename $0)-$1.log
