@@ -3,6 +3,7 @@ project('UxAS', 'c', 'cpp', subproject_dir: '3rd')
 cpp = meson.get_compiler('cpp')
 conf = configuration_data()
 os = target_machine.system()
+buildtype = get_option('buildtype')
 
 if cpp.get_id() == 'msvc'
   cpp_args = [
@@ -15,15 +16,22 @@ else
     '-Wno-unused-variable',
     '-ffunction-sections',
     '-fdata-sections',
-    '-flto',
   ]
+endif
+
+if buildtype == 'release'
+  cpp_args += ['-flto']
 endif
 
 link_args = [
     '-Wl,--gc-sections',
     '-Wl,--print-gc-sections',
-    '-flto',
+    '-Wl,--gc-keep-exported',
   ]
+
+if buildtype == 'release'
+  link_args += ['-flto']
+endif
 
 if os.startswith('linux')
   add_project_arguments('-DLINUX', language: ['c', 'cpp'])
