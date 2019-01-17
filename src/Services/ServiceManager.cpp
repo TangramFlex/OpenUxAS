@@ -412,11 +412,11 @@ ServiceManager::instantiateConfigureInitializeStartService(const pugi::xml_node&
             && (s_typeName().compare(serviceXmlNode.attribute(uxas::common::StringConstant::Type().c_str()).value()) != 0)) // type is not ServiceManager
     {
         serviceType = serviceXmlNode.attribute(uxas::common::StringConstant::Type().c_str()).value();
-        UXAS_LOG_INFORM(s_typeName(), "::createService processing ", serviceXmlNode.name(), " XML node for type ", serviceType);
+        UXAS_LOG_INFORM(s_typeName(), "::instantiateConfigureInitializeStartService processing ", serviceXmlNode.name(), " XML node for type ", serviceType);
     }
     else
     {
-        UXAS_LOG_ERROR(s_typeName(), "::createService not processing ", serviceXmlNode.name(), " XML node since node name is empty, invalid or disallowed", uxas::common::StringConstant::Type());
+        UXAS_LOG_ERROR(s_typeName(), "::instantiateConfigureInitializeStartService not processing ", serviceXmlNode.name(), " XML node since node name is empty, invalid or disallowed", uxas::common::StringConstant::Type());
         return (newServiceFinal);
     }
     
