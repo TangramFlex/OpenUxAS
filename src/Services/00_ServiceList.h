@@ -60,10 +60,7 @@
 
 
 // examples
-/*
-TEMPORARY EXCLUSION
 #include "01_HelloWorld.h"
-*/
 
 // data
 #include "MessageLoggerDataService.h"
@@ -73,9 +70,10 @@ TEMPORARY EXCLUSION
 #endif
 
 // task
-#include "AssignmentCoordinatorTaskService.h"
 /*
 TEMPORARY EXCLUSION
+#include "AssignmentCoordinatorTaskService.h"
+*/
 #include "AngledAreaSearchTaskService.h"
 #include "BlockadeTaskService.h"
 #include "CmasiAreaSearchTaskService.h"
@@ -89,14 +87,10 @@ TEMPORARY EXCLUSION
 #include "MultiVehicleWatchTaskService.h"
 #include "OverwatchTaskService.h"
 #include "PatternSearchTaskService.h"
-*/
 #include "TaskManagerService.h"
 #include "TaskTrackerService.h"
-/*
-TEMPORARY EXCLUSION
 #include "MustFlyTaskService.h"
 #include "LoiterTaskService.h"
-*/
 
 // DO NOT REMOVE - USED TO AUTOMATICALLY ADD NEW TASK HEADERS
 #include "RendezvousTask.h"
@@ -108,8 +102,6 @@ TEMPORARY EXCLUSION
 #include "Test_SimulationTime.h"
 
 // general services
-/*
-TEMPORARY EXCLUSION
 #include "AssignmentTreeBranchBoundService.h"
 #include "AutomationRequestValidatorService.h"
 #include "BatchSummaryService.h"
@@ -123,7 +115,6 @@ TEMPORARY EXCLUSION
 #include "SimpleWaypointPlanManagerService.h"
 #include "RoutePlannerVisibilityService.h"
 #include "SteeringService.h"
-*/
 
 // DO NOT REMOVE - USED TO AUTOMATICALLY ADD NEW SERVICE HEADERS
 #include "StatusReportService.h"
@@ -151,10 +142,7 @@ TEMPORARY EXCLUSION
 
 
 // examples
-/*
-TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::HelloWorld>();}
-*/
 
 // data
 {auto svc = uxas::stduxas::make_unique<uxas::service::data::MessageLoggerDataService>();}
@@ -164,6 +152,7 @@ TEMPORARY EXCLUSION
 /*
 TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::AssignmentCoordinatorTaskService>();}
+*/
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::AngledAreaSearchTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::BlockadeTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::CmasiAreaSearchTaskService>();}
@@ -177,14 +166,10 @@ TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::MultiVehicleWatchTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::OverwatchTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::PatternSearchTaskService>();}
-*/
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::TaskManagerService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::TaskTrackerService>();}
-/*
-TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::MustFlyTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::LoiterTaskService>();}
-*/
 
 // DO NOT REMOVE - USED TO AUTOMATICALLY ADD NEW TASK DUMMY INSTANCES
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::RendezvousTask>();}
@@ -196,8 +181,6 @@ TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::test::Test_SimulationTime>();}
 
 // general services
-/*
-TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::AssignmentTreeBranchBoundService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::AutomationRequestValidatorService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::BatchSummaryService>();}
@@ -211,7 +194,6 @@ TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::SimpleWaypointPlanManagerService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::RoutePlannerVisibilityService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::SteeringService>();}
-*/
 
 // DO NOT REMOVE - USED TO AUTOMATICALLY ADD NEW SERVICE DUMMY INSTANCES
 {auto svc = uxas::stduxas::make_unique<uxas::service::StatusReportService>();}

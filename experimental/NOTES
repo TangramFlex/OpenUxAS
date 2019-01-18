@@ -671,3 +671,5 @@ through way too much code that reminds me of the Obfuscated C contests, I
 discovered that not only is logging incomplete, but also is wrong in the
 sense that some entries don't correctly name their location due (presumably)
 to missed edits of copy/pasted logging code. Geeze... why not use `__func__`?
+
+Next cycle, let's try again to set up the first two-process run.

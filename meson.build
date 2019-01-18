@@ -25,8 +25,10 @@ endif
 
 link_args = [
     '-Wl,--gc-sections',
-    '-Wl,--print-gc-sections',
     '-Wl,--gc-keep-exported',
+## Do not enable this unless you want to see a couple hundred
+## thousand extra lines in the verbose build log:
+#    '-Wl,--print-gc-sections',
   ]
 
 if buildtype == 'release'
