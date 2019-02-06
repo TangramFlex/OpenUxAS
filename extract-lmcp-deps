@@ -1,0 +1,38 @@
+#! /usr/bin/env xs
+
+# This script extracts a list of LMCP dependencies needed for the
+# messages used (both published and subscribed) by a task or service,
+# based upon the documentation text emitted by LmcpGen to the header
+# file for the task or service.
+
+# Extracted filenames are filtered for existence. This is necessary
+# because the documentation text does not account for #ifdefs in the
+# source; in particular, AFRL_INTERNAL_ENABLED.
+
+~ $#* 1 && access $* || {echo 'task/service header?'; exit 1}
+
+tf = `mktemp
+awk '
+BEGIN {
+	pass = 0
+	rc = 1
+}
+END {
+	exit rc
+}
+/^ \*.* Messages:$/ {
+	pass = 1
+}
+/\*\// {
+	pass = 0
+}
+/^ \*  - / {
+	if (pass) {print $3; rc = 0}
+}
+' $* | \
+{ tee >{sed -e 's|::|/|g' -e 's|^.*$|src/LMCP/&.h|' >$tf} \
+| sed -e 's|::|/|g' | sed -e 's|^\(\([^/]\+/\)\+\)\(.*\)$|\1 \1 \3|' \
+| awk '{p2=gensub("/", "", "g", $2); print "src/LMCP/" $1 p2 $3 ".cpp"}' \
+| cat - <{cat $tf}
+} | {map {|f| access $f && echo $f} `` \n cat} | sort
+rm -f $tf

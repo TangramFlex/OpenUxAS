@@ -38,3 +38,26 @@
     TaskTrackerService
 
 - Disaggregate all targeted tasks and services.
+
+===
+
+From meeting Jan 18th:
+
+Create UxAS base and external service(s).
+  - Each must have its own 00_ServiceList.h.
+  - What *is* the common base?
+
+Look at lmcpgen; it can regenerate an LMCP stack w/ proper dependencies - no
+need to do this by hand.
+
+There's a Python2 Amase that speaks LMCP directly.
+
+Stretch goal for March: WaterwaySearch or DistributedCooperation in multiple
+processes.
+
+Two cycles left (Feb, Mar).
+
+- How do I identify assets created/referenced by LmcpGen?
+  - I need to be able to subset these.
+  - See RunLmcpGen.sh.
+  > New tools created: extract-lmcp-deps and extract-all-lmcp-deps
