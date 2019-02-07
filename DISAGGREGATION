@@ -61,3 +61,6 @@ Two cycles left (Feb, Mar).
   - I need to be able to subset these.
   - See RunLmcpGen.sh.
   > New tools created: extract-lmcp-deps and extract-all-lmcp-deps
+    - What can be inferred about tasks/services without LCMP dependency?
+    - Attempt to generate build assets (directory structure, meson.build)
+      for disaggregated tasks/services.
