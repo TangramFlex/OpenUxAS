@@ -64,3 +64,4 @@ Two cycles left (Feb, Mar).
     - What can be inferred about tasks/services without LCMP dependency?
     - Attempt to generate build assets (directory structure, meson.build)
       for disaggregated tasks/services.
+      - Try to build a "base UxAS" (*no* services) first.
