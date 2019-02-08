@@ -80,6 +80,7 @@ Two cycles left (Feb, Mar).
   as a baseline minimal application, as HelloWorld uses a bare minimum of
   LMCP messages. This build has its own LCMP, such that we may (attempt to)
   prune LMCP to just the required messages.
+  - HelloWorld seems to require only afrl::cmasi::KeyValuePair.
   - I made changes to LmcpGen to slightly improve diagnostics and to enable
     it to run without MDMS. These aren't pushed, as LmcpGen is in a separate
     repo to which I do not have committer access.
