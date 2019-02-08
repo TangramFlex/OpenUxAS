@@ -65,3 +65,13 @@ Two cycles left (Feb, Mar).
     - Attempt to generate build assets (directory structure, meson.build)
       for disaggregated tasks/services.
       - Try to build a "base UxAS" (*no* services) first.
+  - ∃ 131 LMCP .cpp files included in the LMCP build, but not referenced
+    by any header included by a Service or Task *header file* in UxAS.
+    Let's leave this alone for a while, and...
+
+- Regroup
+  - Simplest service: 01_HelloWorld.{cpp|h}
+    - Can we build this (rather than AssignmentCoordinatorTaskService)
+      as task01?
+      - Try to strip out all unneccessary code.
+        - Need a minimal 00_ServiceList.h file.
