@@ -75,3 +75,12 @@ Two cycles left (Feb, Mar).
       as task01?
       - Try to strip out all unneccessary code.
         - Need a minimal 00_ServiceList.h file.
+
+- HelloWorld can now be run from the task01 executable. This is intended
+  as a baseline minimal application, as HelloWorld uses a bare minimum of
+  LMCP messages. This build has its own LCMP, such that we may (attempt to)
+  prune LMCP to just the required messages.
+  - I made changes to LmcpGen to slightly improve diagnostics and to enable
+    it to run without MDMS. These aren't pushed, as LmcpGen is in a separate
+    repo to which I do not have committer access.
+

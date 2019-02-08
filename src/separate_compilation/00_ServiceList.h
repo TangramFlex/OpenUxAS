@@ -60,22 +60,22 @@
 
 
 // examples
-/*
-TEMPORARY EXCLUSION
 #include "01_HelloWorld.h"
-*/
 
 // data
+/*
+TEMPORARY EXCLUSION
 #include "MessageLoggerDataService.h"
 #include "AutomationDiagramDataService.h"
 #ifdef AFRL_INTERNAL_ENABLED
 #include "VicsLoggerDataService.h"
 #endif
+*/
 
 // task
-#include "AssignmentCoordinatorTaskService.h"
 /*
 TEMPORARY EXCLUSION
+#include "AssignmentCoordinatorTaskService.h"
 #include "AngledAreaSearchTaskService.h"
 #include "BlockadeTaskService.h"
 #include "CmasiAreaSearchTaskService.h"
@@ -89,23 +89,26 @@ TEMPORARY EXCLUSION
 #include "MultiVehicleWatchTaskService.h"
 #include "OverwatchTaskService.h"
 #include "PatternSearchTaskService.h"
-*/
 #include "TaskManagerService.h"
 #include "TaskTrackerService.h"
-/*
-TEMPORARY EXCLUSION
 #include "MustFlyTaskService.h"
 #include "LoiterTaskService.h"
 */
 
 // DO NOT REMOVE - USED TO AUTOMATICALLY ADD NEW TASK HEADERS
+/*
+TEMPORARY EXCLUSION
 #include "RendezvousTask.h"
+*/
 
 
 // test
+/*
+TEMPORARY EXCLUSION
 #include "SendMessagesService.h"
 #include "SerialAutomationRequestTestService.h"
 #include "Test_SimulationTime.h"
+*/
 
 // general services
 /*
@@ -126,8 +129,11 @@ TEMPORARY EXCLUSION
 */
 
 // DO NOT REMOVE - USED TO AUTOMATICALLY ADD NEW SERVICE HEADERS
+/*
+TEMPORARY EXCLUSION
 #include "StatusReportService.h"
 #include "LoiterLeash.h"
+*/
 
 
 #endif  //UXAS_SERVICE_LIST_CODE_HEADERS
@@ -157,8 +163,11 @@ TEMPORARY EXCLUSION
 */
 
 // data
+/*
+TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::data::MessageLoggerDataService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::data::AutomationDiagramDataService>();}
+*/
 
 // task
 /*
@@ -177,23 +186,26 @@ TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::MultiVehicleWatchTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::OverwatchTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::PatternSearchTaskService>();}
-*/
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::TaskManagerService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::TaskTrackerService>();}
-/*
-TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::MustFlyTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::LoiterTaskService>();}
 */
 
 // DO NOT REMOVE - USED TO AUTOMATICALLY ADD NEW TASK DUMMY INSTANCES
+/*
+TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::RendezvousTask>();}
+*/
 
 
 // test
+/*
+TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::test::SendMessagesService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::test::SerialAutomationRequestTestService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::test::Test_SimulationTime>();}
+*/
 
 // general services
 /*
@@ -214,8 +226,11 @@ TEMPORARY EXCLUSION
 */
 
 // DO NOT REMOVE - USED TO AUTOMATICALLY ADD NEW SERVICE DUMMY INSTANCES
+/*
+TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::StatusReportService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::LoiterLeash>();}
+*/
 
 
 #endif  //REGISTER_SERVICE_CODE

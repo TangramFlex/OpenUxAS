@@ -230,8 +230,10 @@ executable(
   install: true,
 )
 
+subdir('src/separate_compilation/LMCP')
+
 srcs_task01 = [
-  'src/Tasks/AssignmentCoordinatorTaskService.cpp',
+  'src/Services/01_HelloWorld.cpp',
   'src/separate_compilation/task01_main.cpp',
 ]
 
@@ -246,12 +248,20 @@ executable(
       'src/Utilities',
       'src/Communications',
       'src/Includes',
+      'src/Services',
       'src/separate_compilation',
     ),
-    incs_lmcp,
+    incs_lmcp_task01,
   ],
   link_with: [
-    libs,
+    lib_services,
+    lib_tasks,
+    lib_lmcp_task01,
+    lib_uxas_communications,
+    lib_utilities,
+    lib_visilibity,
+    lib_plans,
+    lib_dpss,
   ],
   install: true,
 )
