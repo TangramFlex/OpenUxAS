@@ -85,3 +85,7 @@ Two cycles left (Feb, Mar).
     it to run without MDMS. These aren't pushed, as LmcpGen is in a separate
     repo to which I do not have committer access.
 
+- I think the next step is to start with a copy of CMASI.xml as TASK01.xml
+  (because this contains KeyValuePair) and iterate the task01 build
+  (ninja -C build task01) to find and resolve link-time references to
+  missing message classes.
