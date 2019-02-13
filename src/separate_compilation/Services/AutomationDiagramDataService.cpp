@@ -29,9 +29,6 @@
 #include "afrl/cmasi/Task.h"
 #include "afrl/cmasi/TaskDescendants.h"  
 
-#include "uxas/messages/task/SensorFootprintResponse.h"
-#include "uxas/messages/task/SensorFootprint.h"
-
 #include "afrl/impact/PointOfInterest.h"
 #include "afrl/impact/LineOfInterest.h"
 #include "afrl/impact/AreaOfInterest.h"

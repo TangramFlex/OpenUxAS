@@ -28,6 +28,10 @@ if [ -d "${DIRECTORY}" ]; then
 	# When disaggregation works, these edits should be done within LmcpGen.
 	echo " ** editing LMCP/meson.build **"
 	ed -v $HERE/LMCP/meson.build <<EOF
+0a
+# GENERATED; DO NOT EDIT
+
+.
 g/srcs_lmcp/s/srcs_lmcp/srcs_lmcp_task01/g
 g/incs_lmcp/s/incs_lmcp/incs_lmcp_task01/g
 g/cpp_args_lmcp/s/cpp_args_lmcp/cpp_args_lmcp_task01/g

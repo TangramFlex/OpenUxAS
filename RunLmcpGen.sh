@@ -1,6 +1,6 @@
 #! /bin/bash -e
 
-HERE=$PWD;
+HERE=`pwd`
 
 DIRECTORY="../LmcpGen"
 
@@ -21,6 +21,15 @@ if [ -d "${DIRECTORY}" ]; then
 	java -Xmx2048m -jar ../LmcpGen/dist/LmcpGen.jar -mdmdir "mdms" -java -dir "../OpenAMASE/OpenAMASE/lib/LMCP"
 	java -Xmx2048m -jar ../LmcpGen/dist/LmcpGen.jar -mdmdir "mdms" -doc -dir "doc/LMCP"
 	java -Xmx2048m -jar ../LmcpGen/dist/LmcpGen.jar -mdmdir "mdms" -py -dir "src/LMCP/py"
+
+	echo " ** editing LMCP/meson.build **"
+	ed -v $HERE/src/LMCP/meson.build <<EOF
+0a
+# GENERATED; DO NOT EDIT
+
+.
+wq
+EOF
 	echo " ** finished processing mdms **"
 
 	if [ "$1" = "-a" ]; then

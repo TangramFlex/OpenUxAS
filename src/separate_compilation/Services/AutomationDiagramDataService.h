@@ -30,8 +30,6 @@
 #include "afrl/impact/LineOfInterest.h"
 #include "afrl/impact/PointOfInterest.h"
 
-#include "uxas/messages/task/SensorFootprintRequests.h"
-#include "uxas/messages/task/SensorFootprint.h"
 #include "uxas/messages/task/UniqueAutomationRequest.h"
 #include "uxas/messages/task/UniqueAutomationResponse.h"
 
