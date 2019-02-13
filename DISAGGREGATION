@@ -89,3 +89,5 @@ Two cycles left (Feb, Mar).
   (because this contains KeyValuePair) and iterate the task01 build
   (ninja -C build task01) to find and resolve link-time references to
   missing message classes.
+
+- ^^^ Yes. Also need to copy and prune Services.

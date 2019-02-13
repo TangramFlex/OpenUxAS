@@ -16,44 +16,11 @@
     
     <StructList>
         
-        <!-- This task facilitates assignment coordination. When a {@link CoordinatedAutomationRequest}
-        message is received, the {@link AssignmentCoordinatorTask} task waits for up to {@link MaximumResponseTime}
-        for {@link AssignmentCoordination} from all the other entities in the EligibleEtities list of
-        the {@link CoordinatedAutomationRequest} message. Once states have been 
-        received for all the EligibleEntities, they are used for planning and assignmnet for 
-        the specified {@link CoordinatedAutomationRequest}-->
-        <Struct Name="AssignmentCoordinatorTask" Extends="CMASI/Task">
-        </Struct>
-
-        <!-- This task will synchronize all involved vehicles at a specified location
-             (or set of locations) at the same time.
-
-             Loiter patterns are used to ensure that when the latest
-             vehicle arrives, the others will be in the proper positions
-             and orientations to satisfy the location specification
-             simultaneously. -->
-        <Struct Name="RendezvousTask" Extends="CMASI/Task">
-            <!-- Number of vehicles that will participate in the rendezvous. To restrict
-                 the available participants, use the 'EligibleEntities' field. If the
-                 number of participants is exactly equal to the number of eligible
-                 entities, then this task will only produce a single option that ensures
-                 those exact entities meet at the rendezvous location. -->
-            <Field Name="NumberOfParticipants" Type="byte" />
-            <!-- The desired rendezvous states of the entities. If the EntityID fields
-                 are set to 0, then any eligible vehicle can be used at that location. 
-                 Only used when 'MultiLocationRendezvous' is set to 'true'. If the 
-                 EntityID fields are non-zero, they must correspond to an eligible
-                 vehicle and only that particular entity will be used at that position. -->
-            <Field Name="RendezvousStates" Type="PlanningState[]" MaxArrayLength="16" />
-        </Struct>
-
         <!-- The state of an entity to be used as the initial planning state when 
         constructing assignments/plans. -->
         <Struct Name="PlanningState">
             <!-- Identifier of the entitiy -->
             <Field Name="EntityID" Type="int64" />
-            <!-- Position of this entity for the plan. A valid PlanningState must define PlanningPosition (null not allowed). -->
-            <Field Name="PlanningPosition" Type="CMASI/Location3D" Optional="false" />
             <!-- Heading of this entity for the plan -->
             <Field Name="PlanningHeading" Type="real32" />
         </Struct>
@@ -161,9 +128,6 @@
             <Field Name="FootprintRequestID" Type="int64" />
             <!-- Single vehicle to be considered for sensor request. -->
             <Field Name="VehicleID" Type="int64" />
-            <!-- Camera wavelength to be considered. If list is empty, planner
-            should plan for all available sensors on each entity -->
-            <Field Name="EligibleWavelengths" Type="CMASI/WavelengthBand[]" MaxArrayLength="8" />
             <!-- Desired ground sample distance for an eligible sensor. If list is
             empty, then footprint calculation uses the max ground sample distance
             for the specified altitude. -->
@@ -204,8 +168,6 @@
             <Field Name="AspectRatio" Type="real32" Units="None" />
             <!-- Ground sample distance obtained with this sensor footprint -->
             <Field Name="AchievedGSD" Type="real32" Units="meters/pixel" />
-            <!-- Sensor wavelength used applicable to this footprint calculation -->
-            <Field Name="CameraWavelength" Type="CMASI/WavelengthBand" />
             <!-- Distance out front of the entity to the leading edge -->
             <Field Name="HorizontalToLeadingEdge" Type="real32" Units="meters" />
             <!-- Distance out front of the entity to the trailing edge -->
@@ -244,8 +206,6 @@
             <Field Name="StartingWaypointID" Type="int64" />
             <!-- Assigned vehicle ID -->
             <Field Name="VehicleID" Type="int64" />
-            <!-- Initial position of entity before task. A valid TaskImplementationRequest must define StartPosition (null not allowed). -->
-            <Field Name="StartPosition" Type="CMASI/Location3D" Optional="false" />
             <!-- Initial heading of entity before task -->
             <Field Name="StartHeading" Type="real32" Units="degrees" />
             <!-- Time when vehicle is at the starting location -->
@@ -279,10 +239,6 @@
             <Field Name="OptionID" Type="int64" />
             <!-- Vehicle ID -->
             <Field Name="VehicleID" Type="int64" />
-            <!-- Waypoints that implement this task for the indicated vehicle -->
-            <Field Name="TaskWaypoints" Type="CMASI/Waypoint[]" MaxArrayLength="1024" />
-            <!-- Vehicle location when this task is complete. A valid TaskImplementationResponse must define FinalLocation (null not allowed). -->
-            <Field Name="FinalLocation" Type="CMASI/Location3D" Optional="false" />
             <!-- Vehicle heading when this task is complete -->
             <Field Name="FinalHeading" Type="real32" Units="degrees" />
             <!-- Time when vehicle is at the final location -->
@@ -360,12 +316,8 @@
             <Field Name="EligibleEntities" Type="int64[]" MaxArrayLength="16" />
             <!-- Cost to complete option in terms of time (given in milliseconds) -->
             <Field Name="Cost" Type="int64" Units="milliseconds"/>
-            <!-- Start location entering the option. A valid TaskOption must define StartLocation (null not allowed). -->
-            <Field Name="StartLocation" Type="CMASI/Location3D" Optional="false" />
             <!-- Start heading entering the option -->
             <Field Name="StartHeading" Type="real32" Units="degrees" />
-            <!-- Ending location for this option. A valid TaskOption must define EndLocation (null not allowed). -->
-            <Field Name="EndLocation" Type="CMASI/Location3D" Optional="false" />
             <!-- Ending heading for this option -->
             <Field Name="EndHeading" Type="real32" Units="degrees" />
         </Struct>

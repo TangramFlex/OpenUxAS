@@ -1,4 +1,4 @@
-/* FIXME: For now, this is a copy of the UxAS main. */
+/* FIXME: For now, this is an edited copy of the UxAS main. */
 
 
 // ===============================================================================
@@ -10,8 +10,10 @@
 // Title 17, U.S. Code.  All Other Rights Reserved.
 // ===============================================================================
 
+/*
 #include "afrl/cmasi/AirVehicleState.h"
 #include "afrl/impact/AreaOfInterest.h"
+*/
 
 #include "LmcpObjectNetworkBridgeManager.h"
 #include "LmcpObjectNetworkServer.h"
@@ -87,6 +89,7 @@ main(int argc, char** argv)
         }
         else if (strcmp((const char *) argv[i], ARG_VERSION) == 0)
         {
+/*
             auto o = new afrl::cmasi::AirVehicleState;
             auto p = new afrl::impact::AreaOfInterest;
             std::cout << std::endl << "#######################" << std::endl;
@@ -101,6 +104,7 @@ main(int argc, char** argv)
             std::cout << "#######################" << std::endl << std::endl;
             delete o;
             delete p;
+*/
         }
         else
         {

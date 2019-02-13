@@ -232,6 +232,8 @@ executable(
 
 subdir('src/separate_compilation/LMCP')
 
+subdir('src/separate_compilation/Services')
+
 srcs_task01 = [
   'src/Services/01_HelloWorld.cpp',
   'src/separate_compilation/task01_main.cpp',
@@ -254,7 +256,7 @@ executable(
     incs_lmcp_task01,
   ],
   link_with: [
-    lib_services,
+    lib_services_task01,
     lib_tasks,
     lib_lmcp_task01,
     lib_uxas_communications,

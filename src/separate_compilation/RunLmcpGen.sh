@@ -1,6 +1,6 @@
 #! /bin/bash -e
 
-HERE=$PWD;
+HERE=`pwd`
 
 DIRECTORY="../../../LmcpGen"
 
@@ -19,7 +19,9 @@ if [ -d "${DIRECTORY}" ]; then
 	# LmcpGen writes generated assets to the path given by -dir, but does
 	# not clear assets from previous runs. This seems wrong.
 	rm -rf "$HERE/LMCP"
-	java -Xmx2048m -jar ../../../LmcpGen/dist/LmcpGen.jar -cpp -dir "$HERE/LMCP"
+	mkdir "$HERE/LMCP"
+	## NOTICE: The mdms in this directory are stripped of definitions that we won't use.
+	java -Xmx2048m -XX:ErrorFile=./LmcpGenErrors.log -jar ../../../LmcpGen/dist/LmcpGen.jar -cpp -mdm "$HERE/mdms/CMASI.xml" -mdm "$HERE/mdms/UXNATIVE.xml" -mdm "$HERE/mdms/UXTASK.xml" -dir "$HERE/LMCP"
 	###java -Xmx2048m -jar ../../../LmcpGen/dist/LmcpGen.jar -mdmdir "$HERE/mdms" -cpp -dir "$HERE/LMCP"
 
 	# LmcpGen writes meson.build; we must edit for use in disaggregation.
