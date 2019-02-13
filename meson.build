@@ -232,6 +232,8 @@ executable(
 
 subdir('src/separate_compilation/LMCP')
 
+subdir('src/separate_compilation/Communications')
+
 subdir('src/separate_compilation/Services')
 
 srcs_task01 = [
@@ -248,9 +250,9 @@ executable(
   include_directories: [
     include_directories(
       'src/Utilities',
-      'src/Communications',
+      'src/separate_compilation/Communications',
       'src/Includes',
-      'src/Services',
+      'src/separate_compilation/Services',
       'src/separate_compilation',
     ),
     incs_lmcp_task01,
@@ -259,7 +261,7 @@ executable(
     lib_services_task01,
     lib_tasks,
     lib_lmcp_task01,
-    lib_uxas_communications,
+    lib_uxas_communications_task01,
     lib_utilities,
     lib_visilibity,
     lib_plans,
