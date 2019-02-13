@@ -100,3 +100,8 @@ Feb 13th
 - Added tool `./show-src-files` to list source files (excluding Boost and 3rd-
   party) which have contributed code to a build executable (default:
   build/task01).
+
+- Extended `./rebuild` to generate LMCP code prior to starting the Meson/Ninja
+  build. It's better to spend an extra 30 seconds here every build than it is
+  to forget that step. The LMCP code generation really ought to be done by
+  `build.meson`.
