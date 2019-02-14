@@ -105,3 +105,142 @@ Feb 13th
   build. It's better to spend an extra 30 seconds here every build than it is
   to forget that step. The LMCP code generation really ought to be done by
   `build.meson`.
+
+===
+Feb 14th
+
+- Narrative regarding approaches, results and recommendations:
+
+Note: This refers to the `rivetss-initial` branch of
+<https://github.com/GaloisInc/OpenUxAS.git>. The `rivetss-initial` branch
+is intended as the project's development branch of `rivetss` in the same way
+that `develop` is the mainline's development branch of `master`.
+
+Note: OpenUxAS's `develop` branch was last merged into the `rivetss` branch
+on 20180917.
+
+Note: The OpenUxAS repo depends upon source code from other projects.
+
+The first task was to make OpenUxAS able to build. The included documentation
+and scripts contain conflicting instructions and clearly have not been kept
+current as the software and the (nominally) supported platforms evolve.
+Classic bit-rot. Part of the underlying problem is the intent to support
+multiple platforms coupled with a lack of either ownership or CI discipline
+to ensure that builds remain viable on each platform.
+
+I have not resolved the problem of build bit-rot in OpenUxAS. Apart from a
+one-time effort (only at the start of the project) at ensuring a viable Ubuntu
+build, all of my work has been performed in Fedora latest.
+
+Much of the work to setup a build environment is codified in the script
+`install_prerequisites.sh`. Again, note that *only* the Fedora section of this
+script is (relatively; I haven't revisited it since the project's inception)
+is up-to-date. Other Linux platforms should use the Fedora portion of the
+script as a model.
+
+Going forward, I strongly recommend splitting the tasks performed by
+`install_prerequisites.sh` into platform-specific scripts in order to
+clarify intent and simplify the script(s). Additionally, scripts should be
+written in POSIX sh(1p); not Bash or other derivative/extended shells.
+(I have not rewritten existing Bash scripts as recommended, but have created
+most new scripts to use sh(1p).
+
+I'm not sure what to do about Microsoft Visual Studio and NetBeans builds.
+These will probably need to be reworked and maintained to fit the platform's
+build model: neither platform is familiar to me.
+
+Occasionally a script becomes awkward to write using the limited facilities
+of sh(1p). In such cases, I have used the xs(1) shell. This is available
+from <https://github.com/TieDyedDevil/XS.git>, is trivial to compile and is
+(in a slightly earlier incarnation) available as part of the Fedora distro.
+As I am the current maintainer of xs(1), I'm happy to provide an overview
+and to field questions should anyone desire. Even if you decide to not adopt
+xs(1) scripts, their intent should be clear from inspection. The xs(1) language
+is completely unrelated to Bourne-alike shells; take a look at the man page
+for a concise description of the language.
+
+The next significant feature of the OpenUxAS build is its use of Meson and
+Ninja to perform the build. IME, the learning curve is trivial compared to
+GNU autotools or CMake. A build is described declaratively via the file (one
+per project and subproject) `meson.build` using a syntax similar to Ruby and
+JSON. Meson translates the `meson.build` file into a script that Ninja runs
+to perform the actual build. Builder options not specified in `meson.build`
+are captured by Meson as it creates the Ninja script. In practical terms, this
+means that you'll have a different build directory for each combination of
+builder options such as release vs. debug builds or the use of clang vs gcc.
+
+Since my first exposure to Meson/Ninja (I did the original adaptation of
+OpenUxAS to this build system) I have used these tools whenever possible.
+I'm happy to be a resource to aid understanding of these tools.
+
+Like almost everything else, Meson/Ninja is evolving and occasionally
+introduces changes that deprecate or break certain constructs in the
+`meson.build` file. I notice that Meson is pinned to a particular version by
+the `install_prerequisites.sh` script. I believe that this was necessary in
+order to support early experimentation with Rust support in Meson. I strongly
+recommend trying to un-pin Meson and adapt as needed to the current release.
+
+Which brings me to: Python. Meson is a Python program. The Python installer,
+`pip` (with various alternate spellings determined by version and distro)
+does not play well the distro's package manager. Let me emphasise this point:
+NEVER run `pip` with root privileges; doing so will irrevocably corrupt the
+Linux distro's package manager's view of its Python ecosystem. Note that it's
+impossible to resolve this by only using `pip`; all Linux distros install
+Python code for their own use.
+
+The proper way to install a Python program via `pip` is to install without
+root privileges into a directory named by the `$PYTHONUSERBASE` environment
+variable. The OpenUxAS `path.sh` script sets the `$PYTHONUSERBASE` variable
+to `./toolroot` at the root of the OpenUxAS directory tree and adds
+`$PYTHONUSERBASE/bin` to `$PATH`. The `$PYTHONUSERBASE` directory is visible
+and part of the OpenUxAS tree mainly to make its presence obvious. Should you
+prefer, you can locate this elsewhere and rename (perhaps .<name> to hide it)
+if desired. I use the project-specific hive in order to ward off potential
+version clashes that might arise should the directory be shared with other
+projects.
+
+Next on the awkward-install list: Java. Literally every time I've revisited
+Java as part of a project, the recommended installation technique changes.
+(Evidence of this exists in `install_prerequisites.sh`, varying by platform.)
+Sun Microsystems seems to care strongly about implementing bogus "protections"
+apparently recommended by their legal staff; these "protections" always seem
+to involve dispatching the user to a web page to affirm acceptance of terms
+and conditions prior to downloading a package. This is unacceptable, if for
+no other reason than it obviates the possibility of doing a build without
+operator involvement. The situation seems to have improved recently; Fedora,
+for example, includes official Java packages in its repo and recognizes the
+package via the `alternatives` program, which must be used to activate the
+installation. That's good, since you don't have to scrape URLs and capture
+tokens. But Sun Microsystems has never been a paradigm of consistency; don't
+be surprised if the recommended installation technique changes over time and
+with platform.
+
+Aside: Older OpenUxAS "install" scripts tell users things like "Navigate to
+http://..., click on "blah", answer web prompts, etc. This is NOT an
+installation script. If you absolutely can't implement an unattended
+installation (modulo a `sudo` password, which can be bypassed under controlled
+circumstances -- e.g. CI build -- with a proper `sudoers` entry), then *all*
+manual prerequisites should be clearly described (typically in an `INSTALL`
+text file) and their satisfaction confirmed at the start of the build script.
+
+When a script requires `sudo`, it should be authorized at the beginning of the
+script. This informs the user that authentication is required. Invoking `sudo`
+late in a script without preauthorization runs the risk that `sudo` will time
+out its authentication request due to user inattention and cause the build to
+fail. Few programmers are aware of this possibility, resulting in scripts that
+"silently" skip `sudo`'d programs when the user is not present.
+
+The `install_prerequisites.sh` script shows how to preauthorize `sudo` for the
+duration of the script. This technique is specific to the sh(1p) shell and may
+not work in shells which follow different regimes for assigning IDs to
+subordinate processes.
+
+Use of the `sudo` timeout flag (-T ...) may not be portable across Linux
+plaforms, as its value is apparently subject to (and may be limited by; note:
+this is inferred, not confirmed) system security policy.
+
+Regarding XML templates: Please learn and use `xsltproc`. XSLT is a stable
+standard; XML templating engines as provided in various scripting tools are
+prone to bit-rot as their APIs change.
+
+<Continue from Sep 20, 2018.../>
