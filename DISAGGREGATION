@@ -342,6 +342,8 @@ size of the full OpenUxAS executable.
 
 The HelloWorld example has been retargeted to the task01 executable.
 
+The HelloWorld directory contains suggestions regarding gdb configuration.
+
 - Possible next steps:
 
   1) Attempt to eliminate additional tasks and service from the task01 build
