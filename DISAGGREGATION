@@ -310,3 +310,23 @@ LMCP is problematic as regards disaggregation. Issues include:
   2) MDMs are defined with insufficient granularity. The main effect of this,
      I think, is to complicate the task of pruning MDMs to match the set
      actually required by a disaggregated task.
+
+For now, a reliable build (defined as including up-to-date LCMP based upon
+MDMs) is obtained via the `./rebuild` script.
+
+===
+
+- The following scripts have been useful in identifying dependencies:
+
+  * `./show-src-files`: Given an executable (which must not be stripped of
+    symbols), list the source files which contributed to the binary. The
+    report excludes files found on /usr/... and containing .../3rd/... in
+    the path.
+
+  * `./grovel-task-service-includes`: List the #include files referenced
+    by each task and service.
+
+  * `./extract-lmpc-deps`: Given the defining header for a Task or Service,
+    list its referenced LMCP files.
+
+  * `./extract-all-lmcp-deps`: As above, but for all Tasks and Services.
