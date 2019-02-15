@@ -8,7 +8,7 @@ for f (src/^(Tasks Services)^/*.cpp) {
 	if {!~ `{basename $f} *Template.cpp} {
 		i = `($i+1)
 		echo \n\;[$i]\ $f
-		cpp -MM -MG -MP src/Tasks/AngledAreaSearchTaskService.cpp \
+		cpp -MM -MG -MP $f \
 			|grep -v -e ': ' -e '^ ' -e '^$'|sort|uniq|tr -d :
 	} else {
 		echo \n\;[infrastructure]\ $f
