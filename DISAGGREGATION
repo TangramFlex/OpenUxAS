@@ -330,3 +330,22 @@ MDMs) is obtained via the `./rebuild` script.
     list its referenced LMCP files.
 
   * `./extract-all-lmcp-deps`: As above, but for all Tasks and Services.
+
+===
+
+- Current state:
+
+The ./src/separate_compilation directory and a task01 target in ./meson.build
+combine to build a task01 executable from which many (not all) tasks and
+services have been eliminated, yielding an executable roughly one-quarter the
+size of the full OpenUxAS executable.
+
+The HelloWorld example has been retargeted to the task01 executable.
+
+- Possible next steps:
+
+  1) Attempt to eliminate additional tasks and service from the task01 build
+     in order to discover a minimal "OpenUxAS base".
+
+  2) Attempt to split the HelloWorld demo such that each of the two HelloWorld
+     services runs in its own task01 image.
