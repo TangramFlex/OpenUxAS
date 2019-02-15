@@ -243,4 +243,70 @@ Regarding XML templates: Please learn and use `xsltproc`. XSLT is a stable
 standard; XML templating engines as provided in various scripting tools are
 prone to bit-rot as their APIs change.
 
-<Continue from Sep 20, 2018.../>
+OK, that's all I'm going to say regarding build hygiene. TL;DR: Sorry, go
+back and read the above until you understand the issues.
+
+Moving on...
+
+===
+Feb 15th
+
+- In which I revisit false starts in the hope that someone may learn from my
+  mistakes:
+
+My initial impression what that I ought to be able to demonstrate
+disaggregation by removing disjoint sets of services from two distinct builds
+of OpenUxAS, then have those two executables run in tandem to provide the
+same functionality as one executable containing the full complement of
+services. This high-level statement ignores obvious details and potential
+issues:
+
+  1) How does OpenUxAS treat state, and does it do so consistently? My working
+     assumption is that state is encapsulated by each service for its own use
+     and is shared with other services *only* via messaging. The first clause
+     seems highly likely; the second: maybe not.
+
+  2) I initially assumed that LMCP is cleanly separable in the sense that
+     it will not affect my ability to *remove* OpenUxAS functionality. This
+     is not at all true; I'll discuss this later.
+
+All of the work done during this exploratory phase is detailed in
+`./experimental/NOTES`, along with many of the tools created to aid
+exploration of the code base. Recommendations and critical observations
+follow:
+
+I spent a cycle trying to split OpenUxAS as described above. I learned some
+new gdb tricks, and repaired some rather extensive OpenUxAS logging issues
+(i.e. logging was *commented out* everywhere for severity levels of "warning"
+*and lower*, and many log messages were simply wrong due to copy/paste errors.
+
+Which brings me to the next installment of "Software Development Hygiene 101":
+Either commit to proper and consistent use of whatever logging discipline is
+implemented, or don't log at all. An accurate log *should* provide insight
+into what's happening during a specific execution of a program; if the log is
+*wrong* (as it was, and for all I know, still is in places that I didn't get
+to explore), then it's worse than useless because it's misleading. Many of the
+logging issues in OpenUxAS could be avoided with proper use of `__FILE__`,
+`__LINE__` and `__func__`.
+
+LMCP is an IDL, processed by `LmcpGen` to create code to marshall, transport
+and unmarshal the messages used by OpenUxAS and its collaborators. The
+`LmcpGen` tool is not a part of OpenUxAS; it is sourced from a different repo
+and is not invoked at part of the OpenUxAS build. OpenUxAS contains *both*
+the MDMs used to define its LMCP classes *and* the classes compiled from those
+MDMs. The text of OpenUxAS's build instructions warns to recompile LMCP when
+MDMs change.
+
+I strongly recommend integrating LmcpGen into the OpenUxAS build. Meson
+provides the means to do so via its `custom_target()` declaration.
+A typical approach would be to wrap LmcpGen into a script which recompiles
+LMCP only if an MDM has been touched since the last compile.
+
+LMCP is problematic as regards disaggregation. Issues include:
+
+  1) MDMs are defined in terms of other MDMs. This defeats the use of LTO to
+     prune unused message classes.
+
+  2) MDMs are defined with insufficient granularity. The main effect of this,
+     I think, is to complicate the task of pruning MDMs to match the set
+     actually required by a disaggregated task.
