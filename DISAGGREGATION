@@ -351,3 +351,20 @@ The HelloWorld directory contains suggestions regarding gdb configuration.
 
   2) Attempt to split the HelloWorld demo such that each of the two HelloWorld
      services runs in its own task01 image.
+
+===
+Mar 5th
+
+Here's the workflow I'm using to remove remaining unwanted tasks and services
+from the `task01` build. Note well that this all takes place within the
+`src/separate_compilation` directory:
+
+1. Find a service/task to remove.
+2. Remove the task/service declaration from its associated MDM file.
+3. Rerun LmcpGen and rebuild OpenUxAS.
+   (xs> fork {cd src/separate_compilation/; ./RunLmcpGen.sh}; ninja -C build)
+4. From build errors, find task/service source files that include removed
+   task/service header, find definition in MDM and remove, then rebuild.
+   Repeat as needed. If at any time you reach a service/task inclusion that
+   is *not* represented in an MDM, unwind (i.e. undo edits) back to step 1.
+5. When build is clean, repeat from top.
