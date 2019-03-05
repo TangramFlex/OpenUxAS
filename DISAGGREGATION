@@ -254,7 +254,7 @@ Feb 15th
 - In which I revisit false starts in the hope that someone may learn from my
   mistakes:
 
-My initial impression what that I ought to be able to demonstrate
+My initial impression was that I ought to be able to demonstrate
 disaggregation by removing disjoint sets of services from two distinct builds
 of OpenUxAS, then have those two executables run in tandem to provide the
 same functionality as one executable containing the full complement of
