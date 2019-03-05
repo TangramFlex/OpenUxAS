@@ -199,31 +199,6 @@
         </Struct>
         
         <!--
-            This is the primary message for requesting action from the automation service. The automation service is to use the list of
-            vehicles, tasks (with associated task relationships), keep-out zones, and keep-in zones to produce {@link MissionCommands}
-            for the vehicles requested. The automation service should only produce commands for the vehicles requested, but is not
-            required to produce plans for all vehicles. If multiple {@link AutomationRequest} messages are sent to the automation service, only
-            the last message will be considered, i.e. a new plan request supercedes all previous ones.
-        -->
-        <Struct Name="AutomationRequest">
-            <!-- List of entities to consider when planning. -->
-            <Field Name="EntityList" Type="int64[]" MaxArrayLength="16" />
-            <!-- list of task IDs (defined by {@link Task} messages) to be planned for by the automation service -->
-            <Field Name="TaskList" Type="int64[]" MaxArrayLength="32" />
-            <!-- string containing the relationship between requested tasks. If empty, all tasks are to be completed in any order. The
-                 format of the string is specific to the automation service. This relationship string is the mechanism for incorporating
-                 task precedence, priority, timing, etc. -->
-            <Field Name="TaskRelationships" Type="string"/>
-            <!-- Operating region ID to be considered during planning -->
-            <Field Name="OperatingRegion" Type="int64"/>
-            <!--
-                 Denotes that that the planner should restart any tasks that have been performed or are currently being performed.  This is useful in situations when a task
-                 request contains tasks that have been requested previously, and the operator wishes to restart the mission plans from the beginning.
-            -->
-            <Field Name="RedoAllTasks" Type="bool" Default="false"/>
-        </Struct>
-
-        <!--
             Sent to denote that the target id numbers in the list are obsolete and will not be requested again. This can occur when the user
             has replaced an old task with a new one, or has deleted a task permanently.  This is an optional message that automation services can ignore,
             depending on how they manage tasks.
@@ -284,15 +259,6 @@
                 A field to store command-line style parameters used to initialize or modify an execution.  
             -->
             <Field Name="Parameters" Type="KeyValuePair[]" MaxArrayLength="8" />
-        </Struct>
-
-        <!-- Encapsulates data from an automation service to a client.  The automation service may respond with
-        MissionCommands, VehicleActionCommands, or no commands at all.  This type is meant to serve as a single
-        container for commands that are a response to {@link AutomationRequest}
-        -->
-        <Struct Name="AutomationResponse">
-            <!-- Status from the automation service to the simulation regarding errors or conditions. -->
-            <Field Name="Info" Type="KeyValuePair[]" MaxArrayLength="8" />
         </Struct>
 
         <!-- Denotes a list of entities that should be removed permanently from the scenario. -->
