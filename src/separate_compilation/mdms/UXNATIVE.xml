@@ -35,16 +35,6 @@
             <!-- Globally unique ID for the service to be removed. If ServiceID == 0, then no service will be killed. ServiceID == -1 causes all services to be killed and UxAS to be shutdown. -->
             <Field Name="ServiceID" Type="int64"  Default="0"/>
         </Struct>
-
-        <!-- Command entity to execute subtasks either in strict order or determined by optimization.
-        Replaces all current sub-tasks being executed. In addtion to executing the sub-tasks, the
-        mission command used to complete the sub-tasks is returned. -->
-        <Struct Name="SubTaskExecution" >
-            <!-- List of tasks that current entity should complete -->
-            <Field Name="SubTasks" Type="CMASI/Task[]" MaxArrayLength="16" />
-            <!-- Enable strict ordering -->
-            <Field Name="StrictOrder" Type="bool" Default="false" />
-        </Struct>
     
         <!-- Entity Join -->
         <Struct Name="EntityJoin" >
