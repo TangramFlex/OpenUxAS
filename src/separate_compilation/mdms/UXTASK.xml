@@ -16,24 +16,6 @@
     
     <StructList>
         
-        <!-- Single task option cost for a particular vehicle -->
-	<Struct Name="TaskOptionCost" >
-            <!-- Corresponding Vehicle ID -->
-            <Field Name="VehicleID" Type="int64" />
-            <!-- Initial task ID (if zero, corresponds to current vehicle location) -->
-            <Field Name="IntialTaskID" Type="int64" />
-            <!-- Initial task option -->
-            <Field Name="IntialTaskOption" Type="int64" />
-            <!-- Destination task ID -->
-            <Field Name="DestinationTaskID" Type="int64" />
-            <!-- Destination task option -->
-            <Field Name="DestinationTaskOption" Type="int64" />
-            <!-- Timing corresponding to travel between ('InitialTask' using 'InitialTaskOption')
-            and ('DestinationTask' using 'DestinationTaskOption'). If time is less than zero,
-            no feasible path exists between tasks. -->
-            <Field Name="TimeToGo" Type="int64" Units="milliseconds" />
-        </Struct>
-        
         <!-- Representation of the assignment of entities to a task -->
         <Struct Name="TaskAssignment">
             <!-- Task ID -->
