@@ -16,48 +16,6 @@
     
     <StructList>
         
-        <!-- The state of an entity to be used as the initial planning state when 
-        constructing assignments/plans. -->
-        <Struct Name="PlanningState">
-            <!-- Identifier of the entitiy -->
-            <Field Name="EntityID" Type="int64" />
-            <!-- Heading of this entity for the plan -->
-            <Field Name="PlanningHeading" Type="real32" />
-        </Struct>
-        
-        <!-- Request to generate waypoints enroute to the task as well as to complete a task.
-        From a given start position and heading, a task must plan enroute waypoints to reach
-        the task and then append task waypoints for computing the task and then report final
-        position and heading of the vehicle. -->
-        <Struct Name="TaskImplementationRequest">
-            <!-- Request ID for correlating to matching response -->
-            <Field Name="RequestID" Type="int64" />
-            <!-- This task implementation request is part of fulfilling a unique automation request -->
-            <Field Name="CorrespondingAutomationRequestID" Type="int64" />
-            <!-- Starting waypoint ID that task must use when building response. Note that
-            Plan Builder reserves all values greater than 1,000,000,000. Therefore all
-            *internal* task waypoints must be less than 1e9 and can be obtained from the
-            reported waypoint number by "waypoint->getNumber()%1e9" .-->
-            <Field Name="StartingWaypointID" Type="int64" />
-            <!-- Assigned vehicle ID -->
-            <Field Name="VehicleID" Type="int64" />
-            <!-- Initial heading of entity before task -->
-            <Field Name="StartHeading" Type="real32" Units="degrees" />
-            <!-- Time when vehicle is at the starting location -->
-            <Field Name="StartTime" Type="int64" Units="milliseconds since 1 Jan 1970" />
-            <!-- ID for full region in which entity should plan -->
-            <Field Name="RegionID" Type="int64" />
-            <!-- Task ID to be completed -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- Using option ID to complete this task -->
-            <Field Name="OptionID" Type="int64" />
-            <!-- Time before which this task cannot begin -->
-            <Field Name="TimeThreshold" Type="int64" Units="milliseconds since 1 Jan 1970" />
-            <!-- Predicted locations and headings of all other entities at the point
-                 in the mission when this option is to be conducted. -->
-            <Field Name="NeighborLocations" Type="PlanningState[]" MaxArrayLength="65535" />
-        </Struct>
-        
         <!-- Response to a final task implementation request (one for each vehicle assigned).
         Note that in addition to calculating task waypoints that achieve that task purpose,
         a task implementation also includes the enroute waypoints to get the vehicle(s) to 
