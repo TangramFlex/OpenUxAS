@@ -220,12 +220,6 @@
             <Field Name="StatusType" Type="ServiceStatusType"/>
         </Struct>
 
-        <!-- Denotes a list of entities that should be removed permanently from the scenario. -->
-        <Struct Name="RemoveEntities">
-            <!-- List of entities to remove -->
-            <Field Name="EntityList" Type="int64[]" MaxArrayLength="32" />
-        </Struct>
-
     </StructList>
 </MDM>
 
