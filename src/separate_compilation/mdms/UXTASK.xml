@@ -16,28 +16,6 @@
     
     <StructList>
         
-        <!-- Response to a final task implementation request (one for each vehicle assigned).
-        Note that in addition to calculating task waypoints that achieve that task purpose,
-        a task implementation also includes the enroute waypoints to get the vehicle(s) to 
-        that task to be completed. Finally, an ending position and heading for the vehicle is
-        reported so that the next task in order will have a valid start position and heading. -->
-        <Struct Name="TaskImplementationResponse">
-            <!-- Response ID that matches the initial request -->
-            <Field Name="ResponseID" Type="int64" />
-            <!-- This task implementation response is part of fulfilling a unique automation request -->
-            <Field Name="CorrespondingAutomationRequestID" Type="int64" />
-            <!-- Task ID -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- Option ID that was selected for this task -->
-            <Field Name="OptionID" Type="int64" />
-            <!-- Vehicle ID -->
-            <Field Name="VehicleID" Type="int64" />
-            <!-- Vehicle heading when this task is complete -->
-            <Field Name="FinalHeading" Type="real32" Units="degrees" />
-            <!-- Time when vehicle is at the final location -->
-            <Field Name="FinalTime" Type="int64" Units="milliseconds since 1 Jan 1970" />
-        </Struct>
-        
         <!-- Single task option cost for a particular vehicle -->
 	<Struct Name="TaskOptionCost" >
             <!-- Corresponding Vehicle ID -->
