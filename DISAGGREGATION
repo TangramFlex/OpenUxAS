@@ -360,7 +360,7 @@ from the `task01` build. Note well that this all takes place within the
 `src/separate_compilation` directory:
 
 1. Find a service/task to remove.
-     sh> ./show-src-files build/task01 | less
+     sh> ./show-src-files build/task01 | less -X
 2. Remove the task/service declaration from its associated MDM file.
 3. Rerun LmcpGen and rebuild OpenUxAS.
      xs> fork {cd src/separate_compilation/; ./RunLmcpGen.sh}; ninja -C build
