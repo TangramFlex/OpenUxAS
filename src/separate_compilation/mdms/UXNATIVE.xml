@@ -45,14 +45,6 @@
             <!-- Enable strict ordering -->
             <Field Name="StrictOrder" Type="bool" Default="false" />
         </Struct>
-        
-        <!-- Command an entity to perform a complete task assignment for the entire team and then execute own role -->
-        <Struct Name="SubTaskAssignment" >
-            <!-- List of tasks that current team should complete -->
-            <Field Name="SubTasks" Type="CMASI/Task[]" MaxArrayLength="16" />
-            <!-- Neighboring entities to consider -->
-            <Field Name="Neighbors" Type="CMASI/EntityState[]" MaxArrayLength="16" />
-        </Struct>
     
         <!-- Entity Join -->
         <Struct Name="EntityJoin" >
