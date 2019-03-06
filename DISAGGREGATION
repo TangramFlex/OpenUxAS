@@ -374,11 +374,16 @@ from the `task01` build. Note well that this all takes place within the
      a) If at any time you reach a service/task inclusion that is *not*
         represented in an MDM, unwind (i.e. undo edits) back to step 1.
           sh> git checkout -p <file to edit>
+
           Alternatively, use git to checkpoint a known-good build ahead of
           step 1, then reset to that commit in order to unwind the edits.
           Or if you want to build upon uncommitted changes, use `git stash`
           to checkpoint the changes, `git stash pop` to unwind, and
           `git stash drop` plus `git commit ...` upon successful completion.
+
+          In either case, rebuild as per step 3; we need a working build
+          for the search of step 1.
+
 5. When build is clean, repeat from top.
 
 As the above iterates, periodically check the size of `build/task01`; it
