@@ -16,14 +16,6 @@
     
     <StructList>
         
-        <!-- Optional task progress query -->
-        <Struct Name="TaskProgressRequest">
-            <!-- Task progress request ID for properly matching corresponding response -->
-            <Field Name="RequestID" Type="int64" />
-            <!-- Task ID to report current progress -->
-            <Field Name="TaskID" Type="int64" />
-        </Struct>
-        
         <!-- Task initialized message indicating that the corresponding task service is available for use in automation requests -->
         <Struct Name="TaskInitialized" >
             <!-- Task ID is initialized and ready for use in automation requests -->
