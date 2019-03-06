@@ -16,48 +16,6 @@
     
     <StructList>
         
-        <!-- Representation of the assignment of entities to a task -->
-        <Struct Name="TaskAssignment">
-            <!-- Task ID -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- Option ID that was selected for this task -->
-            <Field Name="OptionID" Type="int64" />
-            <!-- Vehicle that is assigned to this task -->
-            <Field Name="AssignedVehicle" Type="int64" />
-            <!-- Time before which this task cannot begin -->
-            <Field Name="TimeThreshold" Type="int64" Units="milliseconds since 1 Jan 1970" />
-            <!-- Time that this task is assigned to be completed. -->
-            <Field Name="TimeTaskCompleted" Type="int64" Units="milliseconds since 1 Jan 1970" />
-        </Struct>
-        
-        <!-- Place a task in a 'paused' state where it no longer sends commands to any entities -->
-        <Struct Name="TaskPause">
-            <!-- Task ID -->
-            <Field Name="TaskID" Type="int64" />
-        </Struct>
-        
-        <!-- Resumes execution of a task from it's paused state -->
-        <Struct Name="TaskResume">
-            <!-- Task ID -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- Instead of resuming from paused task state, re-start the complete task -->
-            <Field Name="RestartCompletely" Type="bool" Default="false" />
-            <!-- Instead of resuming from paused task state with the previously assigned entities, resume task with new assignment options. Only used when not null. -->
-            <Field Name="ReAssign" Type="TaskAssignment" Default="null" Optional="true" />
-        </Struct>
-        
-        <!-- Reports the progress of the task -->
-        <Struct Name="TaskProgress">
-            <!-- Response ID that matches the task progress request -->
-            <Field Name="ResponseID" Type="int64" />
-            <!-- Task ID -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- Percentage of progress on task -->
-            <Field Name="PercentComplete" Type="real32" />
-            <!-- Entities that are working this task -->
-            <Field Name="EntitiesEngaged" Type="int64[]" MaxArrayLength="16" />
-        </Struct>
-        
         <!-- Optional task progress query -->
         <Struct Name="TaskProgressRequest">
             <!-- Task progress request ID for properly matching corresponding response -->
