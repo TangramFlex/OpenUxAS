@@ -376,6 +376,7 @@ from the `task01` build. Note well that this all takes place within the
           sh> git checkout -p <file to edit>
           Alternatively, use git to checkpoint a known-good build ahead of
           step 1, then reset to that commit in order to unwind the edits.
-          Or use `git stash` to checkpoint, `git stash pop` to unwind, and
-          `git stash drop` plus `git commit ...` to commit.
+          Or if you want to build upon uncommitted changes, use `git stash`
+          to checkpoint the changes, `git stash pop` to unwind, and
+          `git stash drop` plus `git commit ...` upon successful completion.
 5. When build is clean, repeat from top.
