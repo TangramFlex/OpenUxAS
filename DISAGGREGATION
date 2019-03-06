@@ -380,3 +380,6 @@ from the `task01` build. Note well that this all takes place within the
           to checkpoint the changes, `git stash pop` to unwind, and
           `git stash drop` plus `git commit ...` upon successful completion.
 5. When build is clean, repeat from top.
+
+As the above iterates, periodically check the size of `build/task01`; it
+should decrease.
