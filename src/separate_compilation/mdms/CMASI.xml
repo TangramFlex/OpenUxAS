@@ -8,21 +8,6 @@
     <Version>3</Version>
 
     <EnumList>
-        <!-- Describes waypoint modes -->
-        <Enum Name="NavigationMode">
-            <!-- standard waypoint following mode -->
-            <Entry Name="Waypoint" Value="0"/>
-            <!-- loiter mode, vehicle in constant orbit -->
-            <Entry Name="Loiter" Value="1"/>
-            <!-- flight director, vehicle following specific heading and spedd commands without regard to waypoints -->
-            <Entry Name="FlightDirector" Value="2"/>
-            <!-- track target, vehicle adjusts path to maintain current target track -->
-            <Entry Name="TargetTrack" Value="3"/>
-            <!-- follow leader, vehicle path is maintained to remain in formation with a leader -->
-            <Entry Name="FollowLeader" Value="4"/>
-            <!-- lost comm, vehicle is out of comm range and should be executing lost-comm behavior -->
-            <Entry Name="LostComm" Value="5"/>
-        </Enum>
         <!-- Describes automation service status types -->
         <Enum Name="ServiceStatusType">
             <!-- informational note from automation service -->
