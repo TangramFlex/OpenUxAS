@@ -1,5 +1,3 @@
-/* FIXME: For now, this is an edited copy of the UxAS main. */
-
 
 // ===============================================================================
 // Authors: AFRL/RQQA
@@ -9,11 +7,6 @@
 // the Secretary of the Air Force.  No copyright is claimed in the United States under
 // Title 17, U.S. Code.  All Other Rights Reserved.
 // ===============================================================================
-
-/*
-#include "afrl/cmasi/AirVehicleState.h"
-#include "afrl/impact/AreaOfInterest.h"
-*/
 
 #include "LmcpObjectNetworkBridgeManager.h"
 #include "LmcpObjectNetworkServer.h"
@@ -26,11 +19,6 @@
 #include "UxAS_Log.h"
 #include "UxAS_LogManagerDefaultInitializer.h"
 #include "UxAS_StringUtil.h"
-
-#ifdef AFRL_INTERNAL_ENABLED
-#include "afrl/famus/PointSearchTask.h"
-//#include "UxAS_SerialPortEmulator.h"
-#endif
 
 #include "stdUniquePtr.h"
 
@@ -55,19 +43,6 @@
 int
 main(int argc, char** argv)
 {
-    // override locale with US locale settings
-    /*
-    std::locale loc;
-    try
-    {
-        loc.global(std::locale("en_US.UTF8"));
-    }
-    catch (std::runtime_error)
-    {
-        std::cerr << "main: " << "Could not set locale to US !" << std::endl;
-    }
-     */
-
     // 
     // declare relative paths of configuration files with default values
     // example arguments: -cfgBasePath ./cfg/cfgbase2.xml
@@ -89,22 +64,7 @@ main(int argc, char** argv)
         }
         else if (strcmp((const char *) argv[i], ARG_VERSION) == 0)
         {
-/*
-            auto o = new afrl::cmasi::AirVehicleState;
-            auto p = new afrl::impact::AreaOfInterest;
-            std::cout << std::endl << "#######################" << std::endl;
             std::cout << "   VERSION: " << MAJOR_VERSION << "." << MINOR_VERSION << "." << PATCH_VERSION << std::endl;
-            std::cout << "     CMASI:  " << o->getSeriesVersion() << std::endl;
-            std::cout << "     IMPACT: " << p->getSeriesVersion() << std::endl;
-#ifdef AFRL_INTERNAL_ENABLED
-            auto q = new afrl::famus::PointSearchTask;
-            std::cout << "      FAMUS: " << q->getSeriesVersion() << std::endl;
-            delete q;
-#endif
-            std::cout << "#######################" << std::endl << std::endl;
-            delete o;
-            delete p;
-*/
         }
         else
         {
@@ -126,16 +86,6 @@ main(int argc, char** argv)
     {
         BEFORE_LOG_MANAGER_INITIALIZATION_LOG_MESSAGE("ERROR UxAS_Main failed to initialize console logger")
     }
-
-    //    bool isDatabaseLoggerInitialized = uxas::common::log::LogManagerDefaultInitializer::initializeMainDatabaseLogger();
-    //    if (isDatabaseLoggerInitialized)
-    //    {
-    //        UXAS_LOG_INFORM("UxAS_Main initialized main file logger");
-    //    }
-    //    else
-    //    {
-    //        BEFORE_LOG_MANAGER_INITIALIZATION_LOG_MESSAGE("ERROR UxAS_Main failed to initialize main database logger")
-    //    }
 
     bool isMainFileLoggerInitialized = uxas::common::log::LogManagerDefaultInitializer::initializeMainFileLogger();
     if (isMainFileLoggerInitialized)
