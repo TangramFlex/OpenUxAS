@@ -353,7 +353,7 @@ The HelloWorld directory contains suggestions regarding gdb configuration.
      services runs in its own task01 image.
 
 ===
-Mar 5th
+Mar 5th and 6th
 
 Here's the workflow I'm using to remove remaining unwanted tasks and services
 from the `task01` build. Note well that this all takes place within the
@@ -388,3 +388,10 @@ from the `task01` build. Note well that this all takes place within the
 
 As the above iterates, periodically check the size of `build/task01`; it
 should decrease.
+
+===
+Mar 6th
+
+The `task01` build is close to (perhaps at) its minimum. I think I've removed
+all nonessential MDM definitions. I want to drill down one more level and see
+how much more of the 3rd-party libraries can be elided.
