@@ -43,42 +43,6 @@
             <!-- A value for the property -->
             <Field Name="Value" Type="string"/>
         </Struct>
-
-        <!--
-         The base class for all task requests passed to the automation service.  Task requests are not assigned to a specific vehicle, but
-         allow the automation service to determine the best vehicle to complete the task.
-         -->
-        <Struct Name="Task">
-            <!-- A unique identifier for this task. -->
-            <Field Name="TaskID" Type="int64" Units="None" />
-            
-            <!-- An optional text string for the task. This is not necesarily unique,
-             and is included for information only. TaskID should be used to uniquely
-             identify tasks. -->
-            <Field Name="Label" Type="string" />
-            
-            <!-- A list of entity IDs that are eligible to accomplish this task.  If the list is empty, then it is
-             assumed all entities are eligible. -->
-            <Field Name="EligibleEntities" Type="int64[]" MaxArrayLength="32" Units="None" />
-            
-            <!--
-             If a task is to be repeatedly done, this field indicates how often.
-             A value of zero means the task is complete on the first pass.
-             -->
-            <Field Name="RevisitRate" Type="real32" Units="sec" Default="0"/>
-            
-            <!-- An optional text string for automation service task parameters. -->
-            <Field Name="Parameters" Type="KeyValuePair[]" MaxArrayLength="8" />
-            
-            <!-- The priority value for this task.  Priority is a relative value of this task compared to other tasks in the scenario.  This
-             field should be limited to the range[0..100], 100 being the highest level of priority.  The exact interpretation
-             priority may vary depending on algorithm implementation. -->
-            <Field Name="Priority" Type="byte" Default="0"/>
-            
-            <!-- Indicates whether this task <i><b>must</b></i> be executed as part of a mission plan.  -->
-            <Field Name="Required" Type="bool" Default="true"/>
-            
-        </Struct>
         
 
         <!--
