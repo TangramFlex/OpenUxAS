@@ -197,17 +197,6 @@
             <Field Name="Info" Type="KeyValuePair[]" MaxArrayLength="32" />
 
         </Struct>
-        
-        <!--
-            Sent to denote that the target id numbers in the list are obsolete and will not be requested again. This can occur when the user
-            has replaced an old task with a new one, or has deleted a task permanently.  This is an optional message that automation services can ignore,
-            depending on how they manage tasks.
-        -->
-        <Struct Name="RemoveTasks">
-            <Field Name="TaskList" Type="int64[]" MaxArrayLength="32" />
-        </Struct>
-
-
 
         <!--
             Provides information regarding automation service compuation percent complete.  The automation service should send this when the computation of a
