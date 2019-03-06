@@ -360,7 +360,7 @@ from the `task01` build. Note well that this all takes place within the
 `src/separate_compilation` directory:
 
 1. Find a service/task to remove.
-     sh> ./show-src-files build/task01 | less -X
+     sh> ./show-src-files build/task01 | grep '\.cpp' | less -X
 2. Remove the task/service declaration from its associated MDM file.
      sh> ag <classname> src/separate_compilation/mdms
      ... Then edit.
