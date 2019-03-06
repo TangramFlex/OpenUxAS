@@ -24,10 +24,6 @@
             <Field Name="ServiceID" Type="int64"  Default="0"/>
             <!-- XML configuration for this service (i.e. options in XML format) -->
             <Field Name="XmlConfiguration" Type="string" />
-            <!-- Existing entity configurations in the system when this new service is created -->
-            <Field Name="EntityConfigurations" Type="CMASI/EntityConfiguration[]" MaxArrayLength="16" />
-            <!-- Existing entity states in the system when this new service is created -->
-            <Field Name="EntityStates" Type="CMASI/EntityState[]" MaxArrayLength="16" />
         </Struct>
         
         <!-- Remove an existing service from UxAS -->
