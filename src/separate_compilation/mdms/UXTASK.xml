@@ -25,18 +25,6 @@
             <Field Name="PlanningHeading" Type="real32" />
         </Struct>
         
-        <!-- This messages is used to syncronize the entity states, used for planning, to 
-        facilitate assignment coordination. When an entity receives a {@link CoordinatedAutomationRequest} 
-        message it's {@link AssignmentCoordinatorTask} task sends out a AssignmentCoordination message with the entity's planning state. -->
-        <Struct Name="AssignmentCoordination">
-            <!-- Identifier of the associated CoordinatedAutomationRequest -->
-            <Field Name="CoordinatedAutomationRequestID" Type="int64" />
-            <!-- The state of the entity that will used for planning/assignment of 
-            the given automation request. A valid AssignmentCoordination must define
-            PlanningState (null not allowed). -->
-            <Field Name="PlanningState" Type="PlanningState" Optional="false" />
-        </Struct>
-        
         <!-- Request to generate waypoints enroute to the task as well as to complete a task.
         From a given start position and heading, a task must plan enroute waypoints to reach
         the task and then append task waypoints for computing the task and then report final
@@ -90,25 +78,6 @@
             <Field Name="FinalHeading" Type="real32" Units="degrees" />
             <!-- Time when vehicle is at the final location -->
             <Field Name="FinalTime" Type="int64" Units="milliseconds since 1 Jan 1970" />
-        </Struct>
-        
-        <!-- Matrix of costs consisting of:
-        (1) costs from initial vehicle positions to all task options; and
-        (2) costs from each task option to every other task option -->
-	<Struct Name="AssignmentCostMatrix" >
-            <!-- ID that matches this cost matrix with the appropriate unique automation request -->
-            <Field Name="CorrespondingAutomationRequestID" Type="int64" />
-            <!-- Over-arching task relationship description (directly from
-            automation request). A process algebra string with only task IDs. -->
-            <Field Name="TaskLevelRelationship" Type="string" />
-            <!-- List of all tasks that this cost matrix includes -->
-            <Field Name="TaskList" Type="int64[]" MaxArrayLength="16" />
-            <!-- Operating region that was used during matrix calculation -->
-            <Field Name="OperatingRegion" Type="int64" />
-            <!-- Set of task-to-task timings for each requested vehicle.
-                 Assume 'T' max tasks [16], 'O' max options per task [8], 'V' max vehicles [16]:
-                 then max number of elements in matrix is 'V*T*O + (T*O)^2' [18432] -->
-            <Field Name="CostMatrix" Type="TaskOptionCost[]" MaxArrayLength="18432" />
         </Struct>
         
         <!-- Single task option cost for a particular vehicle -->
