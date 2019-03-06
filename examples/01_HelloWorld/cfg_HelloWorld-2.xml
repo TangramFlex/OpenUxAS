@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<UxAS EntityID="100" FormatVersion="1.0" EntityType="None" ConsoleLoggerSeverityLevel="DEBUG" MainFileLoggerSeverityLevel="DEBUG">
+
+    <Service Type="HelloWorld" StringToSend="Hello from #2" SendPeriod_ms="5001"/>
+
+</UxAS>
+
+
