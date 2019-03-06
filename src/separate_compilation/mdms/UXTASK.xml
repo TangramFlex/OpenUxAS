@@ -30,16 +30,6 @@
             <Field Name="TimeTaskCompleted" Type="int64" Units="milliseconds since 1 Jan 1970" />
         </Struct>
         
-        <!-- A completed assignment consisting of an <b>ordered</b> list of tasks -->
-        <Struct Name="TaskAssignmentSummary">
-            <!-- ID that matches this summary with the appropriate unique automation request -->
-            <Field Name="CorrespondingAutomationRequestID" Type="int64" />
-            <!-- Operating region which was considered during this assignment -->
-            <Field Name="OperatingRegion" Type="int64" />
-            <!-- Ordered list of tasks to be completed -->
-            <Field Name="TaskList" Type="TaskAssignment[]" MaxArrayLength="256" />
-        </Struct>
-        
         <!-- Place a task in a 'paused' state where it no longer sends commands to any entities -->
         <Struct Name="TaskPause">
             <!-- Task ID -->
