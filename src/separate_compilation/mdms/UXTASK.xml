@@ -74,19 +74,6 @@
             <Field Name="EndHeading" Type="real32" Units="degrees" />
         </Struct>
         
-        <!-- Summary of available options to complete this task -->
-        <Struct Name="TaskPlanOptions">
-            <!-- ID that matches this message with the appropriate unique automation request -->
-            <Field Name="CorrespondingAutomationRequestID" Type="int64" />
-            <!-- Task ID -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- Process algebra string encoding all of the different options -->
-            <Field Name="Composition" Type="string" />
-            <!-- List of options. NOTE for computational reasons, the larger the number
-            of options, the much greater the computation -->
-            <Field Name="Options" Type="TaskOption[]" MaxArrayLength="64" />
-        </Struct>
-        
         <!-- Place a task in a 'paused' state where it no longer sends commands to any entities -->
         <Struct Name="TaskPause">
             <!-- Task ID -->
