@@ -249,7 +249,7 @@ executable(
   cpp_args: cpp_args,
   include_directories: [
     include_directories(
-      'src/Utilities',
+      'src/separate_compilation/Utilities',
       'src/separate_compilation/Communications',
       'src/Includes',
       'src/separate_compilation/Services',
