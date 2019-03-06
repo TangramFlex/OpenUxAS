@@ -362,8 +362,11 @@ from the `task01` build. Note well that this all takes place within the
 1. Find a service/task to remove.
      sh> ./show-src-files build/task01 | less -X
 2. Remove the task/service declaration from its associated MDM file.
+     sh> ag <classname> src/separate_compilation/mdms
+     ... Then edit.
 3. Rerun LmcpGen and rebuild OpenUxAS.
      xs> fork {cd src/separate_compilation/; ./RunLmcpGen.sh}; ninja -C build
+     or
      sh> ( cd src/separate_compilation; ./RunLmcpGen.sh ); ninja -C build
 4. From build errors, find task/service source files that include removed
    task/service header, find definition in MDM and remove, then rebuild.
