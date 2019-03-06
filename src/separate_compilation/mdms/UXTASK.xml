@@ -16,33 +16,6 @@
     
     <StructList>
 
-        <!-- Task Active message. Sent when task becomes active -->
-        <Struct Name="TaskActive" >
-            <!-- Task ID that was just activated -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- Entity ID that activated the task -->
-            <Field Name="EntityID" Type="int64" />
-            <!-- Time that this task was activated. -->
-            <Field Name="TimeTaskActivated" Type="int64" Units="milliseconds since 1 Jan 1970" />
-        </Struct>
-
-        <!-- Task complete message -->
-        <Struct Name="TaskComplete" >
-            <!-- Task ID that was just completed -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- Entity IDs that completed the task -->
-            <Field Name="EntitiesInvolved" Type="int64[]" MaxArrayLength="16" />
-            <!-- Time that this task was completed. -->
-            <Field Name="TimeTaskCompleted" Type="int64" Units="milliseconds since 1 Jan 1970" />
-        </Struct>
-        
-        <!-- Task cancel message -->
-        <Struct Name="CancelTask" >
-            <!-- List of vehicle IDs that are directed to cancel tasks. If empty, all vehicles currently on a listed task will be directed to cancel. -->
-            <Field Name="Vehicles" Type="int64[]" MaxArrayLength="16" />
-            <!-- Task ID(s) to be removed from task lists of indicated vehicles. If empty, then only the current task is removed. -->
-            <Field Name="CanceledTasks" Type="int64[]" MaxArrayLength="16" />
-        </Struct>
         
     </StructList>
 </MDM>
