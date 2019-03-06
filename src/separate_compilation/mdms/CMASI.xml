@@ -231,36 +231,6 @@
             <Field Name="StatusType" Type="ServiceStatusType"/>
         </Struct>
 
-        <!--
-            Provides information regarding the state of a simulation or real-world.  <br/>
-        -->
-        <Struct Name="SessionStatus">
-            <!--
-                The simulation or scenario start time.  This is absolute time in milliseconds since epoch (1 Jan 1970 00:00 GMT).
-                If this field is zero, then no start time is specfied and each sim component is to use the first receipt of
-                this Struct with a SimStatus of "Running" as the start time.
-            -->
-            <Field Name="StartTime" Type="int64" Units="millisecond" />
-
-            <!--
-                The current time in scenario time .  This is the internal time for the simulation, not the absolute time
-                since epoch, as in "StartTime".  The internal simualation time is based on the start time and the real-time
-                muiltiple, which can change throughout the simulation.
-            -->
-            <Field Name="ScenarioTime" Type="int64" Units="millisecond"/>
-
-            <!--
-                The ratio of simulation time to real time.  Values greater than 1.0 denote faster than real-time.  Values
-                less than 0.0 have no meaning.
-            -->
-            <Field Name="RealTimeMultiple" Type="real32"/>
-
-            <!--
-                A field to store command-line style parameters used to initialize or modify an execution.  
-            -->
-            <Field Name="Parameters" Type="KeyValuePair[]" MaxArrayLength="8" />
-        </Struct>
-
         <!-- Denotes a list of entities that should be removed permanently from the scenario. -->
         <Struct Name="RemoveEntities">
             <!-- List of entities to remove -->
