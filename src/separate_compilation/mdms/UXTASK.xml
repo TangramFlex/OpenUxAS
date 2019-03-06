@@ -15,12 +15,6 @@
     </EnumList>
     
     <StructList>
-        
-        <!-- Task initialized message indicating that the corresponding task service is available for use in automation requests -->
-        <Struct Name="TaskInitialized" >
-            <!-- Task ID is initialized and ready for use in automation requests -->
-            <Field Name="TaskID" Type="int64" />
-        </Struct>
 
         <!-- Task Active message. Sent when task becomes active -->
         <Struct Name="TaskActive" >
