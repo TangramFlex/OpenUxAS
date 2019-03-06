@@ -35,12 +35,6 @@
             <!-- Globally unique ID for the service to be removed. If ServiceID == 0, then no service will be killed. ServiceID == -1 causes all services to be killed and UxAS to be shutdown. -->
             <Field Name="ServiceID" Type="int64"  Default="0"/>
         </Struct>
-        
-        <!-- Report for a received message containing positions of both entities and the payload size -->
-        <Struct Name="BandwidthReceiveReport">
-            <!-- Size of the message that was received -->
-            <Field Name="TransferPayloadSize" Type="uint32" />
-        </Struct>
 
         <!-- Command entity to execute subtasks either in strict order or determined by optimization.
         Replaces all current sub-tasks being executed. In addtion to executing the sub-tasks, the
