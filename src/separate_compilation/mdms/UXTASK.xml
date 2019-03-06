@@ -39,22 +39,6 @@
             <!-- Ordered list of tasks to be completed -->
             <Field Name="TaskList" Type="TaskAssignment[]" MaxArrayLength="256" />
         </Struct>
-
-        <!-- Start/end locations and headings and cost for implementing the task from this configuration -->
-        <Struct Name="TaskOption">
-            <!-- Task ID -->
-            <Field Name="TaskID" Type="int64" />
-            <!-- ID for this option -->
-            <Field Name="OptionID" Type="int64" />
-            <!-- Eligible entities for completing this option with identical cost to complete. If list is empty, then all vehicles are assumed to be eligible. -->
-            <Field Name="EligibleEntities" Type="int64[]" MaxArrayLength="16" />
-            <!-- Cost to complete option in terms of time (given in milliseconds) -->
-            <Field Name="Cost" Type="int64" Units="milliseconds"/>
-            <!-- Start heading entering the option -->
-            <Field Name="StartHeading" Type="real32" Units="degrees" />
-            <!-- Ending heading for this option -->
-            <Field Name="EndHeading" Type="real32" Units="degrees" />
-        </Struct>
         
         <!-- Place a task in a 'paused' state where it no longer sends commands to any entities -->
         <Struct Name="TaskPause">
