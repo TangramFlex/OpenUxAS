@@ -1,7 +1,7 @@
 #! /bin/bash
 
 echo "NOTICE: Running HelloWorld dual example from task01 executable."
-echo "Use \`pkill task01\` in a separate window to stop."
+echo "Use \`./stop\` in a separate window (on this directory) to stop."
 echo "Press enter to continue"
 read
 BIN="../../build/task01"
