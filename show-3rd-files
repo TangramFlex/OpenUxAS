@@ -1,0 +1,12 @@
+#! /usr/bin/sh
+
+# Given an executable (default: build/task01), list the contributing source
+# files from 3rd/.
+
+exe=${1:-build/task01}
+nm -Cgln --defined-only $exe \
+	|cut -s -d $'\t' -f2|cut -d: -f1 \
+	|sort|uniq \
+	|grep '/3rd/' \
+	|sed 's|^.*\.\./||' \
+	|less -FX
