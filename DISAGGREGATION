@@ -439,4 +439,5 @@ how much more of the 3rd-party libraries can be elided.
 Mar 7th
 
 Attempted to get dual HelloWorld programs to communicate with each other via
-an LmcpObjectNetworkZeroMqZyreBridge.
+an LmcpObjectNetworkZeroMqZyreBridge. No success, yet. Let's modify the build
+of 3rd/zyre to also generate zpinger; this may be useful for debugging.
