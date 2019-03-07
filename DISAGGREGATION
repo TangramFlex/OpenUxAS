@@ -1,3 +1,42 @@
+Per conversation w/ Erin 20181016
+
+- Overall objective: Automate decomposition of monolithic system like UxAS.
+
+- Initial tasks:
+  - Pick a UxAS task. (NOTE: Not infrastructure.)
+    - Extract into its own project.
+      - This leave UxAS less one subsystem. (Call this UxAS′.)
+    - Build (and test, presumably) extracted task.
+    - Build UxAS′ with separately-compiled extracted module.
+  - Consider dependencies amongst tasks; extract dependent tasks as a group.
+  - Later, repeat with more tasks (and UxAS″, UxAS‴, ...).
+  - Document workflow; turn into a script/tool.
+
+- Longer term:
+  - Property-based reverse engineering.
+    - Defined as ...?
+    - Supported by tools/methods ...?
+      - CBMC?
+      - Assume/Guarantee?
+
+========================================================================
+
+LMCP only supports ASCII character set; no wide chars; no UTF-8.
+LMCP does not support 128-bit scalar values.
+LMCP limits number of array elements to 2^16-1.
+LMCP checksum (add ignoring overflow) is weak and optional.
+Seriously, why LMCP? Why not some protocol having less-obvious deficits?
+
+Need to automate map tiling.
+
+OpenAMASE crashes at high simulation-rate multipliers.
+
+Integrate NASA WorldWind installation and use. [DONE]
+
+Change default branch to `rivetss`. [DONE]
+
+========================================================================
+
 - Rework one or more demos to run with disaggregated task01.
   - startup scripts
   - config files
@@ -395,3 +434,9 @@ Mar 6th
 The `task01` build is close to (perhaps at) its minimum. I think I've removed
 all nonessential MDM definitions. I want to drill down one more level and see
 how much more of the 3rd-party libraries can be elided.
+
+===
+Mar 7th
+
+Attempted to get dual HelloWorld programs to communicate with each other via
+an LmcpObjectNetworkZeroMqZyreBridge.
