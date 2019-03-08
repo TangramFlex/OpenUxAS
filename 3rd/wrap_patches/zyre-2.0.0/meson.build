@@ -145,3 +145,12 @@ dep = declare_dependency(
     'include',
   ),
 )
+
+executable('zpinger', ['src/zpinger.c'],
+  dependencies: [deps, dep],
+  c_args: c_args,
+  include_directories: include_directories(
+    'include',
+    'src',
+  ),
+)
