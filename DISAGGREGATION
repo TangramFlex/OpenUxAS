@@ -441,3 +441,10 @@ Mar 7th
 Attempted to get dual HelloWorld programs to communicate with each other via
 an LmcpObjectNetworkZeroMqZyreBridge. No success, yet. Let's modify the build
 of 3rd/zyre to also generate zpinger; this may be useful for debugging.
+
+===
+Mar 8th
+
+Built zpinger. *With the firewall disabled*, zpinger instances see each other
+and the HelloWorld instances. Still, the HelloWorld's do not communicate as
+expected. This may well be an issue with the OpenUxAS code base.
