@@ -448,3 +448,9 @@ Mar 8th
 Built zpinger. *With the firewall disabled*, zpinger instances see each other
 and the HelloWorld instances. Still, the HelloWorld's do not communicate as
 expected. This may well be an issue with the OpenUxAS code base.
+
+===
+Mar 12th
+
+Still trying to grok HelloWorld. Turned on additional chatter; confirmed that
+neither of the dual instances actually attempts to send a message. Why...?
