@@ -117,7 +117,7 @@ void HelloWorld::OnSendMessage()
     keyValuePairOut->setKey(std::to_string(m_serviceId));
     keyValuePairOut->setValue(m_stringToSend);
     sendSharedLmcpObjectBroadcastMessage(keyValuePairOut);
-    //std::cout << "*** SENT:: Service Id[" << m_serviceId << "] Sent a KeyValuePair with the Key[" << keyValuePairOut->getKey() << "] and Value[" << keyValuePairOut->getValue() << "] *** " << std::endl;
+    std::cout << "*** SENT:: Service Id[" << m_serviceId << "] Sent a KeyValuePair with the Key[" << keyValuePairOut->getKey() << "] and Value[" << keyValuePairOut->getValue() << "] *** " << std::endl;
     
     // reset the timer
 }
