@@ -64,7 +64,10 @@
 
 // data
 #include "MessageLoggerDataService.h"
+/*
+TEMPORARY EXCLUSION
 #include "AutomationDiagramDataService.h"
+*/
 #ifdef AFRL_INTERNAL_ENABLED
 #include "VicsLoggerDataService.h"
 #endif

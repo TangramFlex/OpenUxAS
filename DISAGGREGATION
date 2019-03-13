@@ -479,3 +479,9 @@ have been unnecessary.
 You may wonder how, if OpenUxAS was unable to communicate with services living
 outside its process, does the OpenAMASE connection work? Short answer: not via
 Zyre.
+
+... Started pruning files from separate_compilation/... .
+	Communications		no extra files; nothing removed
+	LMCP			generated files
+	Services		many removed
+	Utilities		
