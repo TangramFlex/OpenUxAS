@@ -155,8 +155,8 @@ ZeroMqZyreBridge::start(const std::string& zyreNetworkDevice, const std::string&
     }
     
     // un-comment the following line for debugging Zyre
-    //zyre_set_verbose(m_zyreNode);
-    //n_ZMQ::zyreJoin(m_zyreNode, m_zyreGroup); // group enables Zyre multicast, m_zyreNode is unique ID for a single Zyre node
+    zyre_set_verbose(m_zyreNode);
+    n_ZMQ::zyreJoin(m_zyreNode, "OpenUxAS"); // group enables Zyre multicast, m_zyreNode is unique ID for a single Zyre node
     UXAS_LOG_INFORM(s_typeName(), "::start started Zyre node with node ID ", m_zyreNodeId, " and network device ", m_zyreNetworkDevice);
     return (true);
 };

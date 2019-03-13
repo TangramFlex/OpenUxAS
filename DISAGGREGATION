@@ -454,3 +454,28 @@ Mar 12th
 
 Still trying to grok HelloWorld. Turned on additional chatter; confirmed that
 neither of the dual instances actually attempts to send a message. Why...?
+
+===
+Mar 13th
+
+OpenUxAS was not implemented to discover other instances of itself. Even though
+it uses Zyre to implement a message bridge, the bridge is instantiated with
+`inproc://` addressing; it it able to communicate only with messaging peers
+that run *in the same process*. I applied the "big hammer", changing all
+`inproc://` to `ipc://`. I'd expect this to have a negative impact on the
+performance of the messaging system. Whether that impact is observable will
+likely depend upon the behavior of OpenUxAS under various scenarios. It'd
+probably be a good idea to make the scheme configurable...
+
+I also uncommented the one call to `n_ZMQ::zyreJoin()`, which sets a group
+name for the Zyre peers. It's not clear to me that this is necessary. The
+original call references a class member that exists nowhere (I even searched
+the git log for its removal), so this is clearly code that had been abandoned
+mid-implementation.
+
+Specifying a `MessageGroup` attribute to the HelloWorld service XML may also
+have been unnecessary.
+
+You may wonder how, if OpenUxAS was unable to communicate with services living
+outside its process, does the OpenAMASE connection work? Short answer: not via
+Zyre.

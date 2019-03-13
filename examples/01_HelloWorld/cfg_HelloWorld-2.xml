@@ -4,7 +4,7 @@
         <SubscribeToExternalMessage MessageType="afrl.cmasi.KeyValuePair"/>
     </Bridge>
 
-    <Service Type="HelloWorld" StringToSend="Hello from #2" SendPeriod_ms="5001"/>
+    <Service Type="HelloWorld" MessageGroup="helloThere" StringToSend="Hello from #2" SendPeriod_ms="5001"/>
 
 </UxAS>
 
