@@ -10,3 +10,7 @@ This demo assumes the following; these may not match your platform:
 
 The script disables the firewall, runs the demo and then restarts the
 firewall. Note the instructions printed when the script starts.
+
+As of March 14th, 2019 this demo does NOT start properly every time;
+sometimes the RECEIVED messages are not noted. This is most likely an
+issue with the way OpenUxAS uses Zyre.
