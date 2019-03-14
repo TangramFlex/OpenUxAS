@@ -8,5 +8,6 @@ cd OpenUxAS
 bash ./install_prerequisites.sh
 
 # Now the disaggregated HelloWorld demo may be run
+. ./path.sh
 cd ./examples/01_HelloWorld
 ./runUxAS_HelloWorld-dual.sh
