@@ -5,4 +5,4 @@ mkdir -p RIVETSS
 cd RIVETSS
 git clone https://github.com/GaloisInc/OpenUxAS
 cd OpenUxAS
-bash ./install-prerequisites.sh
+bash ./install_prerequisites.sh
