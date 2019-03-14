@@ -132,12 +132,12 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 
     # IMPORTANT: This Fedora installation is the model for all other platforms.
     if [ -n "$(which dnf 2>/dev/null)" ]; then
-    echo "Installing Prerequisite Tools on Fedora Linux"
+    echo "Installing Prerequisite packages on Fedora Linux"
     # These should be the same packages (perhaps with different names) as above
     sudo dnf -y install pkgconf git gitk mesa-libGLU-devel uuid-devel \
         boost-devel python3-pip python3-tkinter ant xterm redhat-rpm-config \
         gcc-c++ python3-devel ninja-build python3-matplotlib python3-pandas \
-        java-1.8.0-openjdk-devel
+        java-1.8.0-openjdk-devel minizip-devel
 
     # Extend paths for pip --user option
     source ./path.sh
@@ -191,12 +191,12 @@ echo "Preparing UxAS build ..."
 rm -rf build build_debug
 python3 prepare
 sh RunLmcpGen.sh
-meson build --buildtype=release
+meson build_release --buildtype=release
 meson build_debug --buildtype=debug
 
 echo "Performing initial UxAS build ..."
 ninja -C build_debug
-ninja -C build
+ninja -C build_release
 
 cat <<'EOF'
 
@@ -210,7 +210,7 @@ Subsequent builds are done using:
 
 and 
 
-  $ ninja -C build
+  $ ninja -C build_release
 EOF
 
 # --eof--
