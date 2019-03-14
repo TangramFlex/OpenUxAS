@@ -1,4 +1,6 @@
 # OpenUxAS build instructions; branch rivetss; platform Fedora 29 Base
+# A VM should have at least 15 GiB disk and as much memory and CPU as
+# you're comfortable borrowing from the host.
 
 sudo dnf -y install git-core
 mkdir -p RIVETSS
