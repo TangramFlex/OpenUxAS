@@ -6,4 +6,4 @@ if [ "$(which xdg-open 2>/dev/null)" ]; then
 	xdg-open $URL &
 else
 	open $URL &
-fi
+fi >/dev/null 2>&1

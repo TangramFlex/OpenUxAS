@@ -1,0 +1,16 @@
+#! /usr/bin/env xs
+
+# Report user includes for Task and Service implementations,
+# excluding templates.
+
+i = 0
+for f (src/^(Tasks Services)^/*.cpp) {
+	if {!~ `{basename $f} *Template.cpp} {
+		i = `($i+1)
+		echo \n\;[$i]\ $f
+		cpp -MM -MG -MP $f \
+			|grep -v -e ': ' -e '^ ' -e '^$'|sort|uniq|tr -d :
+	} else {
+		echo \n\;[infrastructure]\ $f
+	}
+} | less -iRFX

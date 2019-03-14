@@ -1,0 +1,28 @@
+#! /usr/bin/sh
+
+usage () {
+	echo "usage: $(basename $0) debug|release"
+	exit 1
+}
+
+# Check arg
+case $1 in
+debug) ;;
+release) ;;
+*) usage ;;
+esac
+
+# Generate LMCP sources
+# This *should* be done by Meson/Ninja; that's a project for another day.
+./RunLmcpGen.sh
+( cd src/separate_compilation && ./RunLmcpGen.sh )
+
+# Start fresh
+rm -rf build_$1
+
+# Do the build
+echo "Begin compilation"
+{
+	env CC=clang CXX=clang++ meson --buildtype=$1 build_$1
+	ninja -C build_$1
+} |& tee $(basename $0)-$1.log

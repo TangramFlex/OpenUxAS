@@ -1,8 +1,12 @@
+### Temporary edits:
+# AssignmentCoordinatorTaskService.cpp -- disaggregated to task01
+## ... -- Not infrastructure; additional disaggregation candidates
+
 srcs_tasks = [
-	'RendezvousTask.cpp',
+	'RendezvousTask.cpp',  # retain per 00_ServiceList.h instruction
   '00_TaskTemplate.cpp',
   'AngledAreaSearchTaskService.cpp',
-  'AssignmentCoordinatorTaskService.cpp',
+#  'AssignmentCoordinatorTaskService.cpp',
   'BlockadeTaskService.cpp',
   'CmasiAreaSearchTaskService.cpp',
   'CmasiLineSearchTaskService.cpp',

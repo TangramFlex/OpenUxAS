@@ -95,11 +95,11 @@ class LmcpNetworkSocketAddress
 {
 public:
 
-    static const std::string& strGetInProc_ThreadControl(){static std::string strString("inproc://thread_control");return(strString);};
-    static const std::string& strGetInProc_FromMessageHub(){static std::string strString("inproc://from_message_hub");return(strString);};
-    static const std::string& strGetInProc_ToMessageHub(){static std::string strString("inproc://to_message_hub");return(strString);};
-    static const std::string& strGetInProc_ConfigurationHub(){static std::string strString("inproc://configuration_hub");return(strString);};
-    static const std::string& strGetInProc_ManagerThreadControl(){static std::string strString("inproc://manager_thread_control");return(strString);};
+    static const std::string& strGetInProc_ThreadControl(){static std::string strString("ipc://thread_control");return(strString);};
+    static const std::string& strGetInProc_FromMessageHub(){static std::string strString("ipc://from_message_hub");return(strString);};
+    static const std::string& strGetInProc_ToMessageHub(){static std::string strString("ipc://to_message_hub");return(strString);};
+    static const std::string& strGetInProc_ConfigurationHub(){static std::string strString("ipc://configuration_hub");return(strString);};
+    static const std::string& strGetInProc_ManagerThreadControl(){static std::string strString("ipc://manager_thread_control");return(strString);};
 
 };
 

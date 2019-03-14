@@ -1,0 +1,675 @@
+The initial reverse-engineering challenge is to separate out a UxAS task to
+be compiled separately from the monolithic UxAS host; communicating over the
+host's LMCP messaging interface.
+
+My first, incomplete, work served to demonstrate the ease with which any
+given compilation unit may be separated from the whole. This involves simply
+removing the unit's source file from the main body of code, capturing all of
+the necessary compiler flags, and compiling as a static library to be linked
+to the host. This was done by hand, but the structure and consistency of the
+Meson build specification suggests that it'd be relatively easy to automate
+this process.
+
+Alas, the rest is not as simple...
+
+A first exploration involved attempts to visualize the UxAS code base, both
+in terms of its source dependencies and its call graph, demonstrated that
+naïve approaches are unable to provide usable visualizations due to the
+size and complexity of the code base. (UxAS consists of approximately 800
+source code files in various languages; mostly C++.)
+
+C++ programs tend to conflate data and control through encapsulation; the
+textual relationships exposed by include and call-graph analysis contain
+many uninteresting nodes as a result. I did some follow-on work to manually
+remove spurious details from the visualizations (i.e. by editing the
+`dot` files created by the analysis tools), hoping to discover some simple
+hueristics; I did not.
+
+The `experimental/` directory contains tools used for these investigations.
+
+As an aside, I've found that similar methods do provide useful visualizations
+for moderately-sized C-language code bases.
+
+Loosely speaking, the above approaches (visualization of a complete
+source-code tree based upon either file inclusion or call graph) are
+"top-down": we attempt to gain insight into the structure of the program
+by interactively drilling down to regions of interest. Unfortunately,
+the graphs generated for these visualizations are too complex to be useful.
+It's certainly possible that a toolchain could be constructed to interact
+with selected subsets of the graphs (as opposed to navigating the whole
+dataset without filtering), but it's not clear as to how this might be
+automated; my experiments involving manual pruning (by editing the generated
+`dot` file) did not eventually produce a useful view of the program's
+overall structure. To be clear: the `xdot` viewer has no problem navigating
+a graph representing the whole UxAS program's calls; it is quite scalable
+and responsive. It's just that there's way too much detail to be useful.
+
+I envision some additional methods that might improve a top-down analysis.
+Rather than speculatively (and manually) attempting to remove uninteresting
+nodes, use a tool to extract subsets of the whole (e.g. by iteratively
+"deepening" the graph from a chosen root). This might be a useful approach
+for general discovery of a program's structure.
+
+UxAS is a federation of tasks and services which interact via a structured
+communication mechanism. To recap the initial goal of this investigation:
+we'd like to be able to extract a task (and its necessary support) for
+separate compilation while retaining the task's communication API. This
+involves discovering a subset of source files that can be compiled to
+create this external task and modifying the remaining UxAS base code to
+load the separated task and establish its communication with UxAS. I see
+this as a bottom-up approach, working from the exposed interface (in this
+case: LMCP messages) to find and extract the portion of UxAS necessary to
+instantiate this as a separate program.
+
+---- From 20181029 meeting, per Matt:
+
+When partitioning, watch for state dependencies; some services can't operate
+without knowledge of state known to other subsystems.
+
+---- 20181030
+
+The `grapher1` tool is tailored to view a files dependency graph for OpenUxAS.
+The tool requires the `xs` shell <https://github.com/TieDyedDevil/XS.git> and
+`xdot` (available on Fedora as `python-xdot`; likely available under similar
+names on other distros). As an alternative, `dotty` may be used to view the
+file `experimental/out/grapher1.dot` created by the tool, although the UI of
+`xdot` provides for much simpler and faster navigation.
+
+The generated graph file may be rendered to PDF using `neato` and formatted
+for printing as multiple pages using `pdfposter`.
+
+---- 20181101
+
+Based upon comments regarding "aggregation of dependent tasks", I've been
+trying to determine what are the natural boundaries for decomposing UxAS.
+
+One such boundary is the shared-library loader. A separately-compiled task
+or service is linked at runtime to UxAS. At a minimum, UxAS should constrain
+the shared-library version for compatibilty using semantic versioning. An
+application-specific version check (e.g. to confirm an API version advertised
+by the loadable module) may be added for more complex dependencies.
+
+In the case of UxAS, the IPC mechanism used to pass messages among tasks is
+another natural boundary. This case is slightly more complex: we must assure
+interoperability of both the transport mechanism (e.g. the LMPCP code base)
+and the messages exchanged by system components (e.g. as defined by the
+message definition files compiled by LMCP).
+
+Having performed a visual scan of the UxAS C++ code base, I see quite a few
+static class members. These are effectively global data, some of which might
+conceivably introduce coupling among subsystems. The vast majority of these
+static members seem to be strings to hold names; for now I assume that these
+static names are intended to name singletons. Based upon an informal
+inspection, not assisted by program-analysis tools, I see no immediately
+obvious evidence of coupling that might need to be preserved when extracting
+tasks to be compiled outside of UxAS.
+
+There does seem to be a set of tasks and services that are common to the
+UxAS planner. These are identified in the sequence diagram found at
+doc/reference/SequenceDiagrams/CCA_Components_MessageFlow.pdf :
+
+	AutomationRequestValidator
+	TaskManager
+	RouteAggregator
+	RoutePlannerVisibility
+	AssignmentTreeBranchBound
+	PlanBuilder
+	WaypointManager
+	AMASE
+
+Looking at a sampling of task and service code, there are additional UxAS
+compilation units used in the implementation of tasks and services, including
+(listed here by functional category rather than name, as there are many):
+
+	registry
+	communications
+	marshalling
+	publish/subscribe
+	geometry
+	...
+
+As I currently understand the UxAS code base, it can be seen as a runtime
+environment into which tasks and services are statically linked to facilitate
+convenient distribution of UxAS as a single executable file. (That's a slight
+simplification: UxAS may interact with other programs at runtime to provide,
+for example, simulation and visualization.) Assuming that I've not missed some
+important structural aspect of UxAS, there are two important decisions to make
+regarding the system's disaggration into a core plus external tasks and
+services:
+
+	1) Should externals be loadable, or should each run in a separate
+	   process and integrate via an IPC mechanism?
+
+	2) What parts of UxAS comprise its core functionality to be shared
+	   by externals?
+
+As noted earlier, the shared-library approach is quite simple while the
+IPC approach will involve code duplication (for IPC, particularly w.r.t.
+serialization) and mechanisms to enforce the use of mutually-compatible
+components.
+
+---- 20181106
+
+Checkin w/ Matt and Erin
+
+- Eventual goal is to be able to exchange modules between UxAS and DARPA CODE.
+  - Both use publish/subscribe framework:
+    - UxAS uses LMCP
+    - DARPA CODE uses UCS (?)
+- Tangram (Ben) is working to abstract messaging:
+  - Message taxonomies
+  - Automated translation LCMP->UCS and vice-versa
+  - Might be ready later this month
+- LMCPFactory is a dependency that can't be used for both LMCP and UCS
+  - How should the LMCP API be factored/generalized to admit multiple
+    publish/subscribe providers, assuming that message translation is
+    handled by the provider?
+
+---- 20181121
+
+- Built `experimental/deplibs` tool to find the transitive closure of
+  libraries upon which an object file depends. This tool uses `nm` and
+  should work with both static and dynamic libraries. (So far, testing
+  has only used static libraries since that is how OpenUxAS is built.)
+
+- The deplibs tool must be applied to a successful debug build in order
+  to have access to symbols.
+
+- The deplibs tool identifies 20 libraries which are transitively
+  required by the first task (AssignmentCoordinatorTaskService) targeted
+  for disaggregration. Gathering the base task plus dependent libraries
+  for separate compilation produces a 33MB executable. (The complete
+  OpenUxAS application occupies 92MB on disk.)
+
+- The trial build of the disaggregated AssigmentCoordinatorTaskService,
+  noted in the previous section, captures a `main()` program from Zyre;
+  the build options should be adjusted to ensure that Zyre is built as
+  a library.
+
+- Once the spurious Zyre main is suppressed, the disaggregated program
+  will require a shim main() to instantiate the task and supporting
+  libraries. This shim must be reverse-engineered from OpenUxAS main().
+
+---- 20181121 follow-on
+
+- The spurious main() is from Zyre's zpinger.c. Because Zyre is in the
+  3rd-party directory, it is wrapped to be pulled and patched by Meson.
+  The patch needs to be updated: Don't build zpinger.c.
+
+- Upon eliminating zpinger.c, the disaggregated task (correctly) fails
+  to build without a main().
+
+- Specifying UxAS_Main.cpp as the main program for the disaggregated
+  task results in a program that's the same size as the full UxAS build.
+
+- Now that AssignmentCoordinatorTaskService is not linked by UxAS, the
+  UxAS build (correctly) fails.
+
+- Each disaggregated task will need a shim in UxAS in order to (a) link
+  UxAS and (b) interact with the disaggregated task.
+
+- Investigate two approaches to a task/service shim: (1) create RPC
+  specific to the disaggregated function [easiest, but introduces a new
+  protocol], and (2) process UxAS messages relayed from UxAS host app
+  [duplicates code and support services; may not be possible without
+  additional protocols to update shared state in UxAS].
+
+---- 20181129
+
+- See ./experimental/classes script: This grovels ./build_debug/task01
+  (the intended disaggregated task: AngledAreaSearchTask) to find classes
+  in the afrl:: namespace and then find the header files which define
+  those classes.
+
+- Use of this script is based upon certain assumptions:
+  1. All disaggregable tasks and services communicate with the others
+     and with some (TBD) "core" set of UxAS functions via LMCP, using
+     a ØMQ transport.
+  2. LMCP has to know about every class that participates as per item 1.
+
+- With today's snapshot, the following Task and Service classes appear
+  in the disaggregated service build (a.k.a. `task01`) because of LMCP:
+  - BlockadeTask
+  - CommRelayTask
+  - CordonTask
+  - EscortTask
+  - ImpactLineSearchTask
+  - ImpactPointSearchTask
+  - LoiterTask
+  - MultiVehicleWatchTask
+  - MustFlyTask
+  - PatternSearchTask
+
+- At present, only the task01 build succeeds. (NOTE: Use this command
+  to skip the uxas build: `$ ninja -C build_debug task01`.)
+
+- Work will continue to prune the `task01` binary to a manageable size;
+  At present it is still about two-thirds of the full UxAS' image size.
+
+---- 20181130
+
+- Found `cpp-dependencies` tool (see ./experimental/tools/other.README).
+  With the noted command line, the resulting dependency graph (see
+  ./experimental/tools/other/cpp-dependencies_sample/foo.png) shows that:
+  1. Services and Tasks are mutually dependent.
+  2. Tasks depends upon Plans.
+  3. Services depends upon Communications.
+  4. Plans and Utilities are mutually dependent.
+  5. Services and Tasks both depend upon Utilities.
+  6. Plans, Tasks, Services, Utilties and Communications all depend
+     upon some portion of LMCP.
+  7. Every portion of LMCP is mutually dependent with some other portion.
+  8. DPSS is a dependency of Tasks and Services and depends upon Utilities,
+     but does not directly depend upon LMCP. (What is this?)
+  9. LMCP.afrl.cmasi is indirectly (via Utilities) dependent upon
+     Communications while LMCP.avtas.lmcp depends directly upon
+     Communications. Other LMCP components must inherit Communications
+     from their parents.
+
+- The above observations reflect what I'm seeing with initial disaggregation
+  attempts: The amount of code "captured" by dependencies is still *way* too
+  extensive. Ideally what I'd like to have is a disaggregated Task or Service
+  that can communicate with UxAS, but running in a separated process *without*
+  any (or at least, very little) UxAS core code aside from that needed for
+  communication with the UxAS host process (i.e. UxAS less disaggregated
+  tasks and services.
+
+---- 20181212
+
+Both GCC and Clang have the capabilities to do LTO. This can be invoked to
+prune unreferenced code and data at link-time.
+
+Additionally, both support the ability to compile functions and data to a
+section per object. I *think* that this, when used with the linker's option
+to garbage-collect unused sections, can further reduce code size by preventing
+unused objects from being included by static linking; this size reduction
+seems limited for a release build, but can be consequential in a debug build.
+(Not that any more functions or data are elided; the set should be the same.
+However, C++ compilers emit a staggering amount of metadata for a debug build.)
+
+An additional linker flag enables emission of a list of elided sections. These
+are rendered by section name (some linker-provided prefixes followed by the
+mangled C++ object name) along with a reference to the compilation unit (in
+archive format, as 'archive-name.a (compilation-unit.o)". These sections should
+be gathered, grouped and counted as a very rough indicator of subsystems which
+contribute a lot of unwanted code to disaggregated task and service subsystems.
+
+For example, one of these commands:
+
+$ script -c 'rm -rf build_debug; env CC=gcc CXX=g++ meson --buildtype=debug \
+   build_debug; ninja -vC build_debug'
+$ script -c 'rm -rf build_release; env CC=gcc CXX=g++ meson \
+   --buildtype=release build_release; ninja -vC build_release'
+
+When followed by:
+
+$ grep 'removing unused section' typescript|sed 's/^.* in file \(.*\)$/\1/' \
+   |sort|uniq -c|less
+
+Produces the following output:
+
+    164 '3rd/boost_1_67_0/libboost.a(libs_filesystem_src_operations.cpp.o)'
+     82 '3rd/boost_1_67_0/libboost.a(libs_filesystem_src_path.cpp.o)'
+     22 '3rd/boost_1_67_0/libboost.a(libs_regex_src_cpp_regex_traits.cpp.o)'
+    962 '3rd/boost_1_67_0/libboost.a(libs_regex_src_instances.cpp.o)'
+    204 '3rd/boost_1_67_0/libboost.a(libs_regex_src_regex.cpp.o)'
+      4 '3rd/boost_1_67_0/libboost.a(libs_regex_src_static_mutex.cpp.o)'
+     50 '3rd/boost_1_67_0/libboost.a(libs_system_src_error_code.cpp.o)'
+     22 '3rd/serial-1.2.1/libserial.a(src_impl_unix.cc.o)'
+      8 '3rd/serial-1.2.1/libserial.a(src_serial.cc.o)'
+      4 '3rd/SQLiteCpp-1.3.1/libsqlitecpp.a(src_Column.cpp.o)'
+      4 '3rd/SQLiteCpp-1.3.1/libsqlitecpp.a(src_Database.cpp.o)'
+     22 '3rd/SQLiteCpp-1.3.1/libsqlitecpp.a(src_Statement.cpp.o)'
+     22 '3rd/SQLiteCpp-1.3.1/libsqlitecpp.a(src_Transaction.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_address.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_client.cpp.o)'
+     10 '3rd/zeromq-4.2.3/libzeromq.a(src_ctx.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_dealer.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_decoder_allocators.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_dgram.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_dish.cpp.o)'
+      8 '3rd/zeromq-4.2.3/libzeromq.a(src_dist.cpp.o)'
+     14 '3rd/zeromq-4.2.3/libzeromq.a(src_epoll.cpp.o)'
+      8 '3rd/zeromq-4.2.3/libzeromq.a(src_fq.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_gather.cpp.o)'
+      8 '3rd/zeromq-4.2.3/libzeromq.a(src_io_object.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_io_thread.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_ipc_address.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_ipc_connecter.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_ipc_listener.cpp.o)'
+      8 '3rd/zeromq-4.2.3/libzeromq.a(src_lb.cpp.o)'
+     12 '3rd/zeromq-4.2.3/libzeromq.a(src_mailbox.cpp.o)'
+     70 '3rd/zeromq-4.2.3/libzeromq.a(src_mailbox_safe.cpp.o)'
+     28 '3rd/zeromq-4.2.3/libzeromq.a(src_mechanism_base.cpp.o)'
+     24 '3rd/zeromq-4.2.3/libzeromq.a(src_mechanism.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_metadata.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_msg.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_mtrie.cpp.o)'
+     16 '3rd/zeromq-4.2.3/libzeromq.a(src_null_mechanism.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_options.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_own.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_pair.cpp.o)'
+     14 '3rd/zeromq-4.2.3/libzeromq.a(src_pipe.cpp.o)'
+     28 '3rd/zeromq-4.2.3/libzeromq.a(src_plain_client.cpp.o)'
+     28 '3rd/zeromq-4.2.3/libzeromq.a(src_plain_server.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_poller_base.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_pull.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_push.cpp.o)'
+     16 '3rd/zeromq-4.2.3/libzeromq.a(src_radio.cpp.o)'
+     10 '3rd/zeromq-4.2.3/libzeromq.a(src_random.cpp.o)'
+     16 '3rd/zeromq-4.2.3/libzeromq.a(src_raw_decoder.cpp.o)'
+      8 '3rd/zeromq-4.2.3/libzeromq.a(src_raw_encoder.cpp.o)'
+     12 '3rd/zeromq-4.2.3/libzeromq.a(src_reaper.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_req.cpp.o)'
+     12 '3rd/zeromq-4.2.3/libzeromq.a(src_router.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_scatter.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_server.cpp.o)'
+     28 '3rd/zeromq-4.2.3/libzeromq.a(src_session_base.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_signaler.cpp.o)'
+     30 '3rd/zeromq-4.2.3/libzeromq.a(src_socket_base.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_socket_poller.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_socks_connecter.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_socks.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_stream.cpp.o)'
+     12 '3rd/zeromq-4.2.3/libzeromq.a(src_stream_engine.cpp.o)'
+     10 '3rd/zeromq-4.2.3/libzeromq.a(src_tcp_address.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_tcp_connecter.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_tcp_listener.cpp.o)'
+      8 '3rd/zeromq-4.2.3/libzeromq.a(src_thread.cpp.o)'
+      8 '3rd/zeromq-4.2.3/libzeromq.a(src_timers.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_trie.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_udp_address.cpp.o)'
+     16 '3rd/zeromq-4.2.3/libzeromq.a(src_udp_engine.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_v1_decoder.cpp.o)'
+     12 '3rd/zeromq-4.2.3/libzeromq.a(src_v2_decoder.cpp.o)'
+      8 '3rd/zeromq-4.2.3/libzeromq.a(src_v2_encoder.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_xpub.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_xsub.cpp.o)'
+     24 '3rd/zeromq-4.2.3/libzeromq.a(src_zap_client.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_zmq.cpp.o)'
+      4 '3rd/zeromq-4.2.3/libzeromq.a(src_zmq_utils.cpp.o)'
+     24 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiAbstractGeometry.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiAbstractZone.cpp.o)'
+     26 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiAirVehicleConfiguration.cpp.o)'
+     18 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiAirVehicleState.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiAreaSearchTask.cpp.o)'
+     26 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiAutomationRequest.cpp.o)'
+     54 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiAutomationResponse.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiCameraAction.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiCameraConfiguration.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiCameraState.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiCircle.cpp.o)'
+     42 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiEntityConfiguration.cpp.o)'
+     38 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiEntityState.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiFlightDirectorAction.cpp.o)'
+     22 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiFlightProfile.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiFollowPathCommand.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiGimbalAngleAction.cpp.o)'
+     22 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiGimbalConfiguration.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiGimballedPayloadState.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiGimbalScanAction.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiGimbalStareAction.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiGimbalState.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiGoToWaypointAction.cpp.o)'
+     16 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiKeepInZone.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiKeepOutZone.cpp.o)'
+     22 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiKeyValuePair.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiLineSearchTask.cpp.o)'
+     28 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiLocation3D.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiLoiterAction.cpp.o)'
+     26 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiLoiterTask.cpp.o)'
+     18 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiMissionCommand.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiMustFlyTask.cpp.o)'
+     16 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiNavigationAction.cpp.o)'
+     28 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiOperatingRegion.cpp.o)'
+     34 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiOperatorSignal.cpp.o)'
+     22 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiPathWaypoint.cpp.o)'
+     16 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiPayloadAction.cpp.o)'
+     38 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiPayloadConfiguration.cpp.o)'
+     42 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiPayloadState.cpp.o)'
+     20 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiPayloadStowAction.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiPointSearchTask.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiPolygon.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiRectangle.cpp.o)'
+     20 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiRemoveEntities.cpp.o)'
+     20 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiRemoveTasks.cpp.o)'
+     20 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiRemoveZones.cpp.o)'
+     18 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiSearchTask.cpp.o)'
+     34 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiServiceStatus.cpp.o)'
+     34 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiSessionStatus.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiStopMovementAction.cpp.o)'
+     50 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiTask.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiVehicleActionCommand.cpp.o)'
+     28 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiVehicleAction.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiVideoStreamAction.cpp.o)'
+     16 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiVideoStreamConfiguration.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiVideoStreamState.cpp.o)'
+     26 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiWaypoint.cpp.o)'
+     22 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiWaypointTransfer.cpp.o)'
+     20 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiWeatherReport.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_cmasi_afrlcmasiWedge.cpp.o)'
+      8 'src/LMCP/liblmcp.a(afrl_cmasi_CMASIFactory.cpp.o)'
+     50 'src/LMCP/liblmcp.a(afrl_cmasi_CMASIXMLReader.cpp.o)'
+     26 'src/LMCP/liblmcp.a(afrl_cmasi_perceive_afrlcmasiperceiveEntityPerception.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_cmasi_perceive_afrlcmasiperceiveTrackEntityAction.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_cmasi_perceive_afrlcmasiperceiveTrackEntityTask.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_cmasi_perceive_PERCEIVEFactory.cpp.o)'
+     22 'src/LMCP/liblmcp.a(afrl_cmasi_perceive_PERCEIVEXMLReader.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactAngledAreaSearchTask.cpp.o)'
+     26 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactAreaOfInterest.cpp.o)'
+     32 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactBatchRoutePlanRequest.cpp.o)'
+     18 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactBatchRoutePlanResponse.cpp.o)'
+     32 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactBatchSummaryRequest.cpp.o)'
+     34 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactBatchSummaryResponse.cpp.o)'
+     16 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactBlockadeTask.cpp.o)'
+     16 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactCommRelayTask.cpp.o)'
+     20 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactConfigurationRequest.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactCordonTask.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactDeployImpactPayload.cpp.o)'
+     18 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactEscortTask.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactImpactAutomationRequest.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactImpactAutomationResponse.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactImpactLineSearchTask.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactImpactPayloadConfiguration.cpp.o)'
+     38 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactImpactPointSearchTask.cpp.o)'
+     26 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactLineOfInterest.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactMultiVehicleWatchTask.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactPatternSearchTask.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactPayloadDropTask.cpp.o)'
+     22 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactPointOfInterest.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactPowerConfiguration.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactPowerPlantState.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactRadioConfiguration.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactRadioState.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactRadioTowerConfiguration.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactRadioTowerState.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactSpeedAltPair.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactTaskSummary.cpp.o)'
+     30 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactTaskTimingPair.cpp.o)'
+     42 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactVehicleSummary.cpp.o)'
+     14 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactWatchTask.cpp.o)'
+     18 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactWaterReport.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_impact_afrlimpactWaterZone.cpp.o)'
+      8 'src/LMCP/liblmcp.a(afrl_impact_IMPACTFactory.cpp.o)'
+     84 'src/LMCP/liblmcp.a(afrl_impact_IMPACTXMLReader.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_vehicles_afrlvehiclesGroundVehicleConfiguration.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_vehicles_afrlvehiclesGroundVehicleState.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_vehicles_afrlvehiclesStationarySensorConfiguration.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_vehicles_afrlvehiclesStationarySensorState.cpp.o)'
+     12 'src/LMCP/liblmcp.a(afrl_vehicles_afrlvehiclesSurfaceVehicleConfiguration.cpp.o)'
+     10 'src/LMCP/liblmcp.a(afrl_vehicles_afrlvehiclesSurfaceVehicleState.cpp.o)'
+      8 'src/LMCP/liblmcp.a(afrl_vehicles_VEHICLESFactory.cpp.o)'
+     44 'src/LMCP/liblmcp.a(afrl_vehicles_VEHICLESXMLReader.cpp.o)'
+      8 'src/LMCP/liblmcp.a(avtas_lmcp_ByteBuffer.cpp.o)'
+     10 'src/LMCP/liblmcp.a(avtas_lmcp_Factory.cpp.o)'
+     16 'src/LMCP/liblmcp.a(avtas_lmcp_Node.cpp.o)'
+      8 'src/LMCP/liblmcp.a(avtas_lmcp_XMLParser.cpp.o)'
+      8 'src/LMCP/liblmcp.a(uxas_messages_route_ROUTEFactory.cpp.o)'
+     38 'src/LMCP/liblmcp.a(uxas_messages_route_ROUTEXMLReader.cpp.o)'
+     18 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteEgressRouteRequest.cpp.o)'
+     30 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteEgressRouteResponse.cpp.o)'
+     34 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteGraphEdge.cpp.o)'
+     34 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteGraphNode.cpp.o)'
+     18 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteGraphRegion.cpp.o)'
+     18 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRoadPointsConstraints.cpp.o)'
+     30 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRoadPointsRequest.cpp.o)'
+     34 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRoadPointsResponse.cpp.o)'
+     22 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRouteConstraints.cpp.o)'
+     42 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRoutePlan.cpp.o)'
+     38 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRoutePlanRequest.cpp.o)'
+     34 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRoutePlanResponse.cpp.o)'
+     42 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRouteRequest.cpp.o)'
+     30 'src/LMCP/liblmcp.a(uxas_messages_route_uxasmessagesrouteRouteResponse.cpp.o)'
+     30 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskAssignmentCoordination.cpp.o)'
+     16 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskAssignmentCoordinatorTask.cpp.o)'
+     30 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskAssignmentCostMatrix.cpp.o)'
+     24 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskCancelTask.cpp.o)'
+     46 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskCoordinatedAutomationRequest.cpp.o)'
+     46 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskFootprintRequest.cpp.o)'
+     34 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskPlanningState.cpp.o)'
+     14 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskRendezvousTask.cpp.o)'
+     18 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskSensorFootprint.cpp.o)'
+     18 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskSensorFootprintRequests.cpp.o)'
+     30 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskSensorFootprintResponse.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskActive.cpp.o)'
+     22 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskAssignment.cpp.o)'
+     34 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskAssignmentSummary.cpp.o)'
+     46 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskAutomationRequest.cpp.o)'
+     46 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskAutomationResponse.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskComplete.cpp.o)'
+     26 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskImplementationRequest.cpp.o)'
+     26 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskImplementationResponse.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskInitialized.cpp.o)'
+     34 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskOptionCost.cpp.o)'
+     26 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskOption.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskPause.cpp.o)'
+     34 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskPlanOptions.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskProgress.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskProgressRequest.cpp.o)'
+     32 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskTaskResume.cpp.o)'
+     50 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskUniqueAutomationRequest.cpp.o)'
+     50 'src/LMCP/liblmcp.a(uxas_messages_task_uxasmessagestaskUniqueAutomationResponse.cpp.o)'
+      8 'src/LMCP/liblmcp.a(uxas_messages_task_UXTASKFactory.cpp.o)'
+     52 'src/LMCP/liblmcp.a(uxas_messages_task_UXTASKXMLReader.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeAutopilotKeepAlive.cpp.o)'
+     18 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeBandwidthReceiveReport.cpp.o)'
+     12 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeBandwidthTest.cpp.o)'
+     82 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeCreateNewService.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeEntityExit.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeEntityJoin.cpp.o)'
+     22 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeEntityLocation.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeIncrementWaypoint.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeKillService.cpp.o)'
+     24 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeOnboardStatusReport.cpp.o)'
+     12 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeSafeHeadingAction.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeSimulationTimeStepAcknowledgement.cpp.o)'
+     16 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeSpeedOverrideAction.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeStartupComplete.cpp.o)'
+     26 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeSubTaskAssignment.cpp.o)'
+     18 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeSubTaskExecution.cpp.o)'
+     20 'src/LMCP/liblmcp.a(uxas_messages_uxnative_uxasmessagesuxnativeVideoRecord.cpp.o)'
+      8 'src/LMCP/liblmcp.a(uxas_messages_uxnative_UXNATIVEFactory.cpp.o)'
+     58 'src/LMCP/liblmcp.a(uxas_messages_uxnative_UXNATIVEXMLReader.cpp.o)'
+
+As expected, LMCP dominates this report. This suggests that the techniques
+described can automatically eliminate some of the unused code without needing
+to edit source files.
+
+---- 20181213
+
+I'm still investigating minimization of the first disaggregated build via LTO
+and GC of unused sections.
+
+The boost, zeromq, czmq, zyre, SQLiteCpp, minizip, zlib, serial and LMCP builds
+all use gcc, ignoring CC and CXX environment variables.
+
+NOTE: Except for LMCP, these are all 3rd-party libraries. However, this is not
+all of the 3rd-party libraries. The PugiXML, TinyGPS, cppzmq, googletest, and
+sqlite-amalgamation libraries in 3rd/ do not show up as being compiled with
+gcc. The googletest and sqlite-amalgamation are not mentioned in the top-level
+meson.build; the rest are.
+
+The ld.lld linker is supposed to run multi-threaded by default. Observing the
+build, it's clear that the linker is only running on one core. There are many
+possible causes:
+
+  1) The wrong linker is invoked.
+  2) The wrong options are passed to the linker.
+  3) The ld.lld documentation is wrong.
+  4) The linker can't use multiple cores due to a pathological workload.
+  5) The ld.lld linker doesn't use multiple threads when doing LTO.
+
+  See <https://clang.llvm.org/docs/ThinLTO.html>. It's possible that only
+  ThinLTO uses multiple threads.
+
+Note that -flto must be passed with both compilation and linker commands.
+I don't see this documented...
+
+---- 20180108
+
+I'm reasonably happy with the LTO, modulo the capture of LMCP dependencies
+for unused messages and the fact the the 3rd-party builds don't (fully)
+participate in the LTO build.
+
+While it'll be important to factor LMCP in order for it to present a minimal
+(and different) footprint to each disaggregated build, this is a secondary
+concern relative to the overall disaggregation objective. I won't further
+pursue LMCP minimization.
+
+The next things to do are:
+
+  1. Confirm that disaggregation "works" by running a disaggregated task or
+     service in its own process, interacting with the rest of OpenUxAS over
+     the LMCP bus.
+
+  2. Plan and implement a general strategy by which to disaggregate all
+     services. The minimum expectation is for a new directory structure
+     and build instructions to create an "empty" (i.e. no Services) OpenUxAS
+     plus an executable for each Service. It'd be nice, too, to have a tool
+     to split existing OpenUxAS configuration files (e.g. to separate the
+     configuration of disaggregated service from the "main" configuration).
+     We'll probably also need to create a bit of infrastructure (a script
+     will do) to manage the processes required by a disaggregated system.
+     Note that the exercise of disaggregating every service should expose
+     any compile-time dependencies among services; it's probably easier to
+     let the build system find these dependencies than it is to attempt
+     identification via source code inspection.
+
+A new script, `./experimental/services`, lists the names of all services
+mentioned in each XML configuration file found under examples/ .
+
+Note that about half of the (approximately) two dozen Services are mentioned
+in the examples/ configuration files.
+
+Seen in doc/LMCP/UXTASK.xml: "This MDM defines the interface for stand-alone
+(possibly external) tasks managed by UxAS". Note the "possibly external"
+clause... What does it mean?
+
+See UxAS user manual for hints regarding UxAS base configuration; esp. w.r.t.
+logger. This'll help with debugging the disaggregated processes.
+
+---- 20180109
+
+Adventures in debugging... No, the XML configuration *does not* affect
+logging as documented, because someone saw fit to disable at compile time
+*all* severity levels more detailed than "warn". Why?!
+
+  A: Compilation fails with "info" and "debug" levels enabled because a
+     macro is not called with proper arguments. <sarc>It's clearly better
+     to completely disable logging than to fix it...</sarc> *sigh*
+
+  For reference: The compile-time logging enables are in
+                 src/Utilities/UxAS_Log.h .
+
+For now, I've hacked out the offending macro call and reenabled "info" and
+"debug". Not that it helps... Logging clearly has some blind spots.
+
+---- 20180117
+
+After having dutifully paged-in my working knowledge of GDB, and stepping
+through way too much code that reminds me of the Obfuscated C contests, I
+discovered that not only is logging incomplete, but also is wrong in the
+sense that some entries don't correctly name their location due (presumably)
+to missed edits of copy/pasted logging code. Geeze... why not use `__func__`?
+
+Next cycle, let's try again to set up the first two-process run.

@@ -3,6 +3,7 @@ build
 build_debug
 build_odroid
 build_open
+build_release
 
 # afrl internal directories
 UxAS-afrl_internal
@@ -23,10 +24,20 @@ src/LMCP
 
 # test output
 tests/**/output/**
+typescript
 
 # example output
 examples/**/log/**
 examples/**/datawork/**
+
+# log output
+log/
+/*.log
+
+# Local tools root; tell `pip` to install stuff
+# here instead of borking packages installed
+# using the distro's package manager.
+/toolroot/
 
 # Mac OS X file system
 **.DS_Store

@@ -1,0 +1,501 @@
+Per conversation w/ Erin 20181016
+
+- Overall objective: Automate decomposition of monolithic system like UxAS.
+
+- Initial tasks:
+  - Pick a UxAS task. (NOTE: Not infrastructure.)
+    - Extract into its own project.
+      - This leave UxAS less one subsystem. (Call this UxAS′.)
+    - Build (and test, presumably) extracted task.
+    - Build UxAS′ with separately-compiled extracted module.
+  - Consider dependencies amongst tasks; extract dependent tasks as a group.
+  - Later, repeat with more tasks (and UxAS″, UxAS‴, ...).
+  - Document workflow; turn into a script/tool.
+
+- Longer term:
+  - Property-based reverse engineering.
+    - Defined as ...?
+    - Supported by tools/methods ...?
+      - CBMC?
+      - Assume/Guarantee?
+
+========================================================================
+
+LMCP only supports ASCII character set; no wide chars; no UTF-8.
+LMCP does not support 128-bit scalar values.
+LMCP limits number of array elements to 2^16-1.
+LMCP checksum (add ignoring overflow) is weak and optional.
+Seriously, why LMCP? Why not some protocol having less-obvious deficits?
+
+Need to automate map tiling.
+
+OpenAMASE crashes at high simulation-rate multipliers.
+
+Integrate NASA WorldWind installation and use. [DONE]
+
+Change default branch to `rivetss`. [DONE]
+
+========================================================================
+
+- Rework one or more demos to run with disaggregated task01.
+  - startup scripts
+  - config files
+
+- Are there tasks/services that require dependent instantiation?
+
+- The 'DO NOT REMOVE - ...' lines in src/Services/00_ServiceList.h are
+  self-referential; the following line was most recently added by
+  src/Services/00_NewService.py or src/Tasks/00_NewTask.py. Thus *all*
+  files referenced are candidates (subject to yet-undiscovered dependencies)
+  for disaggregation.
+
+- Plan a new directory layout and builder to support disaggregation of
+  all targeted tasks and services. (This list is tentative, pending a
+  better understanding of OpenUxAS architecture. See above.)
+    AngledAreaSearchTaskService
+    AssignmentCoordinatorTaskService [in-progress]
+    AutomationDiagramDataService
+    BlockadeTaskService
+    CmasiAreaSearchTaskService
+    CmasiLineSearchTaskService
+    CmasiPointSearchTaskService
+    CommRelayTaskService
+    CordonTaskService
+    EscortTaskService
+    ImpactLineSearchTaskService
+    ImpactPointSearchTaskService
+    LoiterLeash
+    LoiterTaskService
+    MessageLoggerDataService
+    MultiVehicleWatchTaskService
+    MustFlyTaskService
+    OverwatchTaskService
+    PatternSearchTaskService
+    RendezvousTask
+    StatusReportService
+    TaskManagerService
+    TaskTrackerService
+
+- Disaggregate all targeted tasks and services.
+
+===
+
+From meeting Jan 18th:
+
+Create UxAS base and external service(s).
+  - Each must have its own 00_ServiceList.h.
+  - What *is* the common base?
+
+Look at lmcpgen; it can regenerate an LMCP stack w/ proper dependencies - no
+need to do this by hand.
+
+There's a Python2 Amase that speaks LMCP directly.
+
+Stretch goal for March: WaterwaySearch or DistributedCooperation in multiple
+processes.
+
+Two cycles left (Feb, Mar).
+
+- How do I identify assets created/referenced by LmcpGen?
+  - I need to be able to subset these.
+  - See RunLmcpGen.sh.
+  > New tools created: extract-lmcp-deps and extract-all-lmcp-deps
+    - What can be inferred about tasks/services without LCMP dependency?
+    - Attempt to generate build assets (directory structure, meson.build)
+      for disaggregated tasks/services.
+      - Try to build a "base UxAS" (*no* services) first.
+  - ∃ 131 LMCP .cpp files included in the LMCP build, but not referenced
+    by any header included by a Service or Task *header file* in UxAS.
+    Let's leave this alone for a while, and...
+
+- Regroup
+  - Simplest service: 01_HelloWorld.{cpp|h}
+    - Can we build this (rather than AssignmentCoordinatorTaskService)
+      as task01?
+      - Try to strip out all unneccessary code.
+        - Need a minimal 00_ServiceList.h file.
+
+- HelloWorld can now be run from the task01 executable. This is intended
+  as a baseline minimal application, as HelloWorld uses a bare minimum of
+  LMCP messages. This build has its own LCMP, such that we may (attempt to)
+  prune LMCP to just the required messages.
+  - HelloWorld seems to require only afrl::cmasi::KeyValuePair.
+  - I made changes to LmcpGen to slightly improve diagnostics and to enable
+    it to run without MDMS. These aren't pushed, as LmcpGen is in a separate
+    repo to which I do not have committer access.
+
+- I think the next step is to start with a copy of CMASI.xml as TASK01.xml
+  (because this contains KeyValuePair) and iterate the task01 build
+  (ninja -C build task01) to find and resolve link-time references to
+  missing message classes.
+
+- ^^^ Yes. Also need to copy and prune Services.
+
+===
+Feb 13th
+
+- Finally: First successful disaggregated build of HelloWorld!
+
+- Added tool `./show-src-files` to list source files (excluding Boost and 3rd-
+  party) which have contributed code to a build executable (default:
+  build/task01).
+
+- Extended `./rebuild` to generate LMCP code prior to starting the Meson/Ninja
+  build. It's better to spend an extra 30 seconds here every build than it is
+  to forget that step. The LMCP code generation really ought to be done by
+  `build.meson`.
+
+===
+Feb 14th
+
+- Narrative regarding approaches, results and recommendations:
+
+Note: This refers to the `rivetss-initial` branch of
+<https://github.com/GaloisInc/OpenUxAS.git>. The `rivetss-initial` branch
+is intended as the project's development branch of `rivetss` in the same way
+that `develop` is the mainline's development branch of `master`.
+
+Note: OpenUxAS's `develop` branch was last merged into the `rivetss` branch
+on 20180917.
+
+Note: The OpenUxAS repo depends upon source code from other projects.
+
+The first task was to make OpenUxAS able to build. The included documentation
+and scripts contain conflicting instructions and clearly have not been kept
+current as the software and the (nominally) supported platforms evolve.
+Classic bit-rot. Part of the underlying problem is the intent to support
+multiple platforms coupled with a lack of either ownership or CI discipline
+to ensure that builds remain viable on each platform.
+
+I have not resolved the problem of build bit-rot in OpenUxAS. Apart from a
+one-time effort (only at the start of the project) at ensuring a viable Ubuntu
+build, all of my work has been performed in Fedora latest.
+
+Much of the work to setup a build environment is codified in the script
+`install_prerequisites.sh`. Again, note that *only* the Fedora section of this
+script is (relatively; I haven't revisited it since the project's inception)
+is up-to-date. Other Linux platforms should use the Fedora portion of the
+script as a model.
+
+Going forward, I strongly recommend splitting the tasks performed by
+`install_prerequisites.sh` into platform-specific scripts in order to
+clarify intent and simplify the script(s). Additionally, scripts should be
+written in POSIX sh(1p); not Bash or other derivative/extended shells.
+(I have not rewritten existing Bash scripts as recommended, but have created
+most new scripts to use sh(1p).
+
+I'm not sure what to do about Microsoft Visual Studio and NetBeans builds.
+These will probably need to be reworked and maintained to fit the platform's
+build model: neither platform is familiar to me.
+
+Occasionally a script becomes awkward to write using the limited facilities
+of sh(1p). In such cases, I have used the xs(1) shell. This is available
+from <https://github.com/TieDyedDevil/XS.git>, is trivial to compile and is
+(in a slightly earlier incarnation) available as part of the Fedora distro.
+As I am the current maintainer of xs(1), I'm happy to provide an overview
+and to field questions should anyone desire. Even if you decide to not adopt
+xs(1) scripts, their intent should be clear from inspection. The xs(1) language
+is completely unrelated to Bourne-alike shells; take a look at the man page
+for a concise description of the language.
+
+The next significant feature of the OpenUxAS build is its use of Meson and
+Ninja to perform the build. IME, the learning curve is trivial compared to
+GNU autotools or CMake. A build is described declaratively via the file (one
+per project and subproject) `meson.build` using a syntax similar to Ruby and
+JSON. Meson translates the `meson.build` file into a script that Ninja runs
+to perform the actual build. Builder options not specified in `meson.build`
+are captured by Meson as it creates the Ninja script. In practical terms, this
+means that you'll have a different build directory for each combination of
+builder options such as release vs. debug builds or the use of clang vs gcc.
+
+Since my first exposure to Meson/Ninja (I did the original adaptation of
+OpenUxAS to this build system) I have used these tools whenever possible.
+I'm happy to be a resource to aid understanding of these tools.
+
+Like almost everything else, Meson/Ninja is evolving and occasionally
+introduces changes that deprecate or break certain constructs in the
+`meson.build` file. I notice that Meson is pinned to a particular version by
+the `install_prerequisites.sh` script. I believe that this was necessary in
+order to support early experimentation with Rust support in Meson. I strongly
+recommend trying to un-pin Meson and adapt as needed to the current release.
+
+Which brings me to: Python. Meson is a Python program. The Python installer,
+`pip` (with various alternate spellings determined by version and distro)
+does not play well the distro's package manager. Let me emphasise this point:
+NEVER run `pip` with root privileges; doing so will irrevocably corrupt the
+Linux distro's package manager's view of its Python ecosystem. Note that it's
+impossible to resolve this by only using `pip`; all Linux distros install
+Python code for their own use.
+
+The proper way to install a Python program via `pip` is to install without
+root privileges into a directory named by the `$PYTHONUSERBASE` environment
+variable. The OpenUxAS `path.sh` script sets the `$PYTHONUSERBASE` variable
+to `./toolroot` at the root of the OpenUxAS directory tree and adds
+`$PYTHONUSERBASE/bin` to `$PATH`. The `$PYTHONUSERBASE` directory is visible
+and part of the OpenUxAS tree mainly to make its presence obvious. Should you
+prefer, you can locate this elsewhere and rename (perhaps .<name> to hide it)
+if desired. I use the project-specific hive in order to ward off potential
+version clashes that might arise should the directory be shared with other
+projects.
+
+Next on the awkward-install list: Java. Literally every time I've revisited
+Java as part of a project, the recommended installation technique changes.
+(Evidence of this exists in `install_prerequisites.sh`, varying by platform.)
+Sun Microsystems seems to care strongly about implementing bogus "protections"
+apparently recommended by their legal staff; these "protections" always seem
+to involve dispatching the user to a web page to affirm acceptance of terms
+and conditions prior to downloading a package. This is unacceptable, if for
+no other reason than it obviates the possibility of doing a build without
+operator involvement. The situation seems to have improved recently; Fedora,
+for example, includes official Java packages in its repo and recognizes the
+package via the `alternatives` program, which must be used to activate the
+installation. That's good, since you don't have to scrape URLs and capture
+tokens. But Sun Microsystems has never been a paradigm of consistency; don't
+be surprised if the recommended installation technique changes over time and
+with platform.
+
+Aside: Older OpenUxAS "install" scripts tell users things like "Navigate to
+http://..., click on "blah", answer web prompts, etc. This is NOT an
+installation script. If you absolutely can't implement an unattended
+installation (modulo a `sudo` password, which can be bypassed under controlled
+circumstances -- e.g. CI build -- with a proper `sudoers` entry), then *all*
+manual prerequisites should be clearly described (typically in an `INSTALL`
+text file) and their satisfaction confirmed at the start of the build script.
+
+When a script requires `sudo`, it should be authorized at the beginning of the
+script. This informs the user that authentication is required. Invoking `sudo`
+late in a script without preauthorization runs the risk that `sudo` will time
+out its authentication request due to user inattention and cause the build to
+fail. Few programmers are aware of this possibility, resulting in scripts that
+"silently" skip `sudo`'d programs when the user is not present.
+
+The `install_prerequisites.sh` script shows how to preauthorize `sudo` for the
+duration of the script. This technique is specific to the sh(1p) shell and may
+not work in shells which follow different regimes for assigning IDs to
+subordinate processes.
+
+Use of the `sudo` timeout flag (-T ...) may not be portable across Linux
+plaforms, as its value is apparently subject to (and may be limited by; note:
+this is inferred, not confirmed) system security policy.
+
+Regarding XML templates: Please learn and use `xsltproc`. XSLT is a stable
+standard; XML templating engines as provided in various scripting tools are
+prone to bit-rot as their APIs change.
+
+OK, that's all I'm going to say regarding build hygiene. TL;DR: Sorry, go
+back and read the above until you understand the issues.
+
+Moving on...
+
+===
+Feb 15th
+
+- In which I revisit false starts in the hope that someone may learn from my
+  mistakes:
+
+My initial impression was that I ought to be able to demonstrate
+disaggregation by removing disjoint sets of services from two distinct builds
+of OpenUxAS, then have those two executables run in tandem to provide the
+same functionality as one executable containing the full complement of
+services. This high-level statement ignores obvious details and potential
+issues:
+
+  1) How does OpenUxAS treat state, and does it do so consistently? My working
+     assumption is that state is encapsulated by each service for its own use
+     and is shared with other services *only* via messaging. The first clause
+     seems highly likely; the second: maybe not.
+
+  2) I initially assumed that LMCP is cleanly separable in the sense that
+     it will not affect my ability to *remove* OpenUxAS functionality. This
+     is not at all true; I'll discuss this later.
+
+All of the work done during this exploratory phase is detailed in
+`./experimental/NOTES`, along with many of the tools created to aid
+exploration of the code base. Recommendations and critical observations
+follow:
+
+I spent a cycle trying to split OpenUxAS as described above. I learned some
+new gdb tricks, and repaired some rather extensive OpenUxAS logging issues
+(i.e. logging was *commented out* everywhere for severity levels of "warning"
+*and lower*, and many log messages were simply wrong due to copy/paste errors.
+
+Which brings me to the next installment of "Software Development Hygiene 101":
+Either commit to proper and consistent use of whatever logging discipline is
+implemented, or don't log at all. An accurate log *should* provide insight
+into what's happening during a specific execution of a program; if the log is
+*wrong* (as it was, and for all I know, still is in places that I didn't get
+to explore), then it's worse than useless because it's misleading. Many of the
+logging issues in OpenUxAS could be avoided with proper use of `__FILE__`,
+`__LINE__` and `__func__`.
+
+LMCP is an IDL, processed by `LmcpGen` to create code to marshall, transport
+and unmarshal the messages used by OpenUxAS and its collaborators. The
+`LmcpGen` tool is not a part of OpenUxAS; it is sourced from a different repo
+and is not invoked at part of the OpenUxAS build. OpenUxAS contains *both*
+the MDMs used to define its LMCP classes *and* the classes compiled from those
+MDMs. The text of OpenUxAS's build instructions warns to recompile LMCP when
+MDMs change.
+
+I strongly recommend integrating LmcpGen into the OpenUxAS build. Meson
+provides the means to do so via its `custom_target()` declaration.
+A typical approach would be to wrap LmcpGen into a script which recompiles
+LMCP only if an MDM has been touched since the last compile.
+
+LMCP is problematic as regards disaggregation. Issues include:
+
+  1) MDMs are defined in terms of other MDMs. This defeats the use of LTO to
+     prune unused message classes.
+
+  2) MDMs are defined with insufficient granularity. The main effect of this,
+     I think, is to complicate the task of pruning MDMs to match the set
+     actually required by a disaggregated task.
+
+For now, a reliable build (defined as including up-to-date LCMP based upon
+MDMs) is obtained via the `./rebuild` script.
+
+===
+
+- The following scripts have been useful in identifying dependencies:
+
+  * `./show-src-files`: Given an executable (which must not be stripped of
+    symbols), list the source files which contributed to the binary. The
+    report excludes files found on /usr/... and containing .../3rd/... in
+    the path.
+
+  * `./grovel-task-service-includes`: List the #include files referenced
+    by each task and service.
+
+  * `./extract-lmpc-deps`: Given the defining header for a Task or Service,
+    list its referenced LMCP files.
+
+  * `./extract-all-lmcp-deps`: As above, but for all Tasks and Services.
+
+===
+
+- Current state:
+
+The ./src/separate_compilation directory and a task01 target in ./meson.build
+combine to build a task01 executable from which many (not all) tasks and
+services have been eliminated, yielding an executable roughly one-quarter the
+size of the full OpenUxAS executable.
+
+The HelloWorld example has been retargeted to the task01 executable.
+
+The HelloWorld directory contains suggestions regarding gdb configuration.
+
+- Possible next steps:
+
+  1) Attempt to eliminate additional tasks and service from the task01 build
+     in order to discover a minimal "OpenUxAS base".
+
+  2) Attempt to split the HelloWorld demo such that each of the two HelloWorld
+     services runs in its own task01 image.
+
+===
+Mar 5th and 6th
+
+Here's the workflow I'm using to remove remaining unwanted tasks and services
+from the `task01` build. Note well that this all takes place within the
+`src/separate_compilation` directory:
+
+1. Find a service/task to remove.
+     sh> ./show-src-files build/task01 | grep '\.cpp' | less -X
+2. Remove the task/service declaration from its associated MDM file.
+     sh> ag <classname> src/separate_compilation/mdms
+     ... Then edit.
+3. Rerun LmcpGen and rebuild OpenUxAS.
+     xs> fork {cd src/separate_compilation/; ./RunLmcpGen.sh}; ninja -C build
+     or
+     sh> ( cd src/separate_compilation; ./RunLmcpGen.sh ); ninja -C build
+4. From build errors, find task/service source files that include removed
+   task/service header, find definition in MDM and remove, then rebuild.
+   Repeat as needed.
+     a) If at any time you reach a service/task inclusion that is *not*
+        represented in an MDM, unwind (i.e. undo edits) back to step 1.
+          sh> git checkout -p <file to edit>
+
+          Alternatively, use git to checkpoint a known-good build ahead of
+          step 1, then reset to that commit in order to unwind the edits.
+          Or if you want to build upon uncommitted changes, use `git stash`
+          to checkpoint the changes, `git stash pop` to unwind, and
+          `git stash drop` plus `git commit ...` upon successful completion.
+
+          In either case, rebuild as per step 3; we need a working build
+          for the search of step 1.
+
+5. When build is clean, repeat from top.
+
+As the above iterates, periodically check the size of `build/task01`; it
+should decrease.
+
+===
+Mar 6th
+
+The `task01` build is close to (perhaps at) its minimum. I think I've removed
+all nonessential MDM definitions. I want to drill down one more level and see
+how much more of the 3rd-party libraries can be elided.
+
+===
+Mar 7th
+
+Attempted to get dual HelloWorld programs to communicate with each other via
+an LmcpObjectNetworkZeroMqZyreBridge. No success, yet. Let's modify the build
+of 3rd/zyre to also generate zpinger; this may be useful for debugging.
+
+===
+Mar 8th
+
+Built zpinger. *With the firewall disabled*, zpinger instances see each other
+and the HelloWorld instances. Still, the HelloWorld's do not communicate as
+expected. This may well be an issue with the OpenUxAS code base.
+
+===
+Mar 12th
+
+Still trying to grok HelloWorld. Turned on additional chatter; confirmed that
+neither of the dual instances actually attempts to send a message. Why...?
+
+===
+Mar 13th
+
+OpenUxAS was not implemented to discover other instances of itself. Even though
+it uses Zyre to implement a message bridge, the bridge is instantiated with
+`inproc://` addressing; it it able to communicate only with messaging peers
+that run *in the same process*. I applied the "big hammer", changing all
+`inproc://` to `ipc://`. I'd expect this to have a negative impact on the
+performance of the messaging system. Whether that impact is observable will
+likely depend upon the behavior of OpenUxAS under various scenarios. It'd
+probably be a good idea to make the scheme configurable...
+
+I also uncommented the one call to `n_ZMQ::zyreJoin()`, which sets a group
+name for the Zyre peers. It's not clear to me that this is necessary. The
+original call references a class member that exists nowhere (I even searched
+the git log for its removal), so this is clearly code that had been abandoned
+mid-implementation.
+
+Specifying a `MessageGroup` attribute to the HelloWorld service XML may also
+have been unnecessary.
+
+You may wonder how, if OpenUxAS was unable to communicate with services living
+outside its process, does the OpenAMASE connection work? Short answer: not via
+Zyre.
+
+... Started pruning files from separate_compilation/... .
+	Communications		no extra files; nothing removed
+	LMCP			generated files
+	Services		many removed
+	Utilities		some removed
+
+===
+Mar 14th
+
+HelloWorld-dual demo now disables then reenables firewall around demo
+execution, based upon the assumption that the firewall is not configured
+to pass 0MQ traffic.
+
+Documented HelloWorld-dual demo.
+
+Merged squashed `rivetss-initial` branch onto `rivetss`. The `rivetss-initial`
+branch should be maintained if a record of individual commits is desired.
+
+Further development should be done on a *new* branch based upon `rivetss`.

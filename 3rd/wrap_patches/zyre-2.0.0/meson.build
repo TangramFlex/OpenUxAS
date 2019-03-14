@@ -124,7 +124,6 @@ subdir('src')
 lib = static_library(
   'zyre',
   [
-    'src/zpinger.c',
     'src/zre_msg.c',
     'src/zyre.c',
     'src/zyre_event.c',
@@ -144,5 +143,14 @@ dep = declare_dependency(
   link_with: lib,
   include_directories: include_directories(
     'include',
+  ),
+)
+
+executable('zpinger', ['src/zpinger.c'],
+  dependencies: [deps, dep],
+  c_args: c_args,
+  include_directories: include_directories(
+    'include',
+    'src',
   ),
 )

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MDM SYSTEM 'MDM.DTD'>
+
+<!-- This is a stripped-down version -->
+<MDM>
+    <SeriesName>CMASI</SeriesName>
+    <Namespace>afrl/cmasi</Namespace>
+    <Version>3</Version>
+
+    <EnumList>
+        <!-- Describes automation service status types -->
+        <Enum Name="ServiceStatusType">
+            <!-- informational note from automation service -->
+            <Entry Name="Information" Value="0"/>
+            <!-- warning from automation service -->
+            <Entry Name="Warning" Value="1"/>
+            <!-- error from automation service -->
+            <Entry Name="Error" Value="2"/>
+        </Enum>
+    </EnumList>
+
+    <StructList>
+        
+        <!-- A container for key/value pairs.  Keys and values can be any valid string. -->
+        <Struct Name="KeyValuePair">
+            <!-- A key (name) for the property -->
+            <Field Name="Key" Type="string"/>
+            <!-- A value for the property -->
+            <Field Name="Value" Type="string"/>
+        </Struct>
+        
+
+        <!--
+            Provides information regarding automation service compuation percent complete.  The automation service should send this when the computation of a
+            mission plan may take more than a few seconds, or when an error occurs (such as the inability to create one or more
+            mission commands given the task set)
+        -->
+        <Struct Name="ServiceStatus">
+
+            <!-- The estimated percentage completed for an automation process. -->
+            <Field Name="PercentComplete" Type="real32" />
+
+            <!-- Status from the automation service to the simulation regarding errors or conditions. -->
+            <Field Name="Info" Type="KeyValuePair[]" MaxArrayLength="8" />
+
+            <!--
+                Describes the type of message conveyed. <br/>
+                Information.  Used to note normal progress updates <br/>
+                Warning.  Notes non-fatal problem(s) in data or processing <br/>
+                Error.  Notes fatal problem(s) <br/>
+            -->
+            <Field Name="StatusType" Type="ServiceStatusType"/>
+        </Struct>
+
+    </StructList>
+</MDM>
+
+
+
+

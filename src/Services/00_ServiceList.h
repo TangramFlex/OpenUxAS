@@ -70,7 +70,10 @@
 #endif
 
 // task
+/*
+TEMPORARY EXCLUSION
 #include "AssignmentCoordinatorTaskService.h"
+*/
 #include "AngledAreaSearchTaskService.h"
 #include "BlockadeTaskService.h"
 #include "CmasiAreaSearchTaskService.h"
@@ -146,7 +149,10 @@
 {auto svc = uxas::stduxas::make_unique<uxas::service::data::AutomationDiagramDataService>();}
 
 // task
+/*
+TEMPORARY EXCLUSION
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::AssignmentCoordinatorTaskService>();}
+*/
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::AngledAreaSearchTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::BlockadeTaskService>();}
 {auto svc = uxas::stduxas::make_unique<uxas::service::task::CmasiAreaSearchTaskService>();}

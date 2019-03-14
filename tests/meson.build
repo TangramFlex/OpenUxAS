@@ -24,7 +24,10 @@ inc_test = [
 ]
 
 
-libs_test = libs
+libs_test = [
+  libs,
+]
+
 link_args_test = link_args
 
 subdir('Test_Services')

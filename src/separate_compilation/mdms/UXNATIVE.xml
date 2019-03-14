@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MDM SYSTEM 'MDM.DTD'>
+
+<!--
+        <h2>UxAS Message Set</h2>
+ 
+        <p>This message set describes the native/internal messages for UxAS</p>
+-->
+
+<MDM>
+    <SeriesName>UXNATIVE</SeriesName>
+    <Namespace>uxas/messages/uxnative</Namespace>
+    <Version>9</Version>
+    
+    <StructList>
+        
+        <!-- Message sent when all services have been started -->
+        <Struct Name="StartupComplete" >
+        </Struct>
+        
+        <!-- Create a new service in UxAS -->
+        <Struct Name="CreateNewService" >
+            <!-- Globally unique ID for this service. Negative ServiceIDs are invalid. If ServiceID == 0, then a unique service ID will be generated.  -->
+            <Field Name="ServiceID" Type="int64"  Default="0"/>
+            <!-- XML configuration for this service (i.e. options in XML format) -->
+            <Field Name="XmlConfiguration" Type="string" />
+        </Struct>
+        
+        <!-- Remove an existing service from UxAS -->
+        <Struct Name="KillService" >
+            <!-- Globally unique ID for the service to be removed. If ServiceID == 0, then no service will be killed. ServiceID == -1 causes all services to be killed and UxAS to be shutdown. -->
+            <Field Name="ServiceID" Type="int64"  Default="0"/>
+        </Struct>
+    
+        <!-- Entity Join -->
+        <Struct Name="EntityJoin" >
+            <!-- ID of entity joining network -->
+            <Field Name="EntityID" Type="int64" />
+            <!-- Label of entity joining network -->
+            <Field Name="Label" Type="string" />
+        </Struct>
+
+        <!-- Entity Exit -->
+        <Struct Name="EntityExit" >
+            <!-- ID of entity exiting network -->
+            <Field Name="EntityID" Type="int64" />
+            <!-- Label of entity exiting network -->
+            <Field Name="Label" Type="string" />
+        </Struct>  
+        
+ </StructList>
+</MDM>

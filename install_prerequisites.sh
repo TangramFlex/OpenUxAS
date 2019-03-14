@@ -26,6 +26,10 @@ while true; do sudo -n true; sleep 60; kill -s 0 $$ || exit; done 2>/dev/null &
 
 
 if [ "$(uname)" == "Darwin" ]; then
+    echo "The Mac/Darwin portion of this script is out of date."
+    echo "Please update using the Fedora section as a guide."
+    exit 1
+    ## FIXME:
     echo "Install Prerequisites on Mac OS X"
     echo " "
     echo "Install XCode"
@@ -126,30 +130,22 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo apt -y install xterm
     fi  # have apt; must be Ubuntu
 
+    # IMPORTANT: This Fedora installation is the model for all other platforms.
     if [ -n "$(which dnf 2>/dev/null)" ]; then
     echo "Installing Prerequisite Tools on Fedora Linux"
     # These should be the same packages (perhaps with different names) as above
     sudo dnf -y install pkgconf git gitk mesa-libGLU-devel uuid-devel \
         boost-devel python3-pip python3-tkinter ant xterm redhat-rpm-config \
-        gcc-c++ python3-devel
-    sudo -H pip3 install --upgrade pip
-    sudo -H pip3 install ninja
-    sudo -H pip3 install meson==0.42.1
-    sudo -H pip3 install matplotlib
-    sudo -H pip3 install pandas
-    # What a mess, Oracle...
-    wget --no-cookies --no-check-certificate --header 'Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie' http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.rpm
-    java_rpm=jdk-8u181-linux-x64.rpm
-    sudo dnf localinstall -y $java_rpm
-    rm -f $java_rpm
-    sudo alternatives --install /usr/bin/java java /usr/java/jdk1.8.0_181-amd64/jre/bin/java 200000
-    sudo alternatives --set java /usr/java/jdk1.8.0_181-amd64/jre/bin/java
-    sudo alternatives --install /usr/bin/javaws javaws /usr/java/jdk1.8.0_181-amd64/jre/bin/javaws 200000
-    sudo alternatives --set javaws /usr/java/jdk1.8.0_181-amd64/jre/bin/javaws
-    sudo alternatives --install /usr/bin/javac javac /usr/java/jdk1.8.0_181-amd64/bin/javac 200000
-    sudo alternatives --set javac /usr/java/jdk1.8.0_181-amd64/bin/javac
-    sudo alternatives --install /usr/bin/jar jar /usr/java/jdk1.8.0_181-amd64/bin/jar 200000
-    sudo alternatives --set jar /usr/java/jdk1.8.0_181-amd64/bin/jar
+        gcc-c++ python3-devel ninja-build python3-matplotlib python3-pandas \
+        java-1.8.0-openjdk-devel
+
+    # Extend paths for pip --user option
+    source ./path.sh
+
+    # Pinning meson is understandable for now; the API is in flux.
+    [ -n "$PYTHONUSERBASE" ] || { echo "PYTHONUSERBASE is not set"; exit 1; }
+    mkdir -p $PYTHONUSERBASE
+    pip3 install --user meson==0.42.1
     fi  # have dnf; must be Fedora
 
     echo "Dependencies installed!"
