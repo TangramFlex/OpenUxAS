@@ -485,3 +485,12 @@ Zyre.
 	LMCP			generated files
 	Services		many removed
 	Utilities		some removed
+
+===
+Mar 14th
+
+HelloWorld-dual demo now disables then reenables firewall around demo
+execution, based upon the assumption that the firewall is not configured
+to pass 0MQ traffic.
+
+Documented HelloWorld-dual demo.
