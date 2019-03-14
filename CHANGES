@@ -5,6 +5,8 @@ Building
 
 - Reworked build scripts to minimize user interaction.
 - Added support to build on Fedora Linux.
+- Disaggregated build (executable: task01) supports HelloWorld.
+- Build zpinger tool.
 
 Examples
 --------
@@ -12,9 +14,23 @@ Examples
 - Replaced gnome-terminal with xterm.
 - Added missing shebang lines.
 - Automated configuration for example 03_Example_DistributedCooperation.
+- Added a dual-host demo to 01_HelloWorld.
 
 Documentation
 -------------
 
 - Removed or flagged outdated or incorrect descriptions and instructions
   as encountered.
+
+Code
+----
+
+- Enabled logging statements that were commented-out or disabled via #ifdef.
+- Corrected copy/paste errors (incorrect attribution) in logging statements.
+- Changed Zyre configuration to use ipc:// rather than inproc://.
+
+Tools
+-----
+
+- Added scripts to collect data from source code. See ./experimental and
+  new scripts at top level.
