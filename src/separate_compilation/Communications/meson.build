@@ -26,7 +26,7 @@ inc_dirs = [
 ]
 
 lib_uxas_communications_task01 = static_library(
-  'uxas_messages',
+  'uxas_messages_task01',
   [
     'AddressedAttributedMessage.cpp',
     'ImpactSubscribePushBridge.cpp',

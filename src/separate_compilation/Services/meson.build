@@ -36,7 +36,7 @@ else
 endif
 
 lib_services_task01 = static_library(
-  'services',
+  'services_task01',
   srcs_services,
   srcs_services_internal,
   dependencies: deps_services,
