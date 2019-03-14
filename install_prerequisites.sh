@@ -199,6 +199,9 @@ echo "Performing initial UxAS build ..."
 ninja -C build_debug
 ninja -C build_release
 
+# Alias the debug build
+ln -s build_debug build
+
 cat <<'EOF'
 
 ================================================================
