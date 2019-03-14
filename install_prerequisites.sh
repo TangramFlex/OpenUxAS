@@ -134,7 +134,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     if [ -n "$(which dnf 2>/dev/null)" ]; then
     echo "Installing Prerequisite packages on Fedora Linux"
     # These should be the same packages (perhaps with different names) as above
-    sudo dnf -y install pkgconf git gitk mesa-libGLU-devel uuid-devel \
+    sudo dnf -y install pkgconf git gitk ed mesa-libGLU-devel uuid-devel \
         boost-devel python3-pip python3-tkinter ant xterm redhat-rpm-config \
         gcc-c++ python3-devel ninja-build python3-matplotlib python3-pandas \
         java-1.8.0-openjdk-devel minizip-devel
