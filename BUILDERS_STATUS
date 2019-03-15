@@ -8,6 +8,7 @@ Ubuntu	16.04	CLI	20180919  dlamkins  workstation in vm
 Fedora	28	CLI	20180921  dlamkins  server in vm & native
 			20181022  dlamkins  rivetss-initial on server vm
 Fedora	29	CLI	20190314  dlamkins  rivetss on server (base) vm
+Ubuntu	18.10	CLI	20190315  dlamkins  rivetss on server vm
 OS X		CLI					
 		Docker					
 		Travis					
