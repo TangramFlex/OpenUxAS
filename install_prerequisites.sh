@@ -110,7 +110,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # Install Boost libraries (**optional but recommended**; see external dependencies section)
     sudo apt -y install libboost-filesystem-dev libboost-regex-dev libboost-system-dev
     # Install minizip
-    apt -y install libminizip-dev
+    sudo apt -y install libminizip-dev
     # Install pip3
     sudo apt -y install python3-pip
     ##sudo -H pip3 install --upgrade pip
