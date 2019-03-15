@@ -86,7 +86,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     echo "Installing Prerequisite Tools on Ubuntu Linux"
     # run an 'apt update' check without sudo
     # ref: https://askubuntu.com/questions/391983/software-updates-from-terminal-without-sudo
-    aptdcon --refresh
+    ##aptdcon --refresh
     NUMBER_UPGRADEABLE=`apt-get -s upgrade | grep "upgraded," | cut -d' ' -f1`
     if [ $NUMBER_UPGRADEABLE -gt 0 ]
     then
