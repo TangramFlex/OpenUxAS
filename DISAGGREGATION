@@ -499,3 +499,21 @@ Merged squashed `rivetss-initial` branch onto `rivetss`. The `rivetss-initial`
 branch should be maintained if a record of individual commits is desired.
 
 Further development should be done on a *new* branch based upon `rivetss`.
+
+===
+Mar 15th
+
+The QUICKSTART instructions have been tested on fresh installs of Fedora 29
+server and Ubuntu 18.10 server.
+
+NOTE WELL: The dual HelloWorld demo does not always start correctly. I believe
+that Zyre is not properly configured. (At the time rivetss was branched from
+develop, Zyre used inproc:// messaging. I changed this to ipc:// and enabled
+a Zyre configuration call which had been commented out of the OpenUxAS source.
+To the best of my knowledge, this is the first time that OpenUxAS has been
+able to communicate with other instances of itself.)
+
+The symptom of a failed start of the dual HelloWorld demo is that RECEIVED
+messages do not appear in the log at regular intervals. The only way to
+recover -- until such time as Zyre is properly configured -- is to stop and
+restart the demo.
