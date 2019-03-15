@@ -96,26 +96,33 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
         echo "Done with apt update-upgrade!"
     fi
 
-    # Install pkg-config for finding link arguments: in terminal
+    # Install pkg-config for finding link arguments
     sudo apt -y install pkg-config
-    # Install git: in terminal
+    # Install git
     sudo apt -y install git
     sudo apt -y install gitk
-    # Install opengl development headers: in terminal
+    # Install ed
+    sudo apt -y install ed
+    # Install opengl development headers
     sudo apt -y install libglu1-mesa-dev
-    # Install unique ID creation library: in terminal
+    # Install unique ID creation library
     sudo apt -y install uuid-dev
-    # Install Boost libraries (**optional but recommended**; see external dependencies section): in terminal
+    # Install Boost libraries (**optional but recommended**; see external dependencies section)
     sudo apt -y install libboost-filesystem-dev libboost-regex-dev libboost-system-dev
-    # Install pip3: in terminal
+    # Install pip3
     sudo apt -y install python3-pip
-    sudo -H pip3 install --upgrade pip
-    # Install ninja build system: in terminal
-    sudo -H pip3 install ninja
-    # Install meson build configuration: in terminal
-    sudo -H pip3 install meson==0.42.1
-    # Install python plotting capabilities (optional): in terminal
+    ##sudo -H pip3 install --upgrade pip
+    # Install tkinter
     sudo apt -y install python3-tk
+    # Install ant for command line build of java programs
+    sudo apt -y install ant
+    # We probably have xterm; be certain.
+    sudo apt -y install xterm
+    # Install ninja build system
+    sudo -H pip3 install ninja
+    # Install meson build configuration
+    sudo -H pip3 install meson==0.42.1
+    # Install python plotting capabilities (optional)
     sudo -H pip3 install matplotlib
     sudo -H pip3 install pandas
     # Install Oracle JDK
@@ -124,10 +131,14 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo apt -y update
     sudo apt -y install oracle-java8-installer
     sudo apt -y install oracle-java8-set-default
-    # Install ant for command line build of java programs
-    sudo apt -y install ant
-    # We probably have xterm; be certain.
-    sudo apt -y install xterm
+
+    # Extend paths for pip --user option
+    source ./path.sh
+
+    # Pinning meson is understandable for now; the API is in flux.
+    [ -n "$PYTHONUSERBASE" ] || { echo "PYTHONUSERBASE is not set"; exit 1; }
+    mkdir -p $PYTHONUSERBASE
+    pip3 install --user meson==0.42.1
     fi  # have apt; must be Ubuntu
 
     # IMPORTANT: This Fedora installation is the model for all other platforms.
