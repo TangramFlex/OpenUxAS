@@ -107,11 +107,9 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo apt -y install libglu1-mesa-dev
     # Install unique ID creation library
     sudo apt -y install uuid-dev
-    # Install Boost libraries (**optional but recommended**; see external dependencies section)
-    sudo apt -y install libboost-filesystem-dev libboost-regex-dev libboost-system-dev
-    # Install minizip
-    sudo apt -y install libminizip-dev
-    # Install pip3
+    # Install Boost libraries (**optional but recommended**; see external dependencies section): in terminal
+    sudo apt-get -y install libboost-filesystem-dev libboost-regex-dev libboost-system-dev
+    # Install pip3: in terminal
     sudo apt -y install python3-pip
     ##sudo -H pip3 install --upgrade pip
     # Install tkinter
@@ -127,12 +125,12 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # Install python plotting capabilities (optional)
     sudo -H pip3 install matplotlib
     sudo -H pip3 install pandas
-    # Install Oracle JDK
-    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-    sudo add-apt-repository -y ppa:webupd8team/java
-    sudo apt -y update
-    sudo apt -y install oracle-java8-installer
-    sudo apt -y install oracle-java8-set-default
+
+    # Install Java
+    sudo apt -y install openjdk-11-jdk
+    # Install ant for command line build of java programs
+    sudo apt -y install ant
+
 
     # Extend paths for pip --user option
     source ./path.sh
@@ -182,19 +180,22 @@ if [ $current_directory == "OpenUxAS" ] && [ -d $git_directory ]; then
    cd ..
 fi
 
-echo "Checking out LmcpGen ..."
-rm -rf LmcpGen
-git clone https://github.com/afrl-rq/LmcpGen.git
+if [ ! -d LmcpGen ]; then
+	echo "Checking out LmcpGen ..."
+	git clone https://github.com/afrl-rq/LmcpGen.git
+fi
 cd LmcpGen
 ant -q jar
 cd ..
-echo "Checking out OpenAMASE ..."
-rm -rf OpenAMASE
-git clone https://github.com/afrl-rq/OpenAMASE.git
+
+if [ ! -d OpenAMASE ]; then
+	echo "Checkout out OpenAMASE..."
+	git clone https://github.com/afrl-rq/OpenAMASE.git
+fi
 cd OpenAMASE/OpenAMASE
 ant -q jar
 cd ../..
-    
+  
 echo "Configuring UxAS plotting utilities ..."
 cd OpenUxAS/src/Utilities/localcoords
 sudo python3 setup.py install

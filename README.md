@@ -212,3 +212,143 @@ to remove both the downloaded files and the expanded directories:
 
 This script depends upon the presence of the patch tarballs installed
 in the `/3rd` directory by `./prepare`.
+
+# Detailed Prerequisite Steps
+The [install prerequisities script](https://raw.githubusercontent.com/afrl-rq/OpenUxAS/develop/install_prerequisites.sh) (`bash install_prerequisites.sh`) will automate the following steps.
+
+## Install Prerequisites on Ubuntu Linux
+1. Ensure dependency search is supported: in terminal
+   * `sudo apt-get install pkg-config`
+1. Install `git`: in terminal
+   * `sudo apt-get install git`
+   * `sudo apt-get install gitk`
+1. Install OpenGL development headers: in terminal
+   * `sudo apt-get install libglu1-mesa-dev`
+1. Install unique ID creation library: in terminal
+   * `sudo apt-get install uuid-dev`
+1. Install BSD development library: in terminal
+   * `sudo apt-get install libbsd-dev`
+1. Install Boost libraries (**optional but recommended**; see external dependencies section): in terminal
+   * `sudo apt-get install libboost-filesystem-dev libboost-regex-dev libboost-system-dev`
+1. Install doxygen and related packages (**optional**): in terminal
+   * `sudo apt-get install doxygen`
+   * `sudo apt-get install graphviz`
+   * `sudo apt-get install texlive`
+   * `sudo apt-get install texlive-latex-extra`
+1. Install pip3: in terminal
+   * `sudo apt install python3-pip`
+   * `sudo -H pip3 install --upgrade pip`
+1. Install ninja build system: in terminal
+   * `sudo -H pip3 install ninja`
+1. Install meson build configuration: in terminal
+   * `sudo -H pip3 install meson==0.42.1`
+1. Install python plotting capabilities (**optional**): in terminal
+   * `sudo apt install python3-tk`
+   * `sudo -H pip3 install matplotlib`
+   * `sudo -H pip3 install pandas`
+1. Install [NetBeans and Oracle Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk-netbeans-jsp-142931.html) (**optional**)
+   * Download the Linux x64 version
+   * Run downloaded install script: in terminal
+   * `cd ~/Downloads; sh jdk-8u131-nb-8_w-linux-x64.sh`
+   * Click `Next` three times, then `Install`
+1. Enable C/C++ plug-in in NetBeans (**optional**)
+   * Open NetBeans (in Ubuntu search, type `NetBeans`)
+   * Choose Tools->Plugins from the top menu
+   * In the `Available Plugins` tab, search for `C++`
+   * Select `C/C++` and click `Install`
+1. Install Oracle Java run-time (required for *LmcpGen*): in terminal
+   * `sudo add-apt-repository ppa:webupd8team/java`
+   * `sudo apt update; sudo apt install oracle-java9-installer`
+   * `sudo apt install oracle-java9-set-default`
+1. Install `ant` for command line build of java programs: in terminal
+   * `sudo apt install ant`
+1. Remove any previously installed versions of ZMQ - They're likely to cause compile errors which, if fixed, will leave you with a seg-fault.
+1. [Build](#build-uxas)
+
+## Install Prerequisites on Mac OS X
+The [install prerequisities script](https://raw.githubusercontent.com/afrl-rq/OpenUxAS/develop/install_prerequisites.sh) will automate the following steps.
+
+1. Install [XCode](https://developer.apple.com/xcode/)
+1. Enable commandline tools: in terminal `xcode-select --install`
+1. Install `homebrew` (must be administrator): in terminal
+    `sudo ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+1. Add `homebrew` to path: in terminal `echo $(export PATH="/usr/local/bin:$PATH") >> ~/.bash_profile`
+1. Install `git`: in terminal `brew install git`
+1. Install unique ID library: in terminal `brew install ossp-uuid`
+1. Install Boost library and configure it in a fresh shell: in terminal
+   * `brew install boost`
+   * `echo 'export BOOST_ROOT=/usr/local' >> ~/.bash_profile`
+   * `bash`
+1. Install `doxygen` and related packages (**optional**): in terminal
+   * `brew install doxygen`
+   * `brew install graphviz`
+   * `brew cask install mactex`
+1. Install pip3: in terminal
+   * `brew install python3`
+1. Install ninja build system: in terminal
+   * `brew install cmake`
+   * `brew install pkg-config`
+   * `sudo -H pip3 install scikit-build`
+   * `sudo -H pip3 install ninja`
+1. Install meson build configuration: in terminal
+   * `sudo -H pip3 install meson==0.42.1`
+1. Install python plotting capabilities (**optional**): in terminal
+   * `sudo -H pip3 install matplotlib`
+   * `sudo -H pip3 install pandas`
+1. Install [Oracle Java run-time](https://java.com/en/download/mac_download.jsp) (required for *LmcpGen*)
+1. Install `ant` for command line build of java programs: in terminal
+   * `brew install ant`
+1. Install [NetBeans and Oracle Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk-netbeans-jsp-142931.html) (**optional**)
+   * Download the Mac OSX version
+   * Install .dmg
+1. Enable C/C++ plug-in in NetBeans (**optional**)
+   * Open NetBeans
+   * Choose Tools->Plugins from the top menu
+   * In the `Available Plugins` tab, search for `C++`
+   * Select `C/C++` and click `Install`
+1. [Build](#build-uxas)
+
+## Prep and Build on Windows
+
+1. Install [Visual Studio 2017 Community Edition](https://www.visualstudio.com/downloads/)
+   * Ensure C++ selected in `Workloads` tab
+   * Ensure `Git for Windows` is selected in `Individual components` tab
+1. Install [Git](https://git-scm.com/download/win) with Bash shell
+1. Install [Python 3](https://www.python.org/ftp/python/3.7.0/python-3.7.0.exe)
+   * Make sure to check `Add Python 3.7 to PATH`
+   * Choose standard install (`Install Now`, requires admin)
+   * Verify installation by: `python --version` in `cmd` prompt
+   * Verify *pip* is also installed: `pip --version` in `cmd` prompt
+   * If unable to get python on path, follow [this answer](https://stackoverflow.com/questions/23400030/windows-7-add-path) using location `C:\Users\[user]\AppData\Local\Programs\Python\Python37-32\`
+1. Install *meson* (due to Boost linking difficulty, a patched version of meson is required)
+   * In Git Bash shell: `git -c http.sslVerify=false clone https://github.com/derekkingston/meson.git`
+   * Install *meson* in Git Bash shell: `cd meson; python setup.py install`
+1. Install [Boost 1.67](https://dl.bintray.com/boostorg/release/1.67.0/binaries/boost_1_67_0-msvc-14.1-32.exe)
+   * Note: the above link is for VS2017 pre-compiled libraries. To compile from source, you must install at the location: `C:\local\boost_1_67_0`
+1. Pull UxAS repositories (from Git Bash shell)
+   * `git -c http.sslVerify=false clone https://github.com/afrl-rq/OpenUxAS.git`
+   * `git -c http.sslVerify=false clone https://github.com/afrl-rq/LmcpGen.git`
+   * `git -c https://github.com/afrl-rq/OpenAMASE.git`
+1. (**optional**) Build OpenAMASE or [download](https://github.com/afrl-rq/OpenAMASE/releases/download/v1.3.1/OpenAMASE.jar) and place in the `OpenAMASE\OpenAMASE\dist` directory
+   * Load the OpenAMASE project in NetBeans and click `Build`
+1. Auto-create the UxAS messaging library
+   * Download released executable from [GitHub](https://github.com/afrl-rq/LmcpGen/releases/download/v1.7.1/LmcpGen.jar)
+   * Place `LmcpGen.jar` in `LmcpGen/dist` folder
+   * From the Git Bash shell in the root UxAS directory, run `bash RunLmcpGen.sh`
+   * Note: For simplicity, make sure the LMCPGen, OpenUxAS, and OpenAMASE repositories follow the folder structure labeled in the [Build UxAS](#build-uxas) section.
+1. Prepare build
+   * Open VS command prompt (Tools -> Visual Studio Command Prompt)
+   * Note: If the Visual Studio Command Prompt is absent from Visual Studio, it is also possible to perform the following actions by searching for the `Developer Command Prompt for VS 2017` application and switching the working directory to the root OpenUxAS directory
+   * `python prepare`
+   * `meson.py build --backend=vs`
+   * A Visual Studio solution named `UxAS.sln` will be in the `build` folder
+1. Build project with Visual Studio
+   * Open project file `UxAS.sln` in the `OpenUxAS/build` directory
+   * (**optional**) Remove `REGEN`, `RUN_INSTALL`, and `RUN_TESTS` projects from the solution
+   * In the `Solution Explorer`, right-click the `uxas` project, and select `Build` from the context menu
+
+### Caveats
+
+- The Visual Studio backend for Meson mostly works, but will fail when regenerating build files. If you modify one of the `meson.build` files, delete the `build` directory and run `meson.py build --backend=vs` again. The steps following the `meson.build` command must also be performed.
+- The UxAS test suite uses some hardcoded POSIX-style paths, and so does not currently work on Windows.
+
