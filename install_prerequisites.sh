@@ -80,7 +80,11 @@ if [ "$(uname)" == "Darwin" ]; then
     # Install ant for command line build of java programs
     brew install ant
     echo "Dependencies installed!"
-    
+   
+    # Remove any other version of ZMQ
+    sudo apt remove libzmq3-dev
+    sudo apt remove libzmq5
+
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     if [ -n "$(which apt 2>/dev/null)" ]; then
     echo "Installing Prerequisite Tools on Ubuntu Linux"
