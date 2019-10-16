@@ -81,10 +81,6 @@ if [ "$(uname)" == "Darwin" ]; then
     brew install ant
     echo "Dependencies installed!"
    
-    # Remove any other version of ZMQ
-    sudo apt remove libzmq3-dev
-    sudo apt remove libzmq5
-
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     if [ -n "$(which apt 2>/dev/null)" ]; then
     echo "Installing Prerequisite Tools on Ubuntu Linux"
@@ -135,6 +131,12 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # Install ant for command line build of java programs
     sudo apt -y install ant
 
+    # Remove any other version of ZMQ
+    # If another exists meson will point at it and then 
+    # you'll get compile errors.
+    echo "HEY: I'm uninstalling your ZMQ packages so meson will use it's native copy."
+    sudo apt remove libzmq3-dev
+    sudo apt remove libzmq5
 
     # Extend paths for pip --user option
     source ./path.sh
