@@ -3,7 +3,6 @@ project('UxAS', 'c', 'cpp', subproject_dir: '3rd')
 cpp = meson.get_compiler('cpp')
 conf = configuration_data()
 os = target_machine.system()
-buildtype = get_option('buildtype')
 
 if cpp.get_id() == 'msvc'
   cpp_args = [
@@ -14,26 +13,10 @@ else
     '-std=c++11',
     '-Wno-unused-function',
     '-Wno-unused-variable',
-    '-ffunction-sections',
-    '-fdata-sections',
   ]
 endif
 
-if buildtype == 'release'
-  cpp_args += ['-flto']
-endif
-
-link_args = [
-    '-Wl,--gc-sections',
-    '-Wl,--gc-keep-exported',
-## Do not enable this unless you want to see a couple hundred
-## thousand extra lines in the verbose build log:
-#    '-Wl,--print-gc-sections',
-  ]
-
-if buildtype == 'release'
-  link_args += ['-flto']
-endif
+link_args = []
 
 if os.startswith('linux')
   add_project_arguments('-DLINUX', language: ['c', 'cpp'])
@@ -217,54 +200,11 @@ executable(
     ),
     incs_lmcp,
   ],
-  link_with: [
-    libs,
-  ],
+  link_with: libs,
   install: true,
 )
 
-subdir('src/separate_compilation/LMCP')
-
-subdir('src/separate_compilation/Communications')
-
-subdir('src/separate_compilation/Services')
-
-srcs_task01 = [
-  'src/Services/01_HelloWorld.cpp',
-  'src/separate_compilation/task01_main.cpp',
-]
-
-executable(
-  'task01',
-  srcs_task01,
-  dependencies: deps,
-  link_args: link_args,
-  cpp_args: cpp_args,
-  include_directories: [
-    include_directories(
-      'src/separate_compilation/Utilities',
-      'src/separate_compilation/Communications',
-      'src/Includes',
-      'src/separate_compilation/Services',
-      'src/separate_compilation',
-    ),
-    incs_lmcp_task01,
-  ],
-  link_with: [
-    lib_services_task01,
-    lib_tasks,
-    lib_lmcp_task01,
-    lib_uxas_communications_task01,
-    lib_utilities,
-    lib_visilibity,
-    lib_plans,
-    lib_dpss,
-  ],
-  install: true,
-)
-
-## FIXME: This will remain broken during the task disaggregation project.
-##subdir('tests')
+subdir('tests')
 
 if get_option('afrl_internal')
   subdir('UxAS-afrl_internal/tests')
