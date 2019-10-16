@@ -71,7 +71,6 @@ if get_option('force_dep_download')
   dep_sqlite3   = subproject('sqlite3').get_variable('dep')
   dep_sqlitecpp = subproject('sqlitecpp').get_variable('dep')
   dep_zlib      = subproject('zlib').get_variable('dep')
-  dep_minizip   = subproject('minizip').get_variable('dep')
 else
   # https://github.com/zeromq/{zeromq, czmq, cppzmq, zyre}
   dep_zeromq = dependency(
@@ -100,6 +99,7 @@ else
   # https://www.sqlite.org/src
   dep_sqlite3 = dependency(
     'sqlite3',
+    static: true,
     required: false,
   )
 
@@ -122,12 +122,6 @@ else
   dep_zlib = dependency(
     'zlib',
     fallback: ['zlib', 'dep'],
-  )
-
-  # https://github.com/nmoinvaz/minizip
-  dep_minizip = dependency(
-    'minizip',
-    fallback: ['minizip', 'dep'],
   )
 endif
 
@@ -162,7 +156,6 @@ deps = [
   dep_sqlite3,
   dep_sqlitecpp,
   dep_zlib,
-  dep_minizip,
   dep_tinygps,
   dep_serial,
   dep_pugixml,
