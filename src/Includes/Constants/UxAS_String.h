@@ -22,6 +22,7 @@ public:
 
 
 //
+    static const std::string& Alias() { static std::string s_string("Alias"); return(s_string); };
     static const std::string& AlwaysSendPosition() { static std::string s_string("AlwaysSendPosition"); return(s_string); };
     static const std::string& BaudRate() { static std::string s_string("BaudRate"); return(s_string); };
     static const std::string& Bridge() { static std::string s_string("Bridge"); return(s_string); };
@@ -40,6 +41,9 @@ public:
     static const std::string& MessageGroup() { static std::string s_string("MessageGroup"); return(s_string); };
     static const std::string& MessageType() { static std::string s_string("MessageType"); return(s_string); };
     static const std::string& NetworkDevice() { static std::string s_string("NetworkDevice"); return(s_string); };
+    static const std::string& ZyreEndpoint() { static std::string s_string("ZyreEndpoint"); return(s_string); };
+    static const std::string& GossipEndpoint() { static std::string s_string("GossipEndpoint"); return(s_string); };
+    static const std::string& GossipBind() { static std::string s_string("GossipBind"); return(s_string); };
     static const std::string& ReceiveEntityId() { static std::string s_string("ReceiveEntityId"); return(s_string); };
     static const std::string& RunDuration_s() { static std::string s_string("RunDuration_s"); return(s_string); };
     static const std::string& SendAddress() { static std::string s_string("SendAddress"); return(s_string); };
@@ -58,6 +62,7 @@ public:
     static const std::string& SubscribeToExternalMessage() { static std::string s_string("SubscribeToExternalMessage"); return(s_string); };
     static const std::string& SubscribeToMessage() { static std::string s_string("SubscribeToMessage"); return(s_string); };
     static const std::string& TcpAddress() { static std::string s_string("TcpAddress"); return(s_string); };
+    static const std::string& TransformReceivedMessage() { static std::string s_string("TransformReceivedMessage"); return(s_string); };
     static const std::string& Type() { static std::string s_string("Type"); return(s_string); };
     static const std::string& UAV() { static std::string s_string("UAV"); return(s_string); };
     static const std::string& UxAS() { static std::string s_string("UxAS"); return(s_string); };
@@ -83,17 +88,18 @@ public:
     static const std::string& VicsLogger() { static std::string s_string("VicsLogger"); return(s_string); };
     static const std::string& AircraftPathPlanner() { static std::string s_string("AircraftPathPlanner"); return(s_string); };
     static const std::string& GroundPathPlanner() { static std::string s_string("GroundPathPlanner"); return(s_string); };
+    static const std::string& PartialAirVehicleState() { static std::string s_string("PartialAirVehicleState"); return(s_string); };
 };
 
 class LmcpNetworkSocketAddress
 {
 public:
 
-    static const std::string& strGetInProc_ThreadControl(){static std::string strString("inproc://thread_control");return(strString);};
-    static const std::string& strGetInProc_FromMessageHub(){static std::string strString("inproc://from_message_hub");return(strString);};
-    static const std::string& strGetInProc_ToMessageHub(){static std::string strString("inproc://to_message_hub");return(strString);};
-    static const std::string& strGetInProc_ConfigurationHub(){static std::string strString("inproc://configuration_hub");return(strString);};
-    static const std::string& strGetInProc_ManagerThreadControl(){static std::string strString("inproc://manager_thread_control");return(strString);};
+    static const std::string& strGetInProc_ThreadControl(){static std::string strString("ipc://thread_control");return(strString);};
+    static const std::string& strGetInProc_FromMessageHub(){static std::string strString("ipc://from_message_hub");return(strString);};
+    static const std::string& strGetInProc_ToMessageHub(){static std::string strString("ipc://to_message_hub");return(strString);};
+    static const std::string& strGetInProc_ConfigurationHub(){static std::string strString("ipc://configuration_hub");return(strString);};
+    static const std::string& strGetInProc_ManagerThreadControl(){static std::string strString("ipc://manager_thread_control");return(strString);};
 
 };
 

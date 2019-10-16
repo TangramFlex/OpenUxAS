@@ -1,0 +1,17 @@
+We use this file to track the state of the various builders included in the
+OpenUxAS repository.
+
+Host	Version	Method	Test_Date Tested_By Remarks
+------- ------- ------- --------- --------- -------
+Ubuntu	16.04	CLI	20180919  dlamkins  workstation in vm
+			20181023  dlamkins  rivetss-initial on worstation vm
+Fedora	28	CLI	20180921  dlamkins  server in vm & native
+			20181022  dlamkins  rivetss-initial on server vm
+Fedora	29	CLI	20190314  dlamkins  rivetss on server (base) vm
+Ubuntu	18.10	CLI	20190315  dlamkins  rivetss on server vm
+OS X		CLI					
+		Docker					
+		Travis					
+Netbeans	Java 8					
+Windows 7	VS 2017					
+Windows 10	VS 2017					

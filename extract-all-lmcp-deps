@@ -1,0 +1,7 @@
+#! /usr/bin/env xs
+
+for f (src/Services/*.h src/Tasks/*.h) {
+	echo @ $f
+	./extract-lmcp-deps $f
+	echo ---
+} | less

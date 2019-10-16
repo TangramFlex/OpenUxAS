@@ -1,7 +1,12 @@
+### Temporary edits:
+# AssignmentCoordinatorTaskService.cpp -- disaggregated to task01
+## ... -- Not infrastructure; additional disaggregation candidates
+
 srcs_tasks = [
+	'RendezvousTask.cpp',  # retain per 00_ServiceList.h instruction
   '00_TaskTemplate.cpp',
   'AngledAreaSearchTaskService.cpp',
-  'AssignmentCoordinatorTaskService.cpp',
+#  'AssignmentCoordinatorTaskService.cpp',
   'BlockadeTaskService.cpp',
   'CmasiAreaSearchTaskService.cpp',
   'CmasiLineSearchTaskService.cpp',
@@ -10,6 +15,8 @@ srcs_tasks = [
   'CordonTaskService.cpp',
   'EscortTaskService.cpp',
   'ImpactLineSearchTaskService.cpp',
+  'MustFlyTaskService.cpp',
+  'LoiterTaskService.cpp',
   'ImpactPointSearchTaskService.cpp',
   'MultiVehicleWatchTaskService.cpp',
   'OverwatchTaskService.cpp',
@@ -17,6 +24,7 @@ srcs_tasks = [
   'TaskManagerService.cpp',
   'TaskServiceBase.cpp',
   'TaskTrackerService.cpp',
+  'DynamicTaskServiceBase.cpp'
 ]
 
 incs_tasks = [
@@ -28,16 +36,12 @@ incs_tasks = [
     '../../src/Plans',
     '../../src/DPSS',
     '../../src/VisilibityLib',
-    '../../3rd/PugiXML/src',
-    '../../3rd/cppzmq-4.2.1',
-    '../../3rd/zeromq-4.1.1/include',
   ),
   incs_lmcp,
 ]
 
-
 if get_option('afrl_internal')
-  incs_tasks += [incs_tasks_internal]
+  incs_tasks += incs_tasks_internal
 else
   srcs_tasks_internal = files()
 endif
@@ -48,9 +52,10 @@ lib_tasks = static_library(
   srcs_tasks_internal,
   dependencies: [
     dep_boost,
+    dep_cppzmq,
+    dep_pugixml,
+    dep_zeromq,
   ],
-  cpp_args: [
-    '-std=c++11',
-  ],
+  cpp_args: cpp_args,
   include_directories: incs_tasks
 )

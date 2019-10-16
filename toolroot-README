@@ -1,0 +1,18 @@
+This directory is to be used for installation of Python programs. The Python
+installer, by default, expects root priviledges and works in the system
+directories. We avoid this for two reasons:
+
+1) Python install scripts are not vetted, and should not be run as root.
+2) Using Python's installer for a package also managed by the distro's
+   package manager causes problems.
+
+$ env PYTHONUSERBASE=<absolute-path-to-toolroot> pip install --user <package>
+
+NOTES:
+- The Python ecosystem is wobbly. Expect failures due to upstream changes.
+- It's important to set PYTHONUSERBASE to an *absolute* path.
+- If your're installing a package that exists in the system hive, you'll
+  need to pass the -I option to tell `pip` that you *do* want the local
+  installation as well.
+- Be sure to put toolroot/bin on PATH.
+- 

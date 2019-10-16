@@ -46,9 +46,8 @@ namespace test
 SendMessagesService::ServiceBase::CreationRegistrar<SendMessagesService> SendMessagesService::s_registrar(SendMessagesService::s_registryServiceTypeNames());
 
 SendMessagesService::SendMessagesService()
-:
-m_messageZeroTime_ms(true),
-ServiceBase(SendMessagesService::s_typeName(), "")
+:ServiceBase(SendMessagesService::s_typeName(), ""),
+m_messageZeroTime_ms(true)
 {
     m_messageZeroTime_ms = uxas::common::utilities::c_TimeUtilities::dGetTimeNow_s(false);
 };
@@ -144,7 +143,7 @@ SendMessagesService::configure(const pugi::xml_node& serviceXmlNode)
                     }
                     else
                     {
-                        UXAS_LOG_ERROR(s_typeName(), "::configure failed to create LMCP object from loaded XML");
+                        UXAS_LOG_ERROR(s_typeName(), "::configure failed to create LMCP object from loaded XML [",filePath,"]");
                     }
                 }
                 else

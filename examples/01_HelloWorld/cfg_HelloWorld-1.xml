@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<UxAS EntityID="100" FormatVersion="1.0" EntityType="Demo" ConsoleLoggerSeverityLevel="DEBUG" MainFileLoggerSeverityLevel="DEBUG">
+    <Bridge Type="LmcpObjectNetworkZeroMqZyreBridge" NetworkDevice="enp0s20f0u4u1">
+        <SubscribeToExternalMessage MessageType="afrl.cmasi.KeyValuePair"/>
+    </Bridge>
+
+    <Service Type="HelloWorld" MessageGroup="helloThere" StringToSend="Hello from #1" SendPeriod_ms="1000"/>
+
+</UxAS>
+
+

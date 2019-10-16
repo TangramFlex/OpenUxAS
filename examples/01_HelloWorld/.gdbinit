@@ -1,0 +1,1 @@
+set args -cfgPath cfg_HelloWorld.xml

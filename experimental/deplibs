@@ -1,0 +1,94 @@
+#! /usr/local/bin/xs --
+
+pgm = $0
+fn usage {
+	cat <<EOF
+usage: $pgm [-d] -l LIBDIR [-l LIBDIR]... OBJECT
+
+Find the transitive closure of library files that are referenced by
+an object file.
+
+-d		enable debug output
+-l LIBDIR	specify library directory to search
+OBJECT		an object file parseable by nm(1)
+
+With the -d option, write trace information to stderr:
+S path ...	Scanning donor libraries
+I #		Iteration #
+F path		Searching library for symbols
+L path		Note dependent library
+X note		General information
+
+Write a list of dependent libraries to stdout.
+EOF
+	exit 1
+}
+
+# Fault reporter.
+fn fail {|*|
+	throw error deplibs $*
+}
+
+# Parse args.
+debug = false
+libdirs =
+extfile =
+while {~ $*(1) -*} {
+	~ $*(1) -d && {debug = true; * = $*(2 ...)}
+	~ $*(1) -l && {
+		access -d -- $*(2) || fail $*(2) not directory
+		libdirs = $libdirs $*(2)
+		* = $*(3 ...)
+	}
+}
+~ $#* 1 || usage
+extfile = $*
+access -f -- $extfile || fail $extfile not a file
+
+# Note to stderr for debug.
+fn trace {|*|
+	$debug && echo $* >[1=2]
+}
+
+# List externs provided by application and third-party libraries.
+# Note: The -l option is only effective when scanning objects
+#       created by a debug build.
+trace S $libdirs
+donors = `mktemp
+find $libdirs -name \*.a -print0 |xargs -0 nm --defined-only -glAC >$donors
+
+# Initialize housekeeping.
+open = $extfile
+closed =
+
+# Gather.
+iter = 1
+depth =
+while {!~ $open ()} {
+	trace I $iter
+	(f open) = $open
+	trace F $f
+	libi = `` \n {grep -f <{
+		# List externs that must be satisfied
+		# by non-system libraries.
+		 nm -uC $f |tail -n+3 |grep -v -e '^ \+U \(typeinfo' \
+				^'\|VTT\|vtable\|operator\|std::\+\)' \
+			|grep -v -e '^ \+[wU] [^:]\+$' |awk '{print $2}'
+		} $donors |cut -d: -f1|sort|uniq}
+	closed = $f $closed
+	new = false
+	for l $libi {
+		if {!~ $l $closed && !~ $l $open} {
+			open = $l $open
+			trace L $l
+			new = true
+		}
+	}
+	$new && depth = $iter
+	$new || trace X no new dependents
+	iter = `($iter+1)
+}
+
+# Report.
+trace X depth $depth
+for c $closed {echo $c} |sort

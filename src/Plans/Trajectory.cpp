@@ -129,8 +129,6 @@ double CTrajectory::dMinimumDistanceDubins(CTrajectoryParameters& cTrajectoryPar
     double dDistanceTotalMinimum_m = std::numeric_limits<double>::max();    // defaults to error
     CAssignment assignMinimum;
 
-    double dDistanceFinalLeg_m(0.0);
-
     CTrajectoryParametersEnd cParametersEndFinal = *vParametersEnd.begin();    //need to keep track of which final parameters were used in the minimum assignment
 
     // find minimum distance path to all possible endpoint/headings/standoffs
@@ -169,11 +167,21 @@ double CTrajectory::dMinimumDistanceDubins(CTrajectoryParameters& cTrajectoryPar
                 dMinimumDistanceMAVWind(assignTemp,cTrajectoryParameters,*itParametersEnd,*itHeadingParameters);
                 break;
             }
+           
+            double distanceStartToFirst_m{0.0};;
+            if(assignTemp.vwayGetWaypoints().size() > 0)
+            {
+                distanceStartToFirst_m = cTrajectoryParameters.bobjGetStart().relativeDistance2D_m(assignTemp.vwayGetWaypoints().front());
+            }
+
             
             double dDistanceFinalLeg_m = itHeadingParameters->dGetStandoff_m() - itHeadingParameters->dGetFreeToTurn_m();
             dDistanceFinalLeg_m = (dDistanceFinalLeg_m>0)?(dDistanceFinalLeg_m):(0.0);
+            
+            double distancePathTotal_m = distanceStartToFirst_m + assignTemp.dGetDistanceTotal() + dDistanceFinalLeg_m;
+            
             // check to see if this is the current minimum distance path
-            if(n_Const::c_Convert::bCompareDouble((assignTemp.dGetDistanceTotal() + dDistanceFinalLeg_m),dDistanceTotalMinimum_m,n_Const::c_Convert::enLess))
+            if(n_Const::c_Convert::bCompareDouble(distancePathTotal_m,dDistanceTotalMinimum_m,n_Const::c_Convert::enLess))
             {
                 if (assignTemp.vwayGetWaypoints().size()>=1)
                 {
@@ -193,7 +201,7 @@ double CTrajectory::dMinimumDistanceDubins(CTrajectoryParameters& cTrajectoryPar
                                                             dDistanceFinalLeg_m,
                                                             std::numeric_limits<double>::max(),std::numeric_limits<double>::max(),std::numeric_limits<double>::max(),CCircle::turnNone,
                                                             CWaypoint::waytypeEnroute,0,false,CWaypoint::sstateFrontCamera));
-                    }        //if(itHeadingParameters->dGetFreeToTurn_m() > 0.0)
+                    }        //if(tHeadingParameters->dGetFreeToTurn_m() > 0.0)
 
                     //calculate final segment time
                     if (assignTemp.vwayGetWaypoints().size()>=2)
@@ -210,7 +218,7 @@ double CTrajectory::dMinimumDistanceDubins(CTrajectoryParameters& cTrajectoryPar
 
                     assignTemp.SetHeadingFinal(dHeadingFrom_rad);
                     assignMinimum = assignTemp;
-                    dDistanceTotalMinimum_m = assignTemp.dGetDistanceTotal() + dDistanceFinalLeg_m;
+                    dDistanceTotalMinimum_m = distancePathTotal_m;
                     cParametersEndFinal = *itParametersEnd;
                     cParametersEndFinal.vGetHeadingParameters().clear();
                     cParametersEndFinal.vGetHeadingParameters().push_back(*itHeadingParameters);
@@ -868,7 +876,6 @@ std::vector<std::vector<double>> CTrajectory::FindPathBetweenTurns(std::vector<s
     std::vector<std::vector<double>> Z;
     std::vector<double> Zelem;
     bool found=false; //flag if the path has been found
-    bool found2=false;
     bool cond1,cond2;
     int N=Turn1.size();
     double Step[2]; //connection step
@@ -1155,8 +1162,6 @@ size_t CTrajectory::szMinimumDistanceCircle(CPosition posBegin,CPosition posEnd,
     double dAngleTol = 0.005;    //% If tangent point within angular tolerance to given point, use given point instead
     double dPositionTol = 0.01;    //% if turn circles centers are close together then consider them the same
 
-    double dMinDistance = std::numeric_limits<double>::max();    //%defaults to error condition
-
     double dTheta_rad;
     double dDistCircleCenters = n_Const::c_Convert::iRound(circleSecond.relativeDistanceAngle2D_m(circleFirst,dTheta_rad));
     
@@ -1177,10 +1182,8 @@ size_t CTrajectory::szMinimumDistanceCircle(CPosition posBegin,CPosition posEnd,
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //% find out if this should be a direct tangent or a transverse tanget
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    bool bOnlyDirectTangents = false;
     if(dDistCircleCenters < n_Const::c_Convert::iRound(circleFirst.dGetRadius() + circleSecond.dGetRadius()))
     {
-       bOnlyDirectTangents = true;    //%only direct tangents are possible
        if((circleFirst.turnGetTurnDirection() != circleSecond.turnGetTurnDirection())||
             ((circleFirst.turnGetTurnDirection() == CCircle::turnNone) || (circleSecond.turnGetTurnDirection() == CCircle::turnNone))
             )
@@ -1336,8 +1339,6 @@ size_t CTrajectory::szMinimumDistanceCircle(CPosition posBegin,CPosition posEnd,
     }    //if (circleSecond.turnGetTurnDirection() == CCircle::turnCounterclockwise)
     dDistance3 = dAngle02*dTurnRadius_m;
 
-    dMinDistance = dDistance1 + dDistance2 + dDistance3; 
-
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%% transform waypoints back to original coordinate frame
@@ -1447,7 +1448,6 @@ size_t CTrajectory::szMinimumDistanceTurnTurnTurn(CPosition posBegin,CPosition p
 
 
     //%  Probably ought to set these tolerances in the global defaults m-file
-    double dAngleTol = 0.005;    //% If tangent point within angular tolerance to given point, use given point instead
     double dPositionTol = 0.01;    //% if turn circles centers are close together then consider them the same
 
     double dTheta_rad = 0.0;

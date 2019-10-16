@@ -66,8 +66,6 @@ CmasiAreaSearchTaskService::configureTask(const pugi::xml_node& ndComponent)
 
 {
     std::string strBasePath = m_workDirectoryPath;
-    uint32_t ui32EntityID = m_entityId;
-    uint32_t ui32LmcpMessageSize_max = 100000;
     std::stringstream sstrErrors;
 
     bool isSuccessful(true);
@@ -198,14 +196,12 @@ CmasiAreaSearchTaskService::processReceivedLmcpMessageTask(std::shared_ptr<avtas
 
 void CmasiAreaSearchTaskService::buildTaskPlanOptions()
 {
-    bool isSuccessful{true};
-
     // construct a task option for each vehicle, for each wedge elevation, and each wedge azimuth
     // note:: use only one vehicle per option
     double wedgeAzimuthIncrement(n_Const::c_Convert::dPiO8());
     double wedgeElevationIncrement(n_Const::c_Convert::dPiO8());
 
-    int64_t optionId = 1;
+    int64_t optionId = TaskOptionClass::m_firstOptionId;
 
     std::string compositionString("+(");
 
@@ -411,12 +407,11 @@ bool CmasiAreaSearchTaskService::isCalculateRasterScanRoute(std::shared_ptr<Task
                                                        (*itpPoint)->getLongitude() * n_Const::c_Convert::dDegreesToRadians(),
                                                        taskOptionClass->m_altitude_m, 0.0);
             searchAreaBoundary.push_back(boundaryPosition);
-
             if (boundaryPosition.m_north_m > northMax_m)
             {
                 northMax_m = boundaryPosition.m_north_m;
             }
-            else if (boundaryPosition.m_north_m < northMin_m)
+            if (boundaryPosition.m_north_m < northMin_m)
             {
                 northMin_m = boundaryPosition.m_north_m;
             }
@@ -424,11 +419,11 @@ bool CmasiAreaSearchTaskService::isCalculateRasterScanRoute(std::shared_ptr<Task
             {
                 eastMax_m = boundaryPosition.m_east_m;
             }
-            else if (boundaryPosition.m_east_m < eastMin_m)
+            if (boundaryPosition.m_east_m < eastMin_m)
             {
                 eastMin_m = boundaryPosition.m_east_m;
             }
-        } //for(std::vector<afrl::cmasi::Location2D*> itpPoint=szCountPoints<m_areaSearchTask->getSe
+        }
         double centerNorth_m = (northMax_m - northMin_m) / 2.0;
         double centerEast_m = (eastMax_m - eastMin_m) / 2.0;
         centerPosition.reset(new n_FrameworkLib::CPosition(centerNorth_m, centerEast_m, taskOptionClass->m_altitude_m));
@@ -486,7 +481,7 @@ bool CmasiAreaSearchTaskService::isCalculateRasterScanRoute(std::shared_ptr<Task
             {
                 northMax_m = itPoint->m_north_m;
             }
-            else if (itPoint->m_north_m < northMin_m)
+            if (itPoint->m_north_m < northMin_m)
             {
                 northMin_m = itPoint->m_north_m;
             }
@@ -494,7 +489,7 @@ bool CmasiAreaSearchTaskService::isCalculateRasterScanRoute(std::shared_ptr<Task
             {
                 eastMax_m = itPoint->m_east_m;
             }
-            else if (itPoint->m_east_m < eastMin_m)
+            if (itPoint->m_east_m < eastMin_m)
             {
                 eastMin_m = itPoint->m_east_m;
             }
@@ -651,8 +646,8 @@ void CmasiAreaSearchTaskService::activeEntityState(const std::shared_ptr<afrl::c
     // find the gimbal payload id to use to point the camera 
     //ASSUME: use first gimbal
     int64_t gimbalPayloadId = 0;
-    auto itEntityConfiguration = m_idVsEntityConfiguration.find(entityState->getID());
-    if (itEntityConfiguration != m_idVsEntityConfiguration.end())
+    auto itEntityConfiguration = m_entityConfigurations.find(entityState->getID());
+    if (itEntityConfiguration != m_entityConfigurations.end())
     {
         for (auto& payload : itEntityConfiguration->second->getPayloadConfigurationList())
         {

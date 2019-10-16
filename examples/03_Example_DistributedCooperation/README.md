@@ -26,9 +26,41 @@ This is an example of running UxAS services that communicate with each other to 
 
 
 ## Running the Example:
-1. open a ternimal window in the directory: "examples/03_Example_DistributedCooperation/"
-2. enter the command: `./runUxAS_DistributedCooperation.sh`
+1. open a terminal window in the directory: "examples/03_Example_DistributedCooperation/"
+2. prepare the networking: `./configure-ip4-link.sh`
+3. enter the command: `./runUxAS_DistributedCooperation.sh`
+4. watch the simulation: `./runAMASE_DistributedCooperation.sh`
 
+The map data is not preloaded, and doesn't seem to be fetched by AMASE during simulation. To preload the map data for this example:
+
+```bash
+mkdir NASA_Worldwind
+cd NASA_Worldwind
+wget https://github.com/NASAWorldWind/WorldWindJava/releases/download/v2.1.0/worldwind-v2.1.0.zip
+unzip worldwind-v2.1.0.zip
+bash ./run-demo.bash
+```
+
+Now navigate to latitude and longitude `-22.7, 150.6` (good luck...), zoom the map until the distance bar shows about the same scale as the AMASE map (again, good luck...) and wait for the image tiles to download.
+
+You'll probably need to pan and zoom the AMASE map. To pan, hold button 3 and drag the map. To zoom, position the pointer over the map and use the mouse wheel or buttons 4 and 5.
+
+AMASE needs to find the cached maps. Worldwind uses `~/var/cache` by default. Edit `OpenAMASE/config/amase/Plugins.xml` to add the following nodes as children of `Plugin/Map/Layers`, replacing `HOME` with the absolute path to your home directory:
+
+```xml
+              <Layer Class="avtas.map.layers.WorldWindLayer" >
+                  <CacheDirectory>HOME/var/cache/WorldWindData/Earth/EarthElevations2</CacheDirectory>
+              </Layer>
+              <Layer Class="avtas.map.layers.WorldWindLayer" >
+                  <CacheDirectory>HOME/var/cache/WorldWindData/Earth/BMNGWMS2/BMNG(Shaded + Bathymetry) Tiled - Version 1.1 - 5.2004</CacheDirectory>
+              </Layer>
+              <Layer Class="avtas.map.layers.WorldWindLayer" >
+                  <CacheDirectory>HOME/var/cache/WorldWindData/Earth/NASA LandSat I3 WMS 2</CacheDirectory>
+              </Layer>
+              <Layer Class="avtas.map.layers.WorldWindLayer" >
+                  <CacheDirectory>HOME/var/cache/WorldWindData/Earth/Bing</CacheDirectory>
+              </Layer>
+```
 
 ### What Happens?
 * Two console windows will open, each will have UxAS running.
