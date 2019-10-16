@@ -127,7 +127,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo -H pip3 install pandas
 
     # Install Java
-    sudo apt -y install openjdk-11-jdk
+    sudo apt -y install default-jre 
     # Install ant for command line build of java programs
     sudo apt -y install ant
 
@@ -154,7 +154,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo dnf -y install pkgconf git gitk ed mesa-libGLU-devel uuid-devel \
         boost-devel python3-pip python3-tkinter ant xterm redhat-rpm-config \
         gcc-c++ python3-devel ninja-build python3-matplotlib python3-pandas \
-        java-1.8.0-openjdk-devel minizip-devel
+        java-1.8.0-openjdk-devel 
 
     # Extend paths for pip --user option
     source ./path.sh
